@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using QRSCAN.Models;
+using System.Diagnostics;
 
 namespace QRSCAN.Controllers
 {
@@ -15,6 +15,16 @@ namespace QRSCAN.Controllers
 
         public IActionResult Index()
         {
+            var maKH = HttpContext.Session.GetInt32("MaKH");
+
+            if (maKH == null)
+            {
+                return RedirectToAction("Register", "Account");
+            }
+
+            ViewBag.HoTenKH = HttpContext.Session.GetString("HoTenKH");
+            ViewBag.MaBan = HttpContext.Session.GetInt32("MaBan");
+
             return View();
         }
 

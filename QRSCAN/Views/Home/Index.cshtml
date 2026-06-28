@@ -1,8 +1,275 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ gọi món";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<div class="japan-home">
+
+    <nav class="japan-navbar">
+        <div class="brand-box">
+            <div class="brand-mark">ら</div>
+            <div>
+                <h2>KIMURA RAMEN</h2>
+                <span>Japanese Ramen House</span>
+            </div>
+        </div>
+
+        <div class="nav-menu">
+            <a href="#about">About Us</a>
+            <a href="#menu">Menu</a>
+            <a href="#news">News</a>
+            <a href="#location">Location</a>
+        </div>
+
+        <div class="nav-right">
+            <div class="table-pill">
+                @if (ViewBag.MaBan != null)
+                {
+                    <span>Bàn @ViewBag.MaBan</span>
+                }
+                else
+                {
+                    <span>Chưa có bàn</span>
+                }
+            </div>
+
+            <div class="user-dropdown">
+                <div class="user-icon-btn">
+                    👤
+                </div>
+
+                <div class="user-dropdown-menu">
+                    <div class="user-info">
+                        <span>Tài khoản</span>
+                        <strong>@ViewBag.HoTenKH</strong>
+                    </div>
+
+                    <a href="#">Hồ sơ</a>
+                    <a href="#">Giỏ hàng</a>
+                    <a asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-ramen">
+        <div class="hero-overlay"></div>
+
+        <div class="hero-center-content">
+            <p class="hero-small">AUTHENTIC JAPANESE RAMEN</p>
+
+            <h1>
+                MORE FUN,<br />
+                MORE RAMEN
+            </h1>
+
+            <p class="hero-subtitle">
+                Conveying the richness and joy of Japanese dining
+            </p>
+
+            <p class="hero-welcome">
+                Xin chào <strong>@ViewBag.HoTenKH</strong>, chọn món ramen yêu thích và gọi món ngay tại bàn.
+            </p>
+
+            @if (ViewBag.MaBan != null)
+            {
+                <div class="status-box success">
+                    Bạn đang gọi món tại <strong>Bàn @ViewBag.MaBan</strong>
+                </div>
+            }
+            else
+            {
+                <div class="status-box warning">
+                    Chưa xác định bàn. Vui lòng quét mã QR tại bàn.
+                </div>
+            }
+
+          
+        </div>
+    </section>
+
+    <section class="menu-section" id="menu">
+        <div class="section-title">
+            <p>RAMEN MENU</p>
+            <h2>Món ramen được yêu thích</h2>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-card hot">
+                <img src="~/images/tonkotsu-cay.jpg" alt="Ramen Tonkotsu Cay" />
+                <div class="menu-content">
+                    <span class="tag">Recommended</span>
+                    <h3>Ramen Tonkotsu Cay</h3>
+                    <p>Nước dùng tonkotsu béo thơm, vị cay đậm đà, dùng kèm trứng và thịt chashu.</p>
+                    <div class="menu-bottom">
+                        <strong>79.000đ</strong>
+                        <button type="button">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card">
+                <img src="~/images/tonkotsu.jpg" alt="Ramen Tonkotsu" />
+                <div class="menu-content">
+                    <span class="tag">Classic</span>
+                    <h3>Ramen Tonkotsu</h3>
+                    <p>Ramen nước dùng xương heo kiểu Nhật, vị béo nhẹ, phù hợp cho người thích vị truyền thống.</p>
+                    <div class="menu-bottom">
+                        <strong>79.000đ</strong>
+                        <button type="button">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card">
+                <img src="~/images/tonkotsu-chashu.jpg" alt="Ramen Tonkotsu Chashu" />
+                <div class="menu-content">
+                    <span class="tag">Chashu</span>
+                    <h3>Ramen Tonkotsu Chashu</h3>
+                    <p>Tonkotsu ramen ăn kèm nhiều thịt chashu, phù hợp cho khách muốn phần ăn đậm đà hơn.</p>
+                    <div class="menu-bottom">
+                        <strong>99.000đ</strong>
+                        <button type="button">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card">
+                <img src="~/images/ga-cay.jpg" alt="Ramen Gà Cay" />
+                <div class="menu-content">
+                    <span class="tag">Best Seller</span>
+                    <h3>Ramen Gà Cay</h3>
+                    <p>Ramen gà vị cay, nước dùng thanh hơn tonkotsu nhưng vẫn đậm hương vị Nhật.</p>
+                    <div class="menu-bottom">
+                        <strong>79.000đ</strong>
+                        <button type="button">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card">
+                <img src="~/images/ga-shio.jpg" alt="Ramen Gà Shio" />
+                <div class="menu-content">
+                    <span class="tag">Light Taste</span>
+                    <h3>Ramen Gà Shio</h3>
+                    <p>Ramen gà vị muối, nước dùng nhẹ, hợp với khách thích món thanh và dễ ăn.</p>
+                    <div class="menu-bottom">
+                        <strong>79.000đ</strong>
+                        <button type="button">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card">
+                <img src="~/images/ga-shoyu.jpg" alt="Ramen Gà Shoyu" />
+                <div class="menu-content">
+                    <span class="tag">Soy Sauce</span>
+                    <h3>Ramen Gà Shoyu</h3>
+                    <p>Ramen gà với nền vị shoyu, thơm mùi nước tương Nhật và hành lá.</p>
+                    <div class="menu-bottom">
+                        <strong>79.000đ</strong>
+                        <button type="button">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="drink-dessert-section">
+        <div class="section-title">
+            <p>DRINK & DESSERT</p>
+            <h2>Đồ uống và tráng miệng</h2>
+        </div>
+
+        <div class="small-menu-grid">
+            <div class="small-item">
+                <img src="~/images/tra-dao.jpg" alt="Trà đào" />
+                <div>
+                    <h3>Trà đào</h3>
+                    <span>38.000đ</span>
+                </div>
+            </div>
+
+            <div class="small-item">
+                <img src="~/images/soda-chanh.jpg" alt="Soda chanh" />
+                <div>
+                    <h3>Soda chanh</h3>
+                    <span>38.000đ</span>
+                </div>
+            </div>
+
+            <div class="small-item">
+                <img src="~/images/matcha-latte.jpg" alt="Matcha Latte" />
+                <div>
+                    <h3>Matcha Latte</h3>
+                    <span>45.000đ</span>
+                </div>
+            </div>
+
+            <div class="small-item">
+                <img src="~/images/kem-matcha.jpg" alt="Kem matcha" />
+                <div>
+                    <h3>Kem matcha</h3>
+                    <span>45.000đ</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="info-section" id="about">
+        <div class="section-title">
+            <p>ABOUT US</p>
+            <h2>Về KIMURA RAMEN</h2>
+        </div>
+
+        <p>
+            KIMURA RAMEN là mô hình quán ramen Nhật sử dụng hệ thống gọi món bằng mã QR.
+            Khách hàng có thể xem menu, chọn món, thêm vào giỏ hàng và theo dõi trạng thái món ngay tại bàn.
+        </p>
+    </section>
+
+    <section class="info-section" id="news">
+        <div class="section-title">
+            <p>NEWS</p>
+            <h2>Tin tức mới</h2>
+        </div>
+
+        <p>
+            Cập nhật món mới, chương trình ưu đãi và các thông báo mới nhất từ KIMURA RAMEN.
+        </p>
+    </section>
+
+    <section class="info-section" id="location">
+        <div class="section-title">
+            <p>LOCATION</p>
+            <h2>Địa chỉ cửa hàng</h2>
+        </div>
+
+        <p>
+            Chi nhánh demo: 123 Nguyễn Văn Cừ, Quận 5, TP. Hồ Chí Minh.
+        </p>
+    </section>
+
+    <footer class="japan-footer">
+        <div>
+            <h3>KIMURA RAMEN</h3>
+            <p>Hệ thống gọi món bằng mã QR cho quán ramen Nhật.</p>
+        </div>
+
+        <div>
+            <h4>Chức năng</h4>
+            <p>Menu</p>
+            <p>Giỏ hàng</p>
+            <p>Trạng thái món</p>
+        </div>
+
+        <div>
+            <h4>Thông tin</h4>
+            <p>Giá chỉ dùng cho demo môn học.</p>
+            <p>Một số món có thể thay đổi tùy cửa hàng.</p>
+        </div>
+    </footer>
 </div>

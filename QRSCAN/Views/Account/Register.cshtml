@@ -1,0 +1,79 @@
+﻿@model QRSCAN.Models.Entities.KhachHang
+
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
+}
+
+<div class="account-page">
+    <div class="account-left">
+        <div class="account-brand">
+            <div class="account-brand-mark">ら</div>
+            <div>
+                <h1>KIMURA RAMEN</h1>
+                <span>Japanese Ramen House</span>
+            </div>
+        </div>
+
+        <div class="account-hero-text">
+            <p>WELCOME TO KIMURA RAMEN</p>
+            <h2>Join us,<br />enjoy ramen</h2>
+            <span>
+                Đăng ký tài khoản để gọi món nhanh, xem giỏ hàng và theo dõi trạng thái món ngay tại bàn.
+            </span>
+        </div>
+    </div>
+
+    <div class="account-right">
+        <div class="account-card">
+            <a class="back-home" href="javascript:history.back()">← Quay lại</a>
+
+            <div class="account-card-header">
+                <div class="mini-logo">ら</div>
+                <h2>Đăng ký</h2>
+                <p>Tạo tài khoản khách hàng để bắt đầu gọi món</p>
+            </div>
+
+            <form asp-controller="Account" asp-action="Register" method="post">
+                <div class="form-group">
+                    <label>Họ tên</label>
+                    <input asp-for="HoTen" class="form-control" placeholder="Nhập họ tên" />
+                    <span asp-validation-for="HoTen" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input asp-for="SDT" class="form-control" placeholder="Nhập số điện thoại" />
+                    <span asp-validation-for="SDT" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="Nhập email" />
+                </div>
+
+                <div class="form-group">
+                    <label>Tên đăng nhập</label>
+                    <input asp-for="TenDangNhap" class="form-control" placeholder="Tạo tên đăng nhập" />
+                    <span asp-validation-for="TenDangNhap" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input asp-for="MatKhau" type="password" class="form-control" placeholder="Tạo mật khẩu" />
+                    <span asp-validation-for="MatKhau" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn-account">Đăng ký</button>
+
+                <p class="account-link">
+                    Đã có tài khoản?
+                    <a asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>

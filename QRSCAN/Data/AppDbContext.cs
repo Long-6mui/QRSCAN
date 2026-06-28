@@ -12,6 +12,8 @@ namespace QRSCAN.Data
         public DbSet<BanAn> BanAns { get; set; }
         public DbSet<PhienGoiMon> PhienGoiMons { get; set; }
 
+        public DbSet<KhachHang> KhachHangs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -26,6 +28,10 @@ namespace QRSCAN.Data
                 .HasOne(x => x.BanAn)
                 .WithMany(x => x.PhienGoiMons)
                 .HasForeignKey(x => x.MaBan);
+            modelBuilder.Entity<KhachHang>().HasKey(x => x.MaKH);
+
+            modelBuilder.Entity<KhachHang>().ToTable("KhachHang");
+
         }
     }
 }

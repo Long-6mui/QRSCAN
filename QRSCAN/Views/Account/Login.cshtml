@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
+}
+
+<div class="account-page">
+    <div class="account-left">
+        <div class="account-brand">
+            <div class="account-brand-mark">ら</div>
+            <div>
+                <h1>KIMURA RAMEN</h1>
+                <span>Japanese Ramen House</span>
+            </div>
+        </div>
+
+        <div class="account-hero-text">
+            <p>WELCOME BACK</p>
+            <h2>More fun,<br />more ramen</h2>
+            <span>
+                Đăng nhập để tiếp tục gọi món, kiểm tra giỏ hàng và theo dõi trạng thái món tại bàn.
+            </span>
+        </div>
+    </div>
+
+    <div class="account-right">
+        <div class="account-card">
+            <a class="back-home" href="javascript:history.back()">← Quay lại</a>
+
+            <div class="account-card-header">
+                <div class="mini-logo">ら</div>
+                <h2>Đăng nhập</h2>
+                <p>Tiếp tục trải nghiệm gọi món tại KIMURA RAMEN</p>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert-success">@TempData["Success"]</div>
+            }
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert-error">@ViewBag.Error</div>
+            }
+
+            <form asp-controller="Account" asp-action="Login" method="post">
+                <div class="form-group">
+                    <label>Tên đăng nhập</label>
+                    <input name="tenDangNhap" class="form-control" placeholder="Nhập tên đăng nhập" />
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input name="matKhau" type="password" class="form-control" placeholder="Nhập mật khẩu" />
+                </div>
+
+                <button type="submit" class="btn-account">Đăng nhập</button>
+
+                <p class="account-link">
+                    Chưa có tài khoản?
+                    <a asp-controller="Account" asp-action="Register">Đăng ký</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
