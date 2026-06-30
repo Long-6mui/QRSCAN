@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<QRSCAN.Models.Entities.MonAn>
+
+@{
     ViewData["Title"] = "Trang chủ gọi món";
 }
 
@@ -7,6 +9,9 @@
 }
 
 <div class="japan-home">
+    <div id="cart-toast" class="cart-toast">
+        Đã thêm món vào giỏ hàng
+    </div>
 
     <nav class="japan-navbar">
         <div class="brand-box">
@@ -47,8 +52,10 @@
                         <strong>@ViewBag.HoTenKH</strong>
                     </div>
 
-                    <a href="#">Hồ sơ</a>
-                    <a href="#">Giỏ hàng</a>
+                    <a asp-controller="User" asp-action="Profile">Hồ sơ</a>
+                    <a asp-controller="User" asp-action="LichSuDonHang">Lịch sử mua hàng</a>
+                    <a asp-controller="User" asp-action="TrangThaiDonHang">Trạng thái đơn hàng</a>
+                    <a asp-controller="GioHang" asp-action="Index">Giỏ hàng</a>
                     <a asp-controller="Account" asp-action="Logout">Đăng xuất</a>
                 </div>
             </div>
@@ -86,8 +93,6 @@
                     Chưa xác định bàn. Vui lòng quét mã QR tại bàn.
                 </div>
             }
-
-          
         </div>
     </section>
 
@@ -98,83 +103,32 @@
         </div>
 
         <div class="menu-grid">
-            <div class="menu-card hot">
-                <img src="~/images/tonkotsu-cay.jpg" alt="Ramen Tonkotsu Cay" />
-                <div class="menu-content">
-                    <span class="tag">Recommended</span>
-                    <h3>Ramen Tonkotsu Cay</h3>
-                    <p>Nước dùng tonkotsu béo thơm, vị cay đậm đà, dùng kèm trứng và thịt chashu.</p>
-                    <div class="menu-bottom">
-                        <strong>79.000đ</strong>
-                        <button type="button">+</button>
-                    </div>
-                </div>
-            </div>
+            @foreach (var mon in Model.Where(m => m.MaDanhMuc == 1 || m.MaDanhMuc == 2))
+            {
+                <div class="menu-card">
+                    <img src="@mon.HinhAnh" alt="@mon.TenMon" />
 
-            <div class="menu-card">
-                <img src="~/images/tonkotsu.jpg" alt="Ramen Tonkotsu" />
-                <div class="menu-content">
-                    <span class="tag">Classic</span>
-                    <h3>Ramen Tonkotsu</h3>
-                    <p>Ramen nước dùng xương heo kiểu Nhật, vị béo nhẹ, phù hợp cho người thích vị truyền thống.</p>
-                    <div class="menu-bottom">
-                        <strong>79.000đ</strong>
-                        <button type="button">+</button>
-                    </div>
-                </div>
-            </div>
+                    <div class="menu-content">
+                        <span class="tag">
+                            @mon.DanhMucMon?.TenDanhMuc
+                        </span>
 
-            <div class="menu-card">
-                <img src="~/images/tonkotsu-chashu.jpg" alt="Ramen Tonkotsu Chashu" />
-                <div class="menu-content">
-                    <span class="tag">Chashu</span>
-                    <h3>Ramen Tonkotsu Chashu</h3>
-                    <p>Tonkotsu ramen ăn kèm nhiều thịt chashu, phù hợp cho khách muốn phần ăn đậm đà hơn.</p>
-                    <div class="menu-bottom">
-                        <strong>99.000đ</strong>
-                        <button type="button">+</button>
-                    </div>
-                </div>
-            </div>
+                        <h3>@mon.TenMon</h3>
 
-            <div class="menu-card">
-                <img src="~/images/ga-cay.jpg" alt="Ramen Gà Cay" />
-                <div class="menu-content">
-                    <span class="tag">Best Seller</span>
-                    <h3>Ramen Gà Cay</h3>
-                    <p>Ramen gà vị cay, nước dùng thanh hơn tonkotsu nhưng vẫn đậm hương vị Nhật.</p>
-                    <div class="menu-bottom">
-                        <strong>79.000đ</strong>
-                        <button type="button">+</button>
-                    </div>
-                </div>
-            </div>
+                        <p>@mon.MoTa</p>
 
-            <div class="menu-card">
-                <img src="~/images/ga-shio.jpg" alt="Ramen Gà Shio" />
-                <div class="menu-content">
-                    <span class="tag">Light Taste</span>
-                    <h3>Ramen Gà Shio</h3>
-                    <p>Ramen gà vị muối, nước dùng nhẹ, hợp với khách thích món thanh và dễ ăn.</p>
-                    <div class="menu-bottom">
-                        <strong>79.000đ</strong>
-                        <button type="button">+</button>
-                    </div>
-                </div>
-            </div>
+                        <div class="menu-bottom">
+                            <strong>@mon.DonGia.ToString("N0")đ</strong>
 
-            <div class="menu-card">
-                <img src="~/images/ga-shoyu.jpg" alt="Ramen Gà Shoyu" />
-                <div class="menu-content">
-                    <span class="tag">Soy Sauce</span>
-                    <h3>Ramen Gà Shoyu</h3>
-                    <p>Ramen gà với nền vị shoyu, thơm mùi nước tương Nhật và hành lá.</p>
-                    <div class="menu-bottom">
-                        <strong>79.000đ</strong>
-                        <button type="button">+</button>
+                            <button type="button"
+                                    class="add-cart-btn"
+                                    data-ma-mon="@mon.MaMon">
+                                +
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
     </section>
 
@@ -185,37 +139,23 @@
         </div>
 
         <div class="small-menu-grid">
-            <div class="small-item">
-                <img src="~/images/tra-dao.jpg" alt="Trà đào" />
-                <div>
-                    <h3>Trà đào</h3>
-                    <span>38.000đ</span>
-                </div>
-            </div>
+            @foreach (var mon in Model.Where(m => m.MaDanhMuc == 4 || m.MaDanhMuc == 5))
+            {
+                <div class="small-item">
+                    <img src="@mon.HinhAnh" alt="@mon.TenMon" />
 
-            <div class="small-item">
-                <img src="~/images/soda-chanh.jpg" alt="Soda chanh" />
-                <div>
-                    <h3>Soda chanh</h3>
-                    <span>38.000đ</span>
-                </div>
-            </div>
+                    <div class="small-item-info">
+                        <h3>@mon.TenMon</h3>
+                        <span>@mon.DonGia.ToString("N0")đ</span>
+                    </div>
 
-            <div class="small-item">
-                <img src="~/images/matcha-latte.jpg" alt="Matcha Latte" />
-                <div>
-                    <h3>Matcha Latte</h3>
-                    <span>45.000đ</span>
+                    <button type="button"
+                            class="add-cart-btn small-add-btn"
+                            data-ma-mon="@mon.MaMon">
+                        +
+                    </button>
                 </div>
-            </div>
-
-            <div class="small-item">
-                <img src="~/images/kem-matcha.jpg" alt="Kem matcha" />
-                <div>
-                    <h3>Kem matcha</h3>
-                    <span>45.000đ</span>
-                </div>
-            </div>
+            }
         </div>
     </section>
 
@@ -273,3 +213,68 @@
         </div>
     </footer>
 </div>
+
+@section Scripts {
+    <script>
+        const addCartUrl = '@Url.Action("ThemVaoGio", "GioHang")';
+
+        function showCartToast(message) {
+            const toast = document.getElementById("cart-toast");
+
+            if (!toast) {
+                return;
+            }
+
+            toast.innerText = message || "Đã thêm món vào giỏ hàng";
+            toast.classList.add("show");
+
+            setTimeout(function () {
+                toast.classList.remove("show");
+            }, 1800);
+        }
+
+        document.querySelectorAll(".add-cart-btn").forEach(function (button) {
+            button.addEventListener("click", async function () {
+                const maMon = button.getAttribute("data-ma-mon");
+
+                button.disabled = true;
+                button.innerText = "✓";
+
+                try {
+                    const formData = new FormData();
+                    formData.append("maMon", maMon);
+
+                    const response = await fetch(addCartUrl, {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    });
+
+                    const contentType = response.headers.get("content-type");
+
+                    if (!contentType || !contentType.includes("application/json")) {
+                        throw new Error("Server không trả JSON");
+                    }
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showCartToast(result.message);
+                    } else {
+                        showCartToast(result.message || "Không thêm được món vào giỏ hàng.");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    showCartToast("Không thêm được món vào giỏ hàng.");
+                }
+
+                setTimeout(function () {
+                    button.disabled = false;
+                    button.innerText = "+";
+                }, 500);
+            });
+        });
+    </script>
+}

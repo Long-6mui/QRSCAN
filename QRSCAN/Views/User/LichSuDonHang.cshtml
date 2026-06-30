@@ -1,0 +1,92 @@
+﻿@model List<QRSCAN.Models.Entities.DonHang>
+
+@{
+    ViewData["Title"] = "Lịch sử mua hàng";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/user.css" asp-append-version="true" />
+}
+
+<div class="user-page">
+    <div class="user-header">
+        <div>
+            <p>KIMURA RAMEN</p>
+            <h1>Lịch sử mua hàng</h1>
+            <span>Danh sách các đơn hàng bạn đã đặt</span>
+        </div>
+
+        <a asp-controller="User" asp-action="Profile" class="user-back-btn">← Hồ sơ</a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="empty-user-box">
+            <h2>Chưa có đơn hàng nào</h2>
+            <p>Bạn chưa gửi đơn gọi món nào tại KIMURA RAMEN.</p>
+            <a asp-controller="Home" asp-action="Index">Xem menu</a>
+        </div>
+    }
+    else
+    {
+        <div class="order-history-list">
+            @foreach (var don in Model)
+            {
+                <div class="order-history-card">
+                    <div>
+                        <p>Mã đơn</p>
+                        <h3>#@don.MaDonHang</h3>
+                    </div>
+
+                    <div>
+                        <p>Bàn</p>
+                        <strong>Bàn @don.MaBan</strong>
+                    </div>
+
+                    <div>
+                        <p>Thời gian</p>
+                        <strong>@don.ThoiGianDat.ToString("dd/MM/yyyy HH:mm")</strong>
+                    </div>
+
+                    <div>
+                        <p>Tổng tiền</p>
+                        <strong class="price">@don.TongTien.ToString("N0")đ</strong>
+                    </div>
+
+                    <div>
+                        <p>Trạng thái</p>
+                        <span class="status-pill">
+                            @if (don.TrangThai == "ChoXacNhan")
+                            {
+                                <text>Chờ xác nhận</text>
+                            }
+                            else if (don.TrangThai == "DangCheBien")
+                            {
+                                <text>Đang chế biến</text>
+                            }
+                            else if (don.TrangThai == "DaPhucVu")
+                            {
+                                <text>Đã phục vụ</text>
+                            }
+                            else if (don.TrangThai == "HoanThanh")
+                            {
+                                <text>Hoàn thành</text>
+                            }
+                            else
+                            {
+                                @don.TrangThai
+                            }
+                        </span>
+                    </div>
+
+                    <a asp-controller="User"
+                       asp-action="ChiTietDonHang"
+                       asp-route-maDonHang="@don.MaDonHang"
+                       class="detail-btn">
+                        Xem chi tiết
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</div>

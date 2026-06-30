@@ -1,0 +1,188 @@
+﻿@{
+    ViewData["Title"] = "Trang nhân viên";
+    int maVT = ViewBag.MaVT ?? 0;
+    string tenVaiTro = ViewBag.TenVaiTro ?? "";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/staff.css" asp-append-version="true" />
+}
+
+<div class="staff-page">
+    <nav class="staff-navbar">
+        <div>
+            <p>KIMURA RAMEN</p>
+            <h2>Khu vực nhân sự</h2>
+        </div>
+
+        <a asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+    </nav>
+
+    <section class="staff-hero">
+        <div>
+            <p class="staff-role">@tenVaiTro</p>
+            <h1>Xin chào, @ViewBag.HoTenNV</h1>
+
+            @if (maVT == 1)
+            {
+                <span>Giao diện dành cho nhân viên phục vụ và hỗ trợ khách hàng.</span>
+            }
+            else if (maVT == 2)
+            {
+                <span>Giao diện dành cho bộ phận bếp xử lý đơn gọi món.</span>
+            }
+            else if (maVT == 3)
+            {
+                <span>Giao diện dành cho quản trị viên hệ thống.</span>
+            }
+            else
+            {
+                <span>Giao diện nhân sự.</span>
+            }
+        </div>
+
+        <div class="staff-badge">
+            @if (maVT == 1)
+            {
+                <span>NV</span>
+            }
+            else if (maVT == 2)
+            {
+                <span>BẾP</span>
+            }
+            else if (maVT == 3)
+            {
+                <span>AD</span>
+            }
+            else
+            {
+                <span>?</span>
+            }
+        </div>
+    </section>
+
+    @if (maVT == 1)
+    {
+        <section class="staff-section">
+            <div class="section-title">
+                <p>NHÂN VIÊN</p>
+                <h2>Chức năng dành cho nhân viên</h2>
+            </div>
+
+            <div class="staff-grid">
+                <div class="staff-card">
+                    <div>🕒</div>
+                    <h3>Chấm công</h3>
+                    <p>Ghi nhận thời gian bắt đầu và kết thúc ca làm.</p>
+                    <button>Đang phát triển</button>
+                </div>
+
+                <div class="staff-card">
+                    <div>🧾</div>
+                    <h3>Xem đơn hàng</h3>
+                    <p>Theo dõi các đơn khách đã gửi trong hệ thống.</p>
+                    <button>Đang phát triển</button>
+                </div>
+
+                <div class="staff-card">
+                    <div>🙋</div>
+                    <h3>Hỗ trợ khách</h3>
+                    <p>Tiếp nhận yêu cầu hỗ trợ từ khách tại bàn.</p>
+                    <button>Đang phát triển</button>
+                </div>
+
+                <div class="staff-card">
+                    <div>✅</div>
+                    <h3>Cập nhật phục vụ</h3>
+                    <p>Xác nhận món đã được mang đến bàn.</p>
+                    <button>Đang phát triển</button>
+                </div>
+            </div>
+        </section>
+    }
+    else if (maVT == 2)
+    {
+        <section class="staff-section">
+            <div class="section-title">
+                <p>BẾP</p>
+                <h2>Chức năng dành cho bếp</h2>
+            </div>
+
+            <div class="staff-grid">
+                <div class="staff-card">
+                    <div>🔥</div>
+                    <h3>Đơn chờ xác nhận</h3>
+                    <p>Xem các đơn mới khách vừa gửi lên hệ thống.</p>
+                    <button>Đang phát triển</button>
+                </div>
+
+                <div class="staff-card">
+                    <div>🍜</div>
+                    <h3>Đơn đang chế biến</h3>
+                    <p>Theo dõi các món đang được chuẩn bị trong bếp.</p>
+                    <button>Đang phát triển</button>
+                </div>
+
+                <div class="staff-card">
+                    <div>📦</div>
+                    <h3>Món đã hoàn thành</h3>
+                    <p>Đánh dấu món đã chế biến xong và chờ phục vụ.</p>
+                    <button>Đang phát triển</button>
+                </div>
+
+                <div class="staff-card">
+                    <div>📋</div>
+                    <h3>Lịch sử xử lý</h3>
+                    <p>Xem lại các đơn đã hoàn thành trong ca làm.</p>
+                    <button>Đang phát triển</button>
+                </div>
+            </div>
+        </section>
+    }
+    else if (maVT == 3)
+    {
+        <section class="staff-section">
+            <div class="section-title">
+                <p>ADMIN</p>
+                <h2>Chức năng dành cho quản trị viên</h2>
+            </div>
+
+            <div class="staff-grid">
+                <div class="staff-card">
+                    <div>🍱</div>
+                    <h3>Quản lý món ăn</h3>
+                    <p>Thêm, sửa, xóa món ăn và danh mục món.</p>
+                    <button>Đang phát triển</button>
+                </div>
+
+                <div class="staff-card">
+                    <div>🎟️</div>
+                    <h3>Quản lý voucher</h3>
+                    <p>Tạo và quản lý mã giảm giá cho khách hàng.</p>
+                    <button>Đang phát triển</button>
+                </div>
+
+                <div class="staff-card">
+                    <div>👥</div>
+                    <h3>Quản lý nhân viên</h3>
+                    <p>Quản lý tài khoản nhân viên, bếp và admin.</p>
+                    <button>Đang phát triển</button>
+                </div>
+
+                <div class="staff-card">
+                    <div>📊</div>
+                    <h3>Thống kê doanh thu</h3>
+                    <p>Xem doanh thu, số đơn và tình hình bán hàng.</p>
+                    <button>Đang phát triển</button>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <div class="staff-empty">
+            <h2>Không xác định vai trò</h2>
+            <p>Tài khoản này chưa được phân quyền hợp lệ.</p>
+        </div>
+    }
+</div>

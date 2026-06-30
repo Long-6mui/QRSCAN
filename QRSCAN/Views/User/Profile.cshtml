@@ -1,0 +1,66 @@
+﻿@model QRSCAN.Models.Entities.KhachHang
+
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/user.css" asp-append-version="true" />
+}
+
+<div class="user-page">
+    <div class="user-header">
+        <div>
+            <p>KIMURA RAMEN</p>
+            <h1>Hồ sơ cá nhân</h1>
+            <span>Thông tin tài khoản khách hàng</span>
+        </div>
+
+        <a asp-controller="Home" asp-action="Index" class="user-back-btn">← Về menu</a>
+    </div>
+
+    <div class="profile-card">
+        <div class="profile-avatar">
+            👤
+        </div>
+
+        <div class="profile-info">
+            <h2>@Model.HoTen</h2>
+            <p>Khách hàng của KIMURA RAMEN</p>
+        </div>
+
+        <div class="profile-grid">
+            <div class="profile-item">
+                <span>Mã khách hàng</span>
+                <strong>#@Model.MaKH</strong>
+            </div>
+
+            <div class="profile-item">
+                <span>Họ tên</span>
+                <strong>@Model.HoTen</strong>
+            </div>
+
+            <div class="profile-item">
+                <span>Email</span>
+                <strong>@Model.Email</strong>
+            </div>
+
+            <div class="profile-item">
+                <span>Số điện thoại</span>
+                <strong>@Model.SDT</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="user-action-grid">
+        <a asp-controller="User" asp-action="LichSuDonHang">
+            <strong>Lịch sử mua hàng</strong>
+            <span>Xem các đơn đã đặt</span>
+        </a>
+
+        <a asp-controller="User" asp-action="TrangThaiDonHang">
+            <strong>Trạng thái đơn hàng</strong>
+            <span>Theo dõi đơn gần nhất</span>
+        </a>
+    </div>
+</div>

@@ -1,0 +1,117 @@
+﻿@{
+    ViewData["Title"] = "Đặt hàng thành công";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/cart.css" asp-append-version="true" />
+}
+
+<div class="order-success-page">
+    <div class="order-success-wrapper">
+        <div class="order-success-main-card">
+            <div class="order-success-icon">
+                ✓
+            </div>
+
+            <p class="order-success-brand">KIMURA RAMEN</p>
+
+            <h1>Gửi đơn gọi món thành công!</h1>
+
+            <p class="order-success-desc">
+                Đơn của bạn đã được gửi đến nhà bếp. Vui lòng chờ nhân viên xác nhận.
+            </p>
+        </div>
+
+        <div class="order-success-status-card">
+            <div class="order-success-status-icon"></div>
+
+            <div>
+                <h2>Chờ xác nhận</h2>
+                <p>Nhà bếp đang chờ xác nhận đơn gọi món của bạn.</p>
+            </div>
+        </div>
+
+        <div class="order-success-info-card">
+            <h2>Thông tin đơn hàng</h2>
+
+            <div class="order-success-row">
+                <span>Mã đơn</span>
+                <strong>#@ViewBag.MaDonHang</strong>
+            </div>
+
+            <div class="order-success-row">
+                <span>Bàn</span>
+                <strong>Bàn @ViewBag.MaBan</strong>
+            </div>
+
+            <div class="order-success-row">
+                <span>Trạng thái</span>
+                <strong class="order-status-red">
+                    @if (ViewBag.TrangThai == "ChoXacNhan")
+                    {
+                        <text>Chờ xác nhận</text>
+                    }
+                    else if (ViewBag.TrangThai == "DangCheBien")
+                    {
+                        <text>Đang chế biến</text>
+                    }
+                    else if (ViewBag.TrangThai == "DaPhucVu")
+                    {
+                        <text>Đã phục vụ</text>
+                    }
+                    else if (ViewBag.TrangThai == "HoanThanh")
+                    {
+                        <text>Hoàn thành</text>
+                    }
+                    else
+                    {
+                        @ViewBag.TrangThai
+                    }
+                </strong>
+            </div>
+
+            <div class="order-success-row">
+                <span>Voucher</span>
+                <strong>
+                    @if (ViewBag.MaVoucherCode != null)
+                    {
+                        @ViewBag.MaVoucherCode
+                    }
+                    else
+                    {
+                        <text>Không có</text>
+                    }
+                </strong>
+            </div>
+        </div>
+
+        <div class="order-payment-card">
+            <h2>Chi tiết thanh toán</h2>
+
+            <div class="order-payment-row">
+                <span>Tạm tính</span>
+                <strong>@ViewBag.TongTien.ToString("N0")đ</strong>
+            </div>
+
+            <div class="order-payment-row">
+                <span>Giảm giá</span>
+                <strong class="discount-text">-@ViewBag.TienGiam.ToString("N0")đ</strong>
+            </div>
+
+            <div class="order-payment-row total">
+                <span>Thành tiền</span>
+                <strong>@ViewBag.TongThanhToan.ToString("N0")đ</strong>
+            </div>
+        </div>
+
+        <div class="order-success-actions">
+            <a asp-controller="Home" asp-action="Index" class="success-action-btn primary">
+                Tiếp tục gọi món
+            </a>
+
+            <a asp-controller="User" asp-action="TrangThaiDonHang" class="success-action-btn secondary">
+                Theo dõi trạng thái món
+            </a>
+        </div>
+    </div>
+</div>

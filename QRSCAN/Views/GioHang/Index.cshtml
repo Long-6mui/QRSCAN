@@ -1,0 +1,151 @@
+﻿@model List<QRSCAN.ViewModels.GioHangItemViewModel>
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/cart.css" asp-append-version="true" />
+}
+
+<div class="cart-page">
+    <div class="cart-header">
+        <div>
+            <p>KIMURA RAMEN</p>
+            <h1>Giỏ hàng của bạn</h1>
+
+            @if (ViewBag.MaBan != null)
+            {
+                <span>Bạn đang gọi món tại Bàn @ViewBag.MaBan</span>
+            }
+            else
+            {
+                <span>Chưa xác định bàn</span>
+            }
+        </div>
+
+        @if (Model.Count > 0)
+        {
+            <a asp-controller="Home" asp-action="Index" class="back-menu">← Tiếp tục chọn món</a>
+        }
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="cart-error">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="cart-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <div class="empty-cart">
+            <h2>Giỏ hàng đang trống</h2>
+            <p>Hãy quay lại menu và chọn món ramen yêu thích.</p>
+            <a asp-controller="Home" asp-action="Index">Xem menu</a>
+        </div>
+    }
+    else
+    {
+        <div class="cart-layout">
+            <div class="cart-list">
+                @foreach (var item in Model)
+                {
+                    <div class="cart-item">
+                        <img src="@item.HinhAnh" alt="@item.TenMon" />
+
+                        <div class="cart-info">
+                            <h3>@item.TenMon</h3>
+                            <p>@item.DonGia.ToString("N0")đ</p>
+                        </div>
+
+                        <div class="quantity-box">
+                            <form asp-controller="GioHang" asp-action="GiamSoLuong" method="post">
+                                <input type="hidden" name="maMon" value="@item.MaMon" />
+                                <button type="submit">-</button>
+                            </form>
+
+                            <span>@item.SoLuong</span>
+
+                            <form asp-controller="GioHang" asp-action="TangSoLuong" method="post">
+                                <input type="hidden" name="maMon" value="@item.MaMon" />
+                                <button type="submit">+</button>
+                            </form>
+                        </div>
+
+                        <strong class="item-total">@item.ThanhTien.ToString("N0")đ</strong>
+
+                        <form asp-controller="GioHang" asp-action="XoaMon" method="post">
+                            <input type="hidden" name="maMon" value="@item.MaMon" />
+                            <button type="submit" class="remove-btn">Xóa</button>
+                        </form>
+                    </div>
+                }
+            </div>
+
+            <div class="cart-summary">
+                <h2>Tóm tắt đơn</h2>
+
+                <div class="voucher-box">
+                    <form asp-controller="GioHang" asp-action="ApDungVoucher" method="post">
+                        <label>Mã voucher</label>
+
+                        <div class="voucher-input-row">
+                            <input type="text"
+                                   name="maCode"
+                                   placeholder="Nhập RAMEN10"
+                                   value="@ViewBag.MaVoucherCode" />
+
+                            <button type="submit">Áp dụng</button>
+                        </div>
+                    </form>
+
+                    @if (ViewBag.MaVoucherCode != null)
+                    {
+                        <div class="voucher-applied">
+                            <div>
+                                <span>Đã áp dụng</span>
+                                <strong>@ViewBag.MaVoucherCode</strong>
+                                <p>@ViewBag.TenVoucher</p>
+                            </div>
+
+                            <form asp-controller="GioHang" asp-action="HuyVoucher" method="post">
+                                <button type="submit">Hủy</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+
+                <div class="summary-row">
+                    <span>Tạm tính</span>
+                    <strong>@ViewBag.TongTien.ToString("N0")đ</strong>
+                </div>
+
+                <div class="summary-row discount-row">
+                    <span>Giảm giá</span>
+                    <strong>-@ViewBag.TienGiam.ToString("N0")đ</strong>
+                </div>
+
+                <div class="summary-row total-row">
+                    <span>Thanh toán</span>
+                    <strong>@ViewBag.TongThanhToan.ToString("N0")đ</strong>
+                </div>
+
+                <form asp-controller="GioHang" asp-action="GuiDon" method="post">
+                    <button class="order-btn" type="submit">Gửi đơn gọi món</button>
+                </form>
+
+                <p>
+                    Đơn sẽ được gửi đến nhà bếp sau khi bạn xác nhận.
+                </p>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,160 @@
+﻿@model List<QRSCAN.Models.Entities.DonHang>
+
+@{
+    ViewData["Title"] = "Trạng thái đơn hàng";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/user.css" asp-append-version="true" />
+}
+
+<div class="user-page order-tracking-page">
+    <div class="user-header">
+        <div>
+            <p>KIMURA RAMEN</p>
+            <h1>Trạng thái đơn hàng</h1>
+            <span>Các đơn hàng đang được xử lý của bạn</span>
+        </div>
+
+        <a asp-controller="User" asp-action="Profile" class="user-back-btn">← Hồ sơ</a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="empty-user-box">
+            <h2>Không có đơn đang xử lý</h2>
+            <p>Hiện tại bạn chưa có đơn nào đang chờ xác nhận hoặc đang chế biến.</p>
+            <a asp-controller="Home" asp-action="Index">Xem menu</a>
+        </div>
+    }
+    else
+    {
+        <div class="tracking-list-v2">
+            @foreach (var don in Model)
+            {
+                <div class="tracking-card-v2">
+                    <div class="tracking-card-head">
+                        <div>
+                            <span>Mã đơn</span>
+                            <h2>#@don.MaDonHang</h2>
+                        </div>
+
+                        <div class="tracking-status-badge">
+                            @if (don.TrangThai == "ChoXacNhan")
+                            {
+                                <text>Chờ xác nhận</text>
+                            }
+                            else if (don.TrangThai == "DangCheBien")
+                            {
+                                <text>Đang chế biến</text>
+                            }
+                            else if (don.TrangThai == "DaPhucVu")
+                            {
+                                <text>Đã phục vụ</text>
+                            }
+                            else if (don.TrangThai == "HoanThanh")
+                            {
+                                <text>Hoàn thành</text>
+                            }
+                            else
+                            {
+                                @don.TrangThai
+                            }
+                        </div>
+                    </div>
+
+                    <div class="tracking-info-v2">
+                        <div>
+                            <span>Bàn</span>
+                            <strong>Bàn @don.MaBan</strong>
+                        </div>
+
+                        <div>
+                            <span>Thời gian đặt</span>
+                            <strong>@don.ThoiGianDat.ToString("dd/MM/yyyy HH:mm")</strong>
+                        </div>
+
+                        <div>
+                            <span>Tổng tiền</span>
+                            <strong class="price">@don.TongTien.ToString("N0")đ</strong>
+                        </div>
+                    </div>
+
+                    <div class="tracking-progress-v2">
+                        <div class="tracking-step-v2 active">
+                            <div class="step-circle">1</div>
+                            <div>
+                                <h3>Chờ xác nhận</h3>
+                                <p>Đơn đã được gửi đến nhà bếp</p>
+                            </div>
+                        </div>
+
+                        <div class="step-line @(don.TrangThai == "DangCheBien" || don.TrangThai == "DaPhucVu" || don.TrangThai == "HoanThanh" ? "active" : "")"></div>
+
+                        <div class="tracking-step-v2 @(don.TrangThai == "DangCheBien" || don.TrangThai == "DaPhucVu" || don.TrangThai == "HoanThanh" ? "active" : "")">
+                            <div class="step-circle">2</div>
+                            <div>
+                                <h3>Đang chế biến</h3>
+                                <p>Nhà bếp đang chuẩn bị món</p>
+                            </div>
+                        </div>
+
+                        <div class="step-line @(don.TrangThai == "DaPhucVu" || don.TrangThai == "HoanThanh" ? "active" : "")"></div>
+
+                        <div class="tracking-step-v2 @(don.TrangThai == "DaPhucVu" || don.TrangThai == "HoanThanh" ? "active" : "")">
+                            <div class="step-circle">3</div>
+                            <div>
+                                <h3>Đã phục vụ</h3>
+                                <p>Món đã được mang đến bàn</p>
+                            </div>
+                        </div>
+
+                        <div class="step-line @(don.TrangThai == "HoanThanh" ? "active" : "")"></div>
+
+                        <div class="tracking-step-v2 @(don.TrangThai == "HoanThanh" ? "active" : "")">
+                            <div class="step-circle">4</div>
+                            <div>
+                                <h3>Hoàn thành</h3>
+                                <p>Đơn hàng đã hoàn tất</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tracking-card-footer">
+                        <p>
+                            Trạng thái hiện tại:
+                            <strong>
+                                @if (don.TrangThai == "ChoXacNhan")
+                                {
+                                    <text>Chờ xác nhận</text>
+                                }
+                                else if (don.TrangThai == "DangCheBien")
+                                {
+                                    <text>Đang chế biến</text>
+                                }
+                                else if (don.TrangThai == "DaPhucVu")
+                                {
+                                    <text>Đã phục vụ</text>
+                                }
+                                else if (don.TrangThai == "HoanThanh")
+                                {
+                                    <text>Hoàn thành</text>
+                                }
+                                else
+                                {
+                                    @don.TrangThai
+                                }
+                            </strong>
+                        </p>
+
+                        <a asp-controller="User"
+                           asp-action="ChiTietDonHang"
+                           asp-route-maDonHang="@don.MaDonHang">
+                            Xem chi tiết đơn
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

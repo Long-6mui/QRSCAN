@@ -1,0 +1,43 @@
+﻿@model List<QRSCAN.Models.Entities.ChiTietDonHang>
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    var donHang = ViewBag.DonHang as QRSCAN.Models.Entities.DonHang;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/user.css" asp-append-version="true" />
+}
+
+<div class="user-page">
+    <div class="user-header">
+        <div>
+            <p>KIMURA RAMEN</p>
+            <h1>Chi tiết đơn #@donHang?.MaDonHang</h1>
+            <span>Bàn @donHang?.MaBan - @donHang?.ThoiGianDat.ToString("dd/MM/yyyy HH:mm")</span>
+        </div>
+
+        <a asp-controller="User" asp-action="LichSuDonHang" class="user-back-btn">← Lịch sử</a>
+    </div>
+
+    <div class="order-detail-box">
+        @foreach (var item in Model)
+        {
+            <div class="order-detail-item">
+                <img src="@item.MonAn?.HinhAnh" alt="@item.MonAn?.TenMon" />
+
+                <div>
+                    <h3>@item.MonAn?.TenMon</h3>
+                    <p>@item.DonGia.ToString("N0")đ x @item.SoLuong</p>
+                </div>
+
+                <strong>@item.ThanhTien.ToString("N0")đ</strong>
+            </div>
+        }
+
+        <div class="order-detail-total">
+            <span>Tổng tiền</span>
+            <strong>@donHang?.TongTien.ToString("N0")đ</strong>
+        </div>
+    </div>
+</div>

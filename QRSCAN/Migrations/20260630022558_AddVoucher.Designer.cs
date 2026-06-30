@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QRSCAN.Data;
 
@@ -10,9 +11,11 @@ using QRSCAN.Data;
 namespace QRSCAN.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260630022558_AddVoucher")]
+    partial class AddVoucher
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -220,50 +223,6 @@ namespace QRSCAN.Migrations
                     b.ToTable("MonAn", (string)null);
                 });
 
-            modelBuilder.Entity("QRSCAN.Models.Entities.NhanVien", b =>
-                {
-                    b.Property<int>("MaNV")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
-                    b.Property<string>("HoTen")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
-                    b.Property<int>("MaVT")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MatKhau")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("SDT")
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("TenDangNhap")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("TrangThai")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.HasKey("MaNV");
-
-                    b.HasIndex("MaVT");
-
-                    b.ToTable("NhanVien", (string)null);
-                });
-
             modelBuilder.Entity("QRSCAN.Models.Entities.PhienGoiMon", b =>
                 {
                     b.Property<int>("MaPhien")
@@ -289,26 +248,6 @@ namespace QRSCAN.Migrations
                     b.HasIndex("MaBan");
 
                     b.ToTable("PhienGoiMons");
-                });
-
-            modelBuilder.Entity("QRSCAN.Models.Entities.VaiTro", b =>
-                {
-                    b.Property<int>("MaVT")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("MoTa")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("TenVT")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.HasKey("MaVT");
-
-                    b.ToTable("VaiTro", (string)null);
                 });
 
             modelBuilder.Entity("QRSCAN.Models.Entities.Voucher", b =>
@@ -382,17 +321,6 @@ namespace QRSCAN.Migrations
                     b.Navigation("DanhMucMon");
                 });
 
-            modelBuilder.Entity("QRSCAN.Models.Entities.NhanVien", b =>
-                {
-                    b.HasOne("QRSCAN.Models.Entities.VaiTro", "VaiTro")
-                        .WithMany("NhanViens")
-                        .HasForeignKey("MaVT")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("VaiTro");
-                });
-
             modelBuilder.Entity("QRSCAN.Models.Entities.PhienGoiMon", b =>
                 {
                     b.HasOne("QRSCAN.Models.Entities.BanAn", "BanAn")
@@ -417,11 +345,6 @@ namespace QRSCAN.Migrations
             modelBuilder.Entity("QRSCAN.Models.Entities.DonHang", b =>
                 {
                     b.Navigation("ChiTietDonHangs");
-                });
-
-            modelBuilder.Entity("QRSCAN.Models.Entities.VaiTro", b =>
-                {
-                    b.Navigation("NhanViens");
                 });
 #pragma warning restore 612, 618
         }

@@ -68,32 +68,52 @@ namespace QRSCAN.Controllers
         {
             if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(matKhau))
             {
-                ViewBag.Error = "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu";
+                ViewBag.Error = "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.";
                 return View();
             }
+
+            tenDangNhap = tenDangNhap.Trim();
 
             var khachHang = await _context.KhachHangs
-                .FirstOrDefaultAsync(k =>
-                    k.TenDangNhap == tenDangNhap &&
-                    k.MatKhau == matKhau &&
-                    k.TrangThai == "HoatDong");
+                .FirstOrDefaultAsync(x =>
+                    x.TenDangNhap == tenDangNhap &&
+                    x.MatKhau == matKhau);
 
-            if (khachHang == null)
+            if (khachHang != null)
             {
-                ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không đúng";
-                return View();
+                HttpContext.Session.SetInt32("MaKH", khachHang.MaKH);
+                HttpContext.Session.SetString("HoTenKH", khachHang.HoTen);
+                HttpContext.Session.SetString("LoaiTaiKhoan", "KhachHang");
+
+                return RedirectToAction("Index", "Home");
             }
 
-            HttpContext.Session.SetInt32("MaKH", khachHang.MaKH);
-            HttpContext.Session.SetString("HoTenKH", khachHang.HoTen);
+            var nhanVien = await _context.NhanViens
+                .Include(x => x.VaiTro)
+                .FirstOrDefaultAsync(x =>
+                    x.TenDangNhap == tenDangNhap &&
+                    x.MatKhau == matKhau &&
+                    x.TrangThai == "HoatDong");
 
-            return RedirectToAction("Index", "Home");
+            if (nhanVien != null)
+            {
+                HttpContext.Session.SetInt32("MaNV", nhanVien.MaNV);
+                HttpContext.Session.SetInt32("MaVT", nhanVien.MaVT);
+                HttpContext.Session.SetString("HoTenNV", nhanVien.HoTen);
+                HttpContext.Session.SetString("TenVaiTro", nhanVien.VaiTro?.TenVT ?? "");
+                HttpContext.Session.SetString("LoaiTaiKhoan", "NhanVien");
+
+                return RedirectToAction("Index", "NhanVien");
+            }
+
+            ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không đúng.";
+            return View();
         }
 
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
         }
     }
 }

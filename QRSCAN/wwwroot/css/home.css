@@ -14,7 +14,7 @@ body {
     font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* NAVBAR */
+/* ================= NAVBAR ================= */
 
 .japan-navbar {
     padding: 22px 7%;
@@ -101,6 +101,15 @@ body {
     position: relative;
 }
 
+    .user-dropdown::after {
+        content: "";
+        position: absolute;
+        top: 48px;
+        right: 0;
+        width: 190px;
+        height: 18px;
+    }
+
 .user-icon-btn {
     width: 48px;
     height: 48px;
@@ -132,15 +141,7 @@ body {
     padding: 10px;
     display: none;
     box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
-}
-
-.user-dropdown::after {
-    content: "";
-    position: absolute;
-    top: 48px;
-    right: 0;
-    width: 190px;
-    height: 18px;
+    z-index: 1000;
 }
 
 .user-dropdown:hover .user-dropdown-menu {
@@ -183,7 +184,7 @@ body {
         color: white;
     }
 
-/* HERO */
+/* ================= HERO ================= */
 
 .hero-ramen {
     position: relative;
@@ -272,44 +273,7 @@ body {
         color: #b82020;
     }
 
-.hero-actions {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 22px;
-}
-
-.main-btn,
-.outline-btn {
-    text-decoration: none;
-    padding: 14px 26px;
-    border-radius: 999px;
-    font-weight: 900;
-}
-
-.main-btn {
-    background: #b82020;
-    color: white;
-    box-shadow: 0 10px 24px rgba(184, 32, 32, 0.35);
-}
-
-    .main-btn:hover {
-        color: white;
-        background: #8f1717;
-    }
-
-.outline-btn {
-    color: white;
-    background: rgba(0, 0, 0, 0.25);
-    border: 2px solid white;
-}
-
-    .outline-btn:hover {
-        color: #16120f;
-        background: white;
-    }
-
-/* MENU */
+/* ================= MENU ================= */
 
 .menu-section,
 .drink-dessert-section {
@@ -394,24 +358,7 @@ body {
     align-items: center;
 }
 
-    .menu-bottom strong {
-        color: #b82020;
-        font-size: 22px;
-    }
-
-    .menu-bottom button {
-        border: none;
-        background: #16120f;
-        color: white;
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        font-size: 24px;
-        font-weight: 900;
-        cursor: pointer;
-    }
-
-/* DRINK & DESSERT */
+/* ================= DRINK & DESSERT ================= */
 
 .small-menu-grid {
     display: grid;
@@ -428,6 +375,7 @@ body {
     align-items: center;
     gap: 14px;
     box-shadow: 0 10px 26px rgba(39, 24, 15, 0.1);
+    position: relative;
 }
 
     .small-item img {
@@ -438,17 +386,80 @@ body {
         background: #ddd;
     }
 
-    .small-item h3 {
-        margin: 0 0 6px;
-        font-size: 18px;
+.small-item-info {
+    flex: 1;
+}
+
+.small-item h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+}
+
+.small-item span {
+    color: #b82020;
+    font-weight: 900;
+}
+
+/* ================= ADD TO CART BUTTON + TOAST ================= */
+
+.cart-toast {
+    position: fixed !important;
+    right: 28px !important;
+    bottom: 28px !important;
+    top: auto !important;
+    left: auto !important;
+    z-index: 9999 !important;
+    background: #16120f;
+    color: #ffcc66;
+    border: 1px solid #5e4b3e;
+    border-left: 6px solid #b82020;
+    padding: 16px 22px;
+    border-radius: 16px;
+    font-weight: 900;
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.35);
+    transform: translateX(140%);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.28s ease;
+}
+
+    .cart-toast.show {
+        transform: translateX(0);
+        opacity: 1;
     }
 
-    .small-item span {
-        color: #b82020;
-        font-weight: 900;
+.add-cart-btn {
+    border: none;
+    background: #16120f;
+    color: white;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 24px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+}
+
+    .add-cart-btn:hover {
+        background: #b82020;
     }
 
-/* INFO */
+    .add-cart-btn:disabled {
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+
+.small-add-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* ================= INFO ================= */
 
 .info-section {
     padding: 70px 7%;
@@ -463,7 +474,7 @@ body {
         font-size: 17px;
     }
 
-/* FOOTER */
+/* ================= FOOTER ================= */
 
 .japan-footer {
     background: #16120f;
@@ -485,7 +496,7 @@ body {
         margin: 6px 0;
     }
 
-/* RESPONSIVE */
+/* ================= RESPONSIVE ================= */
 
 @media (max-width: 1050px) {
     .japan-navbar {
@@ -551,10 +562,6 @@ body {
 
     .hero-subtitle {
         font-size: 18px;
-    }
-
-    .hero-actions {
-        flex-direction: column;
     }
 
     .menu-grid,
