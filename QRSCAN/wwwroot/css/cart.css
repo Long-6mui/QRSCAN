@@ -410,6 +410,79 @@ body {
         font-size: 30px;
     }
 
+/* ================= PAYMENT METHOD (CART) ================= */
+
+.payment-method-box {
+    background: #241c17;
+    border: 1px solid #3f332b;
+    border-radius: 22px;
+    padding: 18px;
+    margin-bottom: 22px;
+}
+
+    .payment-method-box > label {
+        display: block;
+        color: #ffcc66;
+        font-weight: 900;
+        margin-bottom: 12px;
+        font-size: 15px;
+    }
+
+.payment-method-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #16120f;
+    border: 1px solid #5e4b3e;
+    border-radius: 18px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .payment-option:hover {
+        border-color: #ffcc66;
+    }
+
+    .payment-option input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #b82020;
+        flex-shrink: 0;
+    }
+
+    .payment-option:has(input:checked) {
+        border-color: #b82020;
+        background: #2a1512;
+    }
+
+.payment-option-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.payment-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+    .payment-option-text strong {
+        color: white;
+        font-size: 15px;
+    }
+
+    .payment-option-text small {
+        color: #a8998a;
+        font-size: 12px;
+    }
+
 /* ================= ORDER BUTTON ================= */
 
 .order-btn {
@@ -608,6 +681,98 @@ body {
         font-size: 28px;
     }
 
+/* ================= QR / CASH PAYMENT CARD ================= */
+
+.order-qr-card {
+    background: #fff8ed;
+    border: 1px solid #ead7c3;
+    border-radius: 26px;
+    box-shadow: 0 16px 42px rgba(39, 24, 15, 0.11);
+    padding: 28px 24px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+    .order-qr-card h2 {
+        margin: 0 0 18px;
+        color: #17110d;
+        font-size: 22px;
+    }
+
+.order-qr-image-box {
+    display: inline-block;
+    background: white;
+    border: 1px solid #ead7c3;
+    border-radius: 20px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+    .order-qr-image-box img {
+        display: block;
+        width: 200px;
+        height: 200px;
+    }
+
+.order-qr-amount {
+    margin: 0 0 10px;
+    color: #b82020;
+    font-size: 26px;
+    font-weight: 900;
+}
+
+.order-qr-desc {
+    margin: 0 auto;
+    max-width: 480px;
+    color: #6c5d52;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.order-cash-card .order-qr-desc {
+    margin-top: 4px;
+}
+
+/* ================= UNPAID STATE ================= */
+
+.order-unpaid-icon {
+    background: #d98c1f !important;
+    box-shadow: 0 16px 36px rgba(217, 140, 31, 0.32) !important;
+}
+
+.order-unpaid-card h1 {
+    color: #b8611f;
+}
+
+.order-status-paid {
+    color: #2f8f3a !important;
+}
+
+.confirm-payment-btn {
+    width: 100%;
+    max-width: 340px;
+    height: 56px;
+    border: none;
+    background: #b82020;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 6px;
+}
+
+    .confirm-payment-btn:hover {
+        background: #d32626;
+        transform: translateY(-2px);
+    }
+
+    .confirm-payment-btn:active {
+        transform: scale(0.98);
+    }
+
 .order-success-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -622,6 +787,10 @@ body {
     font-weight: 900;
     transition: 0.2s;
 }
+
+    .success-action-btn.primary:only-child {
+        grid-column: 1 / -1;
+    }
 
     .success-action-btn.primary {
         background: #b82020;

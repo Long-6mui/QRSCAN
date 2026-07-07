@@ -113,6 +113,9 @@ namespace QRSCAN.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<string>("PhuongThucThanhToan")
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("ThoiGianDat")
                         .HasColumnType("datetime(6)");
 
@@ -291,6 +294,41 @@ namespace QRSCAN.Migrations
                     b.ToTable("PhienGoiMons");
                 });
 
+            modelBuilder.Entity("QRSCAN.Models.Entities.ThanhToan", b =>
+                {
+                    b.Property<int>("MaThanhToan")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DonHangMaDonHang")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaDonHang")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NgayThanhToan")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("PhuongThuc")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<decimal>("SoTien")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TrangThai")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("MaThanhToan");
+
+                    b.HasIndex("DonHangMaDonHang");
+
+                    b.ToTable("ThanhToans");
+                });
+
             modelBuilder.Entity("QRSCAN.Models.Entities.VaiTro", b =>
                 {
                     b.Property<int>("MaVT")
@@ -402,6 +440,15 @@ namespace QRSCAN.Migrations
                         .IsRequired();
 
                     b.Navigation("BanAn");
+                });
+
+            modelBuilder.Entity("QRSCAN.Models.Entities.ThanhToan", b =>
+                {
+                    b.HasOne("QRSCAN.Models.Entities.DonHang", "DonHang")
+                        .WithMany()
+                        .HasForeignKey("DonHangMaDonHang");
+
+                    b.Navigation("DonHang");
                 });
 
             modelBuilder.Entity("QRSCAN.Models.Entities.BanAn", b =>

@@ -19,7 +19,7 @@ namespace QRSCAN.Models.Entities
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal TongTien { get; set; }
-
+        public string? PhuongThucThanhToan { get; set; }
         public int? MaVoucher { get; set; }
 
         [StringLength(50)]

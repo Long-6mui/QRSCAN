@@ -272,10 +272,16 @@ namespace QRSCAN.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GuiDon()
+        public async Task<IActionResult> GuiDon(string phuongThucThanhToan)
         {
             var maKH = HttpContext.Session.GetInt32("MaKH");
             var maBan = HttpContext.Session.GetInt32("MaBan");
+
+            // Chỉ chấp nhận 2 phương thức: QR hoặc Tiền mặt
+            if (phuongThucThanhToan != "QR" && phuongThucThanhToan != "TienMat")
+            {
+                phuongThucThanhToan = "TienMat";
+            }
 
             if (maKH == null)
             {
@@ -322,6 +328,7 @@ namespace QRSCAN.Controllers
                 MaBan = maBan.Value,
                 ThoiGianDat = DateTime.Now,
                 TrangThai = "ChoXacNhan",
+                PhuongThucThanhToan = phuongThucThanhToan,
                 TongTien = tongTien,
                 MaVoucher = maVoucher,
                 MaVoucherCode = maVoucherCode,
@@ -346,6 +353,20 @@ namespace QRSCAN.Controllers
                 _context.ChiTietDonHangs.Add(chiTiet);
             }
 
+            // Tạo bản ghi thanh toán tương ứng với đơn hàng vừa tạo
+            var thanhToan = new ThanhToan
+            {
+                MaDonHang = donHang.MaDonHang,
+                PhuongThuc = phuongThucThanhToan,
+                SoTien = tongThanhToan,
+                // Thanh toán tiền mặt sẽ được nhân viên thu và xác nhận trực tiếp,
+                // thanh toán QR chờ khách quét mã và chuyển khoản
+                TrangThai = "ChoThanhToan",
+                NgayThanhToan = DateTime.Now
+            };
+
+            _context.ThanhToans.Add(thanhToan);
+
             await _context.SaveChangesAsync();
 
             HttpContext.Session.Remove("GioHang");
@@ -364,6 +385,11 @@ namespace QRSCAN.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            var thanhToan = await _context.ThanhToans
+                .Where(x => x.MaDonHang == maDonHang)
+                .OrderByDescending(x => x.MaThanhToan)
+                .FirstOrDefaultAsync();
+
             ViewBag.MaDonHang = donHang.MaDonHang;
             ViewBag.MaBan = donHang.MaBan;
             ViewBag.TongTien = donHang.TongTien;
@@ -371,8 +397,37 @@ namespace QRSCAN.Controllers
             ViewBag.TongThanhToan = donHang.TongThanhToan;
             ViewBag.MaVoucherCode = donHang.MaVoucherCode;
             ViewBag.TrangThai = donHang.TrangThai;
+            ViewBag.PhuongThucThanhToan = donHang.PhuongThucThanhToan ?? "TienMat";
+            ViewBag.TrangThaiThanhToan = thanhToan?.TrangThai ?? "ChoThanhToan";
+
+            if (ViewBag.PhuongThucThanhToan == "QR")
+            {
+                // Nội dung mã QR chuyển khoản: mã đơn + số tiền + bàn, dùng để nhân viên/khách đối chiếu
+                var noiDungQR = $"KIMURA RAMEN - Don hang #{donHang.MaDonHang} - Ban {donHang.MaBan} - So tien {donHang.TongThanhToan:N0}d";
+                ViewBag.QRCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=" + Uri.EscapeDataString(noiDungQR);
+            }
 
             return View();
+        }
+
+        // Xác nhận đơn hàng đã được thanh toán (QR: khách/nhân viên xác nhận sau khi chuyển khoản,
+        // Tiền mặt: nhân viên xác nhận sau khi thu tiền tại bàn)
+        [HttpPost]
+        public async Task<IActionResult> XacNhanThanhToan(int maDonHang)
+        {
+            var thanhToan = await _context.ThanhToans
+                .Where(x => x.MaDonHang == maDonHang)
+                .OrderByDescending(x => x.MaThanhToan)
+                .FirstOrDefaultAsync();
+
+            if (thanhToan != null)
+            {
+                thanhToan.TrangThai = "DaThanhToan";
+                thanhToan.NgayThanhToan = DateTime.Now;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("DatHangThanhCong", new { maDonHang });
         }
 
 

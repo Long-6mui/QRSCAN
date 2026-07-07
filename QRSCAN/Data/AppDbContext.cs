@@ -21,7 +21,7 @@ namespace QRSCAN.Data
         public DbSet<ChiTietDonHang> ChiTietDonHangs { get; set; }
 
         public DbSet<Voucher> Vouchers { get; set; }
-
+        public DbSet<ThanhToan> ThanhToans { get; set; }
         public DbSet<VaiTro> VaiTros { get; set; }
         public DbSet<NhanVien> NhanViens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
