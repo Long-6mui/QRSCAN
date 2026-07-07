@@ -1,5 +1,6 @@
-﻿@{
+@{
     ViewData["Title"] = "Đặt hàng thành công";
+    bool daThanhToan = ViewBag.TrangThaiThanhToan == "DaThanhToan";
 }
 
 @section Styles {
@@ -8,28 +9,48 @@
 
 <div class="order-success-page">
     <div class="order-success-wrapper">
-        <div class="order-success-main-card">
-            <div class="order-success-icon">
-                ✓
+
+        @if (daThanhToan)
+        {
+            <div class="order-success-main-card">
+                <div class="order-success-icon">
+                    ✓
+                </div>
+
+                <p class="order-success-brand">KIMURA RAMEN</p>
+
+                <h1>Đặt món thành công!</h1>
+
+                <p class="order-success-desc">
+                    Đơn của bạn đã thanh toán thành công và được gửi đến nhà bếp. Vui lòng chờ nhân viên xác nhận.
+                </p>
             </div>
 
-            <p class="order-success-brand">KIMURA RAMEN</p>
+            <div class="order-success-status-card">
+                <div class="order-success-status-icon"></div>
 
-            <h1>Gửi đơn gọi món thành công!</h1>
-
-            <p class="order-success-desc">
-                Đơn của bạn đã được gửi đến nhà bếp. Vui lòng chờ nhân viên xác nhận.
-            </p>
-        </div>
-
-        <div class="order-success-status-card">
-            <div class="order-success-status-icon"></div>
-
-            <div>
-                <h2>Chờ xác nhận</h2>
-                <p>Nhà bếp đang chờ xác nhận đơn gọi món của bạn.</p>
+                <div>
+                    <h2>Chờ xác nhận</h2>
+                    <p>Nhà bếp đang chờ xác nhận đơn gọi món của bạn.</p>
+                </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="order-success-main-card order-unpaid-card">
+                <div class="order-success-icon order-unpaid-icon">
+                    !
+                </div>
+
+                <p class="order-success-brand">KIMURA RAMEN</p>
+
+                <h1>Đơn hàng chưa thanh toán</h1>
+
+                <p class="order-success-desc">
+                    Đơn hàng chưa thanh toán, vui lòng thanh toán để tiếp tục đơn hàng của bạn.
+                </p>
+            </div>
+        }
 
         <div class="order-success-info-card">
             <h2>Thông tin đơn hàng</h2>
@@ -45,7 +66,7 @@
             </div>
 
             <div class="order-success-row">
-                <span>Trạng thái</span>
+                <span>Trạng thái đơn</span>
                 <strong class="order-status-red">
                     @if (ViewBag.TrangThai == "ChoXacNhan")
                     {
@@ -68,6 +89,18 @@
                         @ViewBag.TrangThai
                     }
                 </strong>
+            </div>
+
+            <div class="order-success-row">
+                <span>Trạng thái thanh toán</span>
+                @if (daThanhToan)
+                {
+                    <strong class="order-status-paid">Đã thanh toán</strong>
+                }
+                else
+                {
+                    <strong class="order-status-red">Chưa thanh toán</strong>
+                }
             </div>
 
             <div class="order-success-row">
@@ -102,16 +135,73 @@
                 <span>Thành tiền</span>
                 <strong>@ViewBag.TongThanhToan.ToString("N0")đ</strong>
             </div>
+
+            <div class="order-payment-row">
+                <span>Phương thức</span>
+                <strong>
+                    @if (ViewBag.PhuongThucThanhToan == "QR")
+                    {
+                        <text>Chuyển khoản QR</text>
+                    }
+                    else
+                    {
+                        <text>Tiền mặt</text>
+                    }
+                </strong>
+            </div>
         </div>
+
+        @if (!daThanhToan)
+        {
+            if (ViewBag.PhuongThucThanhToan == "QR")
+            {
+                <div class="order-qr-card">
+                    <h2>Quét mã để thanh toán</h2>
+
+                    <div class="order-qr-image-box">
+                        <img src="@ViewBag.QRCodeUrl" alt="Mã QR thanh toán" />
+                    </div>
+
+                    <p class="order-qr-amount">@ViewBag.TongThanhToan.ToString("N0")đ</p>
+
+                    <p class="order-qr-desc">
+                        Mở ứng dụng ngân hàng và quét mã QR để chuyển khoản, hoặc đưa mã này cho nhân viên quét giúp bạn.
+                        Đơn hàng sẽ tự động chuyển sang "Đã thanh toán" ngay khi nhà hàng nhận được tiền.
+                    </p>
+
+                    <form asp-controller="GioHang" asp-action="XacNhanThanhToan" method="post">
+                        <input type="hidden" name="maDonHang" value="@ViewBag.MaDonHang" />
+                        <button type="submit" class="confirm-payment-btn">Tôi đã chuyển khoản</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="order-qr-card order-cash-card">
+                    <h2>Thanh toán tiền mặt</h2>
+                    <p class="order-qr-desc">
+                        Vui lòng thanh toán trực tiếp với nhân viên. Đơn hàng sẽ được tiếp tục xử lý ngay sau khi nhân viên xác nhận đã thu tiền.
+                    </p>
+
+                    <form asp-controller="GioHang" asp-action="XacNhanThanhToan" method="post">
+                        <input type="hidden" name="maDonHang" value="@ViewBag.MaDonHang" />
+                        <button type="submit" class="confirm-payment-btn">Xác nhận đã thanh toán</button>
+                    </form>
+                </div>
+            }
+        }
 
         <div class="order-success-actions">
             <a asp-controller="Home" asp-action="Index" class="success-action-btn primary">
                 Tiếp tục gọi món
             </a>
 
-            <a asp-controller="User" asp-action="TrangThaiDonHang" class="success-action-btn secondary">
-                Theo dõi trạng thái món
-            </a>
+            @if (daThanhToan)
+            {
+                <a asp-controller="User" asp-action="TrangThaiDonHang" class="success-action-btn secondary">
+                    Theo dõi trạng thái món
+                </a>
+            }
         </div>
     </div>
 </div>

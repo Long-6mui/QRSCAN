@@ -139,6 +139,28 @@
                 </div>
 
                 <form asp-controller="GioHang" asp-action="GuiDon" method="post">
+                    <div class="payment-method-box">
+                        <label>Phương thức thanh toán</label>
+
+                        <div class="payment-method-options">
+                            <label class="payment-option">
+                                <input type="radio" name="phuongThucThanhToan" value="QR" checked />                               
+                                <span class="payment-option-text">
+                                    <strong>Thanh toán QR</strong>
+                                    <small>Quét mã, chuyển khoản nhanh</small>
+                                </span>
+                            </label>
+
+                            <label class="payment-option">
+                                <input type="radio" name="phuongThucThanhToan" value="TienMat" />
+                                <span class="payment-option-text">
+                                    <strong>Tiền mặt</strong>
+                                    <small>Thanh toán trực tiếp với nhân viên</small>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
                     <button class="order-btn" type="submit">Gửi đơn gọi món</button>
                 </form>
 
