@@ -25,5 +25,7 @@ namespace QRSCAN.Models.Entities
 
         [ForeignKey("MaMon")]
         public MonAn? MonAn { get; set; }
-    }
+
+		public string TrangThai { get; set; } = "Chờ nhận";
+	}
 }

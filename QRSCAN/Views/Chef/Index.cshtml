@@ -1,0 +1,115 @@
+﻿@model IEnumerable<QRSCAN.Models.Entities.DonHang>
+
+@{
+    ViewData["Title"] = "Màn hình nhà bếp";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/user.css" asp-append-version="true" />
+}
+
+<div class="user-page chef-kitchen-page" style="padding: 24px; max-width: 1400px; margin: 0 auto;">
+    <div class="user-header mb-4">
+        <div>
+            <p style="font-size: 14px; letter-spacing: 2px; color: #e63946; font-weight: bold; margin-bottom: 4px;">KIMURA RAMEN</p>
+            <h1>Màn hình nhà bếp</h1>
+            <span>Quản lý & theo dõi trạng thái chế biến món ăn</span>
+        </div>
+
+        <div class="badge bg-secondary px-3 py-2" style="font-size: 15px; border-radius: 8px;">
+            Tổng cộng: @Model.Count() đơn
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-user-box text-center p-5 bg-white shadow-sm rounded-4">
+            <h2>Không có đơn hàng nào</h2>
+            <p>Hiện tại nhà bếp chưa có món mới hoặc đơn đang cần xử lý.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var donHang in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="tracking-card-v2 h-100 shadow-sm" style="background: #ffffff; border: 1px solid #eaeaea; border-radius: 12px; padding: 20px;">
+
+                        <div class="tracking-card-head d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <div>
+                                <span style="font-size: 12px; color: #888;">Mã đơn / Bàn @donHang.MaBan</span>
+                                <h2 style="font-size: 20px; font-weight: bold; color: #333; margin: 0;">#@donHang.MaDonHang</h2>
+                            </div>
+
+                            <span class="badge @(donHang.TrangThai == "Chờ xác nhận" ? "bg-warning text-dark" :
+                                                                                  donHang.TrangThai == "Đang chế biến" ? "bg-primary" :
+                                                                                  donHang.TrangThai == "Đã phục vụ" ? "bg-success" :
+                                                                                  donHang.TrangThai == "Hoàn thành" ? "bg-success" : "bg-secondary")"
+                          style="padding: 8px 12px; border-radius: 6px; font-size: 13px;">
+                        @donHang.TrangThai
+                    </span>
+                </div>
+
+                        <div class="card-body p-0 mb-3">
+                            <ul class="list-group list-group-flush">
+                        @foreach (var item in donHang.ChiTietDonHangs)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
+                                        <div>
+                                            <h5 class="mb-1" style="font-size: 16px; color: #2b2b2b; font-weight: 600;">@item.MonAn?.TenMon</h5>
+                                            <small class="text-muted">Số lượng: <strong>@item.SoLuong</strong></small>
+                                        </div>
+                                        <div>
+                                            @if (item.TrangThai == "Hoàn thành" || donHang.TrangThai == "Đã phục vụ" || donHang.TrangThai == "Hoàn thành")
+                                            {
+                                                <span class="badge bg-success" style="padding: 6px 10px;">✓ Đã xong</span>
+                                            }
+                                            else if (donHang.TrangThai == "Chờ xác nhận")
+                                            {
+                                                <span class="badge bg-secondary" style="padding: 6px 10px;">Chờ duyệt đơn</span>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="HoanThanhMon" asp-route-id="@item.MaChiTiet" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-danger px-3 py-1 fw-bold">Xác nhận xong</button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+
+                        <div class="tracking-card-footer pt-2">
+                            @if (donHang.TrangThai == "Chờ xác nhận")
+                            {
+                                <form asp-action="TiepNhanDonHang" asp-route-id="@donHang.MaDonHang" method="post">
+                                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold" style="border-radius: 8px;">Tiếp nhận toàn bộ đơn</button>
+                                </form>
+                            }
+                            else if (donHang.TrangThai == "Đã phục vụ" || donHang.ChiTietDonHangs.All(i => i.TrangThai == "Hoàn thành"))
+                            {
+                                <div class="mt-2">
+                                    <div class="alert alert-success text-center p-2 mb-2" role="alert" style="border-radius: 8px; font-size: 14px;">
+                                        Đơn đã hoàn tất và phục vụ tại bàn!
+                                    </div>
+                                    <form asp-action="HoanThanhDonHang" asp-route-maDonHang="@donHang.MaDonHang" method="post">
+                                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold" style="border-radius: 8px;">✓ Hoàn thành đơn hàng</button>
+                                    </form>
+                                </div>
+                            }
+                            else if (donHang.TrangThai == "Hoàn thành")
+                            {
+                                <div class="alert alert-secondary text-center p-2 mb-0" role="alert" style="border-radius: 8px; font-size: 14px;">
+                                    Đơn hàng đã hoàn tất
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

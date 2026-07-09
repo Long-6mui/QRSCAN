@@ -40,19 +40,19 @@
                         </div>
 
                         <div class="tracking-status-badge">
-                            @if (don.TrangThai == "ChoXacNhan")
+                            @if (don.TrangThai == "Chờ xác nhận")
                             {
                                 <text>Chờ xác nhận</text>
                             }
-                            else if (don.TrangThai == "DangCheBien")
+                            else if (don.TrangThai == "Đang chế biến")
                             {
                                 <text>Đang chế biến</text>
                             }
-                            else if (don.TrangThai == "DaPhucVu")
+                            else if (don.TrangThai == "Đã phục vụ")
                             {
                                 <text>Đã phục vụ</text>
                             }
-                            else if (don.TrangThai == "HoanThanh")
+                            else if (don.TrangThai == "Hoàn thành")
                             {
                                 <text>Hoàn thành</text>
                             }
@@ -89,9 +89,9 @@
                             </div>
                         </div>
 
-                        <div class="step-line @(don.TrangThai == "DangCheBien" || don.TrangThai == "DaPhucVu" || don.TrangThai == "HoanThanh" ? "active" : "")"></div>
+                        <div class="step-line @(don.TrangThai == "Đang chế biến" || don.TrangThai == "Đã phục vụ" || don.TrangThai == "Hoàn thành" ? "active" : "")"></div>
 
-                        <div class="tracking-step-v2 @(don.TrangThai == "DangCheBien" || don.TrangThai == "DaPhucVu" || don.TrangThai == "HoanThanh" ? "active" : "")">
+                        <div class="tracking-step-v2 @(don.TrangThai == "Đang chế biến" || don.TrangThai == "Đã phục vụ" || don.TrangThai == "Hoàn thành" ? "active" : "")">
                             <div class="step-circle">2</div>
                             <div>
                                 <h3>Đang chế biến</h3>
@@ -99,9 +99,9 @@
                             </div>
                         </div>
 
-                        <div class="step-line @(don.TrangThai == "DaPhucVu" || don.TrangThai == "HoanThanh" ? "active" : "")"></div>
+                        <div class="step-line @(don.TrangThai == "Đã phục vụ" || don.TrangThai == "Hoàn thành" ? "active" : "")"></div>
 
-                        <div class="tracking-step-v2 @(don.TrangThai == "DaPhucVu" || don.TrangThai == "HoanThanh" ? "active" : "")">
+                        <div class="tracking-step-v2 @(don.TrangThai == "Đã phục vụ" || don.TrangThai == "Hoàn thành" ? "active" : "")">
                             <div class="step-circle">3</div>
                             <div>
                                 <h3>Đã phục vụ</h3>
@@ -109,9 +109,9 @@
                             </div>
                         </div>
 
-                        <div class="step-line @(don.TrangThai == "HoanThanh" ? "active" : "")"></div>
+                        <div class="step-line @(don.TrangThai == "Hoàn thành" ? "active" : "")"></div>
 
-                        <div class="tracking-step-v2 @(don.TrangThai == "HoanThanh" ? "active" : "")">
+                        <div class="tracking-step-v2 @(don.TrangThai == "Hoàn thành" ? "active" : "")">
                             <div class="step-circle">4</div>
                             <div>
                                 <h3>Hoàn thành</h3>
@@ -124,19 +124,19 @@
                         <p>
                             Trạng thái hiện tại:
                             <strong>
-                                @if (don.TrangThai == "ChoXacNhan")
+                                @if (don.TrangThai == "Chờ xác nhận")
                                 {
                                     <text>Chờ xác nhận</text>
                                 }
-                                else if (don.TrangThai == "DangCheBien")
+                                else if (don.TrangThai == "Đang chế biến")
                                 {
                                     <text>Đang chế biến</text>
                                 }
-                                else if (don.TrangThai == "DaPhucVu")
+                                else if (don.TrangThai == "Đã phục vụ")
                                 {
                                     <text>Đã phục vụ</text>
                                 }
-                                else if (don.TrangThai == "HoanThanh")
+                                else if (don.TrangThai == "Hoàn thành")
                                 {
                                     <text>Hoàn thành</text>
                                 }
@@ -158,3 +158,9 @@
         </div>
     }
 </div>
+
+<script>
+    setInterval(function () {
+        location.reload();
+    }, 4000);
+</script>
