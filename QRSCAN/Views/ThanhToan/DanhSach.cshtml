@@ -1,0 +1,45 @@
+﻿@model List<QRSCAN.Models.Entities.ThanhToan>
+@{
+    ViewData["Title"] = "Thu ngân";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/staff.css" asp-append-version="true" />
+}
+<div class="staff-page">
+    <nav class="staff-navbar">
+        <div><p>KIMURA RAMEN</p><h2>Thu ngân - Đơn chờ thanh toán</h2></div>
+        <a asp-controller="NhanVien" asp-action="Index">Quay lại</a>
+    </nav>
+
+    <section class="staff-section" style="margin-top:40px;">
+        @if (TempData["Error"] != null)
+        {
+            <p style="color:#b82020;font-weight:700;">@TempData["Error"]</p>
+        }
+
+        @if (!Model.Any())
+        {
+            <p>Không có đơn hàng nào đang chờ thu tiền mặt.</p>
+        }
+        else
+        {
+            <table class="staff-table">
+                <thead>
+                    <tr><th>Mã đơn</th><th>Bàn</th><th>Tổng thanh toán</th><th>Thời gian</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var tt in Model)
+                    {
+                        <tr>
+                            <td>#@tt.MaDonHang</td>
+                            <td>@tt.DonHang?.MaBan</td>
+                            <td>@tt.DonHang?.TongThanhToan.ToString("N0")đ</td>
+                            <td>@tt.NgayThanhToan.ToString("HH:mm dd/MM/yyyy")</td>
+                            <td><a class="staff-btn" asp-action="ThuTien" asp-route-maDonHang="@tt.MaDonHang">Thu tiền</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+</div>

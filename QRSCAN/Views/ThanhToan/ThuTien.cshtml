@@ -1,0 +1,41 @@
+﻿@model QRSCAN.Models.Entities.DonHang
+@{
+    ViewData["Title"] = "Thu tiền mặt";
+    var tongThanhToanStr = Model.TongThanhToan.ToString("N0");
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/staff.css" asp-append-version="true" />
+}
+<div class="staff-page">
+    <nav class="staff-navbar">
+        <div><p>KIMURA RAMEN</p><h2>Thu tiền mặt - Đơn #@Model.MaDonHang</h2></div>
+        <a asp-action="DanhSach">Quay lại</a>
+    </nav>
+    <section class="staff-section" style="margin-top:40px;">
+        @if (TempData["Error"] != null)
+        {
+            <p style="color:#b82020;font-weight:700;">@TempData["Error"]</p>
+        }
+        <table class="staff-table">
+            <thead><tr><th>Món</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
+            <tbody>
+                @foreach (var ct in Model.ChiTietDonHangs!)
+                {
+                    <tr>
+                        <td>@ct.MonAn?.TenMon</td>
+                        <td>@ct.SoLuong</td>
+                        <td>@ct.DonGia.ToString("N0")đ</td>
+                        <td>@ct.ThanhTien.ToString("N0")đ</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <p>Tổng tiền món: <b>@Model.TongTien.ToString("N0")đ</b></p>
+        <p>Giảm giá: <b>-@Model.TienGiam.ToString("N0")đ</b></p>
+        <p style="font-size:22px;">Tổng thanh toán: <b>@tongThanhToanStr đ</b></p>
+        <form asp-action="XacNhanDaThanhToan" method="post">
+            <input type="hidden" name="maDonHang" value="@Model.MaDonHang" />
+            <button type="submit" class="staff-btn" data-total="@tongThanhToanStr" onclick="return confirm('Xác nhận đã nhận đủ ' + this.dataset.total + 'đ tiền mặt?')">Xác nhận thu tiền</button>
+        </form>
+    </section>
+</div>

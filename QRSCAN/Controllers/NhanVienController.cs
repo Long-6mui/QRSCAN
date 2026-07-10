@@ -4,6 +4,16 @@ namespace QRSCAN.Controllers
 {
     public class NhanVienController : Controller
     {
+        public IActionResult TestLogin()
+        {
+            HttpContext.Session.SetInt32("MaNV", 999);
+            HttpContext.Session.SetInt32("MaVT", 1); // 1 = nhân viên phục vụ (thu ngân)
+            HttpContext.Session.SetString("HoTenNV", "Nhan Vien Test");
+            HttpContext.Session.SetString("TenVaiTro", "Nhan vien phuc vu");
+            HttpContext.Session.SetString("LoaiTaiKhoan", "NhanVien");
+
+            return RedirectToAction("Index");
+        }
         public IActionResult Index()
         {
             var maNV = HttpContext.Session.GetInt32("MaNV");
