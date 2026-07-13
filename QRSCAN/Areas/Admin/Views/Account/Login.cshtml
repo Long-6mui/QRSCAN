@@ -1,0 +1,126 @@
+﻿@{
+    ViewData["Title"] = "Đăng nhập hệ thống";
+    Layout = null; 
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - QRSCAN</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+            body {
+                background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1552611052-33e04de081de?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+                background-size: cover;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            .login-card {
+                background: rgba(253, 250, 246, 0.98);
+                border-radius: 20px;
+                padding: 45px 40px;
+                width: 100%;
+                max-width: 420px;
+                box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            }
+
+            .brand-icon {
+                width: 65px;
+                height: 65px;
+                background-color: #b32626; 
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+                margin: 0 auto 20px;
+            }
+
+            .form-control {
+                border-radius: 12px;
+                padding: 12px 15px;
+                background-color: #ffffff;
+                border: 1px solid #ced4da;
+            }
+
+                .form-control:focus {
+                    border-color: #b32626;
+                    box-shadow: 0 0 0 0.25rem rgba(179, 38, 38, 0.15);
+                }
+
+            .input-group-text {
+                border-radius: 12px 0 0 12px;
+                background-color: #ffffff;
+            }
+
+            .form-control {
+                border-radius: 0 12px 12px 0;
+            }
+
+            .btn-login {
+                background-color: #b32626;
+                color: white;
+                border-radius: 12px;
+                padding: 14px;
+                font-weight: bold;
+                font-size: 16px;
+                transition: all 0.3s;
+            }
+
+                .btn-login:hover {
+                    background-color: #8c1e1e;
+                    color: white;
+                    transform: translateY(-2px);
+                }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <div class="brand-icon">
+                <i class="fas fa-qrcode"></i>
+            </div>
+            <h3 class="fw-bold text-dark mb-1">Đăng nhập</h3>
+            <p class="text-muted">Truy cập trang quản trị hệ thống</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger rounded-3 border-0 bg-danger text-white p-3 mb-4" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> @ViewBag.Error
+            </div>
+        }
+
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div class="mb-3">
+                <label class="form-label fw-bold text-dark small">TÀI KHOẢN</label>
+                <div class="input-group">
+                    <span class="input-group-text border-end-0"><i class="fas fa-user text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0" name="tenDangNhap" placeholder="Nhập tên đăng nhập" required autofocus>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark small">MẬT KHẨU</label>
+                <div class="input-group">
+                    <span class="input-group-text border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                    <input type="password" class="form-control border-start-0 ps-0" name="matKhau" placeholder="Nhập mật khẩu" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-login w-100 mb-3 mt-2">
+                Đăng nhập ngay
+            </button>           
+        </form>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

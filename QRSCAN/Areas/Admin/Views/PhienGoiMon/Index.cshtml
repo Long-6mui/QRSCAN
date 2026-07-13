@@ -1,0 +1,192 @@
+﻿@model List<QRSCAN.Areas.Admin.Controllers.PhienGoiMonController.PhienGoiMonViewModel>
+@{
+    ViewData["Title"] = "Giám sát Hoạt Động";
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-white rounded p-4 shadow-sm">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="mb-0 text-dark"><i class="fas fa-desktop me-2 text-primary"></i>Giám sát Phiên Gọi Món</h4>
+            <div class="d-flex gap-3">
+                <span class="badge bg-success p-2"><i class="fas fa-check-circle me-1"></i> Bàn Trống</span>
+                <span class="badge bg-danger p-2"><i class="fas fa-utensils me-1"></i> Đang Phục Vụ</span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    @if (item.TrangThaiBan == "Trống")
+                    {
+                        <div class="card h-100 border-success shadow-sm" style="background-color: #f0fdf4;">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <h4 class="text-success fw-bold mb-2">@item.TenBan</h4>
+                                <p class="text-muted small mb-0"><i class="fas fa-users me-1"></i> @item.SoChoNgoi chỗ</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 text-center pb-3">
+                                <span class="badge bg-secondary text-white rounded-pill px-3 py-2 opacity-50">Chưa có khách</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card h-100 border-danger shadow position-relative" style="background-color: #fff1f2;">
+                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" title="Đang có khách"></span>
+
+                            <div class="card-body text-center pb-2">
+                                <h4 class="text-danger fw-bold mb-1">@item.TenBan</h4>
+                                <div class="text-dark fw-bold fs-5 mt-2 mb-2">
+                                    @((item.TongTienHienTai ?? 0).ToString("N0")) đ
+                                </div>
+                                @if (item.ThoiGianVao.HasValue)
+                                {
+                                    <div class="text-muted small">
+                                        Vào lúc: @item.ThoiGianVao.Value.ToString("HH:mm")
+                                    </div>
+                                    <div class="text-muted small">
+                                        Mã ĐH: #@item.MaDonHangThucTe
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-footer bg-transparent border-0 d-flex flex-wrap justify-content-center gap-2 pb-3">
+                                <button class="btn btn-sm btn-primary shadow-sm" onclick="openChiTiet(@item.MaDonHangThucTe, '@item.TenBan')" title="Xem món">
+                                    <i class="fas fa-list"></i> Xem món
+                                </button>
+                                <button class="btn btn-sm btn-info text-dark shadow-sm" onclick="openDoiBanModal(@item.MaDonHangThucTe, '@item.TenBan')" title="Đổi bàn">
+                                    <i class="fas fa-exchange-alt"></i> Đổi bàn
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalChiTiet" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="chiTietTitle">Chi tiết bàn...</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Món ăn</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">T.Tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chiTietBody"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer justify-content-between bg-light">
+                <h5 class="text-danger fw-bold mb-0">Tổng: <span id="tongTienModal">0</span> đ</h5>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="doiBanModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-dark">
+                <h5 class="modal-title fw-bold">Chuyển Bàn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="doiBanError" style="display:none;"></div>
+                <input type="hidden" id="db_MaDonHang">
+
+                <div class="mb-3">
+                    <label class="form-label text-muted mb-1">Đang ngồi tại</label>
+                    <input type="text" class="form-control fw-bold bg-light" id="db_BanHienTai" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-primary fw-bold mb-1">Đến bàn trống</label>
+                    <select class="form-select border-info" id="db_MaBanMoi"></select>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-info fw-bold w-100" onclick="submitDoiBan()">Xác nhận đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openChiTiet(maDH, tenBan) {
+            $('#chiTietTitle').text('Chi tiết ' + tenBan);
+            $('#chiTietBody').html('<tr><td colspan="3" class="text-center">Đang tải...</td></tr>');
+            $('#modalChiTiet').modal('show');
+
+            $.ajax({
+                url: '/Admin/PhienGoiMon/GetChiTiet?maDonHang=' + maDH,
+                type: 'GET',
+                success: function(res) {
+                    var html = '';
+                    $.each(res.chiTiets, function(i, item) {
+                        html += `<tr>
+                                    <td>${item.tenMon}</td>
+                                    <td class="text-center">${item.soLuong}</td>
+                                    <td class="text-end text-primary fw-bold">${item.thanhTien.toLocaleString('vi-VN')}</td>
+                                 </tr>`;
+                    });
+                    $('#chiTietBody').html(html);
+                    $('#tongTienModal').text(res.tongThanhToan.toLocaleString('vi-VN'));
+                }
+            });
+        }
+
+        function openDoiBanModal(maDH, tenBanHienTai) {
+            $('#doiBanError').hide();
+            $('#db_MaDonHang').val(maDH);
+            $('#db_BanHienTai').val(tenBanHienTai);
+            $('#db_MaBanMoi').html('<option value="">-- Đang tải... --</option>');
+            $('#doiBanModal').modal('show');
+
+            $.ajax({
+                url: '/Admin/PhienGoiMon/GetBanTrong',
+                type: 'GET',
+                success: function (res) {
+                    var options = '<option value="">-- Chọn bàn --</option>';
+                    $.each(res.data, function(i, ban) {
+                        options += `<option value="${ban.maBan}">${ban.tenBan}</option>`;
+                    });
+                    $('#db_MaBanMoi').html(options);
+                }
+            });
+        }
+
+        function submitDoiBan() {
+            var maBanMoi = $('#db_MaBanMoi').val();
+            if(!maBanMoi) return $('#doiBanError').text("Chọn bàn đi đã!").show();
+
+            $.ajax({
+                url: '/Admin/PhienGoiMon/DoiBan',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ MaDonHang: parseInt($('#db_MaDonHang').val()), MaBanMoi: parseInt(maBanMoi) }),
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#doiBanError').text(res.message).show();
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            setInterval(function() {
+                if ($('.modal.show').length === 0) {
+                    $('#banAnGrid').load(location.href + ' #banAnGrid > *');
+                }
+            }, 1000); 
+        });
+    </script>
+}

@@ -1,0 +1,375 @@
+﻿@{
+    ViewData["Title"] = "Quản lý Thực Đơn";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var dsMonAn = ViewBag.MonAns as List<QRSCAN.Models.Entities.MonAn>;
+    var dsDanhMuc = ViewBag.DanhMucs as List<QRSCAN.Models.Entities.DanhMucMon>;
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-white rounded p-4 shadow-sm">
+        <h4 class="mb-4 text-dark"><i class="fas fa-utensils me-2 text-primary"></i>Quản lý Thực Đơn</h4>
+        <ul class="nav nav-pills mb-4 border-bottom pb-3" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold px-4" id="pills-monan-tab" data-bs-toggle="pill" data-bs-target="#pills-monan" type="button" role="tab">
+                    <i class="fas fa-hamburger me-2"></i>Món Ăn
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold px-4" id="pills-danhmuc-tab" data-bs-toggle="pill" data-bs-target="#pills-danhmuc" type="button" role="tab">
+                    <i class="fas fa-list me-2"></i>Danh Mục
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">            <div class="tab-pane fade show active" id="pills-monan" role="tabpanel">
+                <div class="d-flex justify-content-end mb-3">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddMonAn">
+                        <i class="fas fa-plus me-2"></i>Thêm Món
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">Hình Ảnh</th>
+                                <th scope="col">Tên Món</th>
+                                <th scope="col">Danh Mục</th>
+                                <th scope="col">Đơn Giá</th>
+                                <th scope="col">Trạng Thái</th>
+                                <th scope="col" class="text-end">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (dsMonAn != null)
+                            {
+                                foreach (var item in dsMonAn)
+                                {
+                                    <tr>
+                                        <td>
+                                            <img src="@item.HinhAnh" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                        </td>
+                                        <td class="fw-bold">@item.TenMon</td>
+                                        <td><span class="badge bg-secondary">@(item.DanhMucMon?.TenDanhMuc ?? "N/A")</span></td>
+                                        <td class="text-danger fw-bold">@item.DonGia.ToString("N0") đ</td>
+                                        <td>
+                                            @if (item.TrangThai == "Đang bán")
+                                            {
+                                                <span class="badge bg-success">Đang bán</span>
+                                            }
+                                            else if (item.TrangThai == "Ngưng bán")
+                                            {
+
+                                                <span class="badge bg-danger">Ngưng bán</span>
+                                            }
+                                            else
+                                            {
+
+                                                <span class="badge bg-warning text-dark">Hết hàng</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-warning text-white" onclick="openEditMonAn(@item.MaMon)">
+                                                <i class="fas fa-edit"></i> Sửa
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="pills-danhmuc" role="tabpanel">
+                <div class="d-flex justify-content-end mb-3">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddDanhMuc">
+                        <i class="fas fa-plus me-2"></i>Thêm Danh Mục
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0" style="max-width: 600px;">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" width="100">Mã DM</th>
+                                <th scope="col">Tên Danh Mục</th>
+                                <th scope="col" class="text-end" width="120">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (dsDanhMuc != null)
+                            {
+                                foreach (var item in dsDanhMuc)
+                                {
+                                    <tr>
+                                        <td>#@item.MaDanhMuc</td>
+                                        <td class="fw-bold">@item.TenDanhMuc</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-warning text-white" onclick="openEditDanhMuc(@item.MaDanhMuc)">
+                                                <i class="fas fa-edit"></i> Sửa
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAddMonAn" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Món Ăn Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="errMonAnAdd" style="display:none;"></div>
+                <form id="formAddMonAn" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label text-danger fw-bold">Tên Món (*)</label>
+                            <input type="text" class="form-control" name="TenMon" id="c_TenMon" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label text-danger fw-bold">Đơn Giá (*)</label>
+                            <input type="number" class="form-control" name="DonGia" id="c_DonGia" required value="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-danger fw-bold">Danh Mục (*)</label>
+                            <select class="form-select" name="MaDanhMuc" id="c_MaDanhMuc" required>
+                                <option value="">-- Chọn danh mục --</option>
+                                @if (dsDanhMuc != null)
+                                {
+                                    foreach (var dm in dsDanhMuc)
+                                    {
+                                        <option value="@dm.MaDanhMuc">@dm.TenDanhMuc</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-danger fw-bold">Trạng thái (*)</label>
+                            <select class="form-select" name="TrangThai" id="c_TrangThai">
+                                <option value="Đang bán">Đang bán</option>
+                                <option value="Hết hàng">Hết hàng</option>
+                                <option value="Ngưng bán">Ngưng bán</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Mô tả món ăn</label>
+                            <textarea class="form-control" name="MoTa" id="c_MoTa" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Hình Ảnh</label>
+                            <input type="file" class="form-control" name="FileHinhAnh" id="c_FileHinhAnh" accept="image/*">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddMonAn()">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditMonAn" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập Nhật Món Ăn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="errMonAnEdit" style="display:none;"></div>
+                <form id="formEditMonAn" enctype="multipart/form-data">
+                    <input type="hidden" name="MaMon" id="e_MaMon">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Tên Món</label>
+                            <input type="text" class="form-control" name="TenMon" id="e_TenMon" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Đơn Giá</label>
+                            <input type="number" class="form-control" name="DonGia" id="e_DonGia">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Danh Mục</label>
+                            <select class="form-select" name="MaDanhMuc" id="e_MaDanhMuc">
+                                @if (dsDanhMuc != null)
+                                {
+                                    foreach (var dm in dsDanhMuc)
+                                    {
+                                        <option value="@dm.MaDanhMuc">@dm.TenDanhMuc</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" name="TrangThai" id="e_TrangThai">
+                                <option value="Đang bán">Đang bán</option>
+                                <option value="Hết hàng">Hết hàng</option>
+                                <option value="Ngưng bán" class="text-danger fw-bold">Ngưng bán (Không xóa)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Mô tả</label>
+                            <textarea class="form-control" name="MoTa" id="e_MoTa" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Cập nhật Hình Ảnh</label>
+                            <input type="file" class="form-control" name="FileHinhAnh" id="e_FileHinhAnh" accept="image/*">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning text-white" onclick="submitEditMonAn()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAddDanhMuc" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Danh Mục Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="errDMAdd" style="display:none;"></div>
+                <div class="mb-3">
+                    <label class="form-label">Tên danh mục</label>
+                    <input type="text" class="form-control" id="c_TenDanhMuc" placeholder="VD: Mì Ramen">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddDanhMuc()">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditDanhMuc" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa Danh Mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="errDMEdit" style="display:none;"></div>
+                <input type="hidden" id="e_MaDanhMuc">
+                <div class="mb-3">
+                    <label class="form-label">Tên danh mục</label>
+                    <input type="text" class="form-control" id="e_TenDanhMuc">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning text-white" onclick="submitEditDanhMuc()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function submitAddMonAn() {
+            var formData = new FormData();
+            formData.append("TenMon", $('#c_TenMon').val());
+            formData.append("DonGia", $('#c_DonGia').val());
+            formData.append("MaDanhMuc", $('#c_MaDanhMuc').val());
+            formData.append("TrangThai", $('#c_TrangThai').val());
+            formData.append("MoTa", $('#c_MoTa').val());
+
+            var file = $('#c_FileHinhAnh')[0].files[0];
+            if (file) formData.append("FileHinhAnh", file);
+
+            $.ajax({
+                url: '/Admin/MonAn/CreateMonAn', type: 'POST', data: formData, processData: false, contentType: false,
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#errMonAnAdd').text(res.message).show();
+                }
+            });
+        }
+
+        function openEditMonAn(id) {
+            $('#errMonAnEdit').hide();
+            $.ajax({
+                url: '/Admin/MonAn/GetMonAnById?id=' + id, type: 'GET',
+                success: function (d) {
+                    $('#e_MaMon').val(d.maMon); $('#e_TenMon').val(d.tenMon);
+                    $('#e_DonGia').val(d.donGia); $('#e_MaDanhMuc').val(d.maDanhMuc);
+                    $('#e_TrangThai').val(d.trangThai); $('#e_MoTa').val(d.moTa);
+                    $('#e_FileHinhAnh').val('');
+                    $('#modalEditMonAn').modal('show');
+                }
+            });
+        }
+
+        function submitEditMonAn() {
+            var formData = new FormData();
+            formData.append("MaMon", $('#e_MaMon').val());
+            formData.append("TenMon", $('#e_TenMon').val());
+            formData.append("DonGia", $('#e_DonGia').val());
+            formData.append("MaDanhMuc", $('#e_MaDanhMuc').val());
+            formData.append("TrangThai", $('#e_TrangThai').val());
+            formData.append("MoTa", $('#e_MoTa').val());
+
+            var file = $('#e_FileHinhAnh')[0].files[0];
+            if (file) formData.append("FileHinhAnh", file);
+
+            $.ajax({
+                url: '/Admin/MonAn/EditMonAn', type: 'POST', data: formData, processData: false, contentType: false,
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#errMonAnEdit').text(res.message).show();
+                }
+            });
+        }
+
+        function submitAddDanhMuc() {
+            var tenDM = $('#c_TenDanhMuc').val();
+            $.ajax({
+                url: '/Admin/MonAn/CreateDanhMuc', type: 'POST', contentType: 'application/json',
+                data: JSON.stringify({ TenDanhMuc: tenDM }),
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#errDMAdd').text(res.message).show();
+                }
+            });
+        }
+
+        function openEditDanhMuc(id) {
+            $('#errDMEdit').hide();
+            $.ajax({
+                url: '/Admin/MonAn/GetDanhMucById?id=' + id, type: 'GET',
+                success: function (d) {
+                    $('#e_MaDanhMuc').val(d.maDanhMuc);
+                    $('#e_TenDanhMuc').val(d.tenDanhMuc);
+                    $('#modalEditDanhMuc').modal('show');
+                }
+            });
+        }
+
+        function submitEditDanhMuc() {
+            $.ajax({
+                url: '/Admin/MonAn/EditDanhMuc', type: 'POST', contentType: 'application/json',
+                data: JSON.stringify({ MaDanhMuc: parseInt($('#e_MaDanhMuc').val()), TenDanhMuc: $('#e_TenDanhMuc').val() }),
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#errDMEdit').text(res.message).show();
+                }
+            });
+        }
+    </script>
+}

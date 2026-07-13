@@ -1,0 +1,236 @@
+﻿@model IEnumerable<QRSCAN.Models.Entities.NhanVien>
+@{
+    ViewData["Title"] = "Quản lý Nhân Viên";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var dsVaiTro = ViewBag.VaiTros as List<QRSCAN.Models.Entities.VaiTro>;
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-white text-center rounded p-4 shadow-sm">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="mb-0 text-dark">Danh sách Nhân Viên</h4>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="fas fa-plus me-2"></i>Thêm Nhân Viên
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Tài Khoản</th>
+                        <th scope="col">Họ Tên</th>
+                        <th scope="col">Vai Trò</th>
+                        <th scope="col">SĐT</th>
+                        <th scope="col">Trạng Thái</th>
+                        <th scope="col" class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">@item.TenDangNhap</td>
+                            <td>@item.HoTen</td>
+                            <td><span class="badge bg-info text-dark">@(item.VaiTro?.TenVT ?? "N/A")</span></td>
+                            <td>@item.SDT</td>
+                            <td>
+                                @if (item.TrangThai == "Hoạt động")
+                                {
+                                    <span class="badge bg-success">Hoạt động</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge bg-danger">Khóa</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-warning text-white" onclick="openEditModal(@item.MaNV)">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Nhân Viên Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="createError" style="display:none;"></div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tên đăng nhập (*)</label>
+                        <input type="text" class="form-control" id="c_TenDangNhap" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mật khẩu (*)</label>
+                        <input type="password" class="form-control" id="c_MatKhau" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Họ và Tên (*)</label>
+                        <input type="text" class="form-control" id="c_HoTen">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Vai Trò</label>
+                        <select class="form-select" id="c_MaVT">
+                            @if (dsVaiTro != null)
+                            {
+                                foreach (var vt in dsVaiTro)
+                                {
+                                    <option value="@vt.MaVT">@vt.TenVT</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Điện thoại</label>
+                        <input type="text" class="form-control" id="c_SDT">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" id="c_TrangThai">
+                            <option value="Hoạt động">Hoạt động</option>
+                            <option value="Khóa">Khóa</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreate()">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập Nhật Nhân Viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="editError" style="display:none;"></div>
+                <input type="hidden" id="e_MaNV">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tên đăng nhập (*)</label>
+                        <input type="text" class="form-control" id="e_TenDangNhap">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mật khẩu mới (Để trống nếu không đổi)</label>
+                        <input type="password" class="form-control" id="e_MatKhau" placeholder="********">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Họ và Tên (*)</label>
+                        <input type="text" class="form-control" id="e_HoTen">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Vai Trò</label>
+                        <select class="form-select" id="e_MaVT">
+                            @if (dsVaiTro != null)
+                            {
+                                foreach (var vt in dsVaiTro)
+                                {
+                                    <option value="@vt.MaVT">@vt.TenVT</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Điện thoại</label>
+                        <input type="text" class="form-control" id="e_SDT">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" id="e_TrangThai">
+                            <option value="Hoạt động">Hoạt động</option>
+                            <option value="Khóa">Khóa</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning text-white" onclick="submitEdit()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function submitCreate() {
+            var data = {
+                TenDangNhap: $('#c_TenDangNhap').val(),
+                MatKhau: $('#c_MatKhau').val(),
+                HoTen: $('#c_HoTen').val(),
+                MaVT: parseInt($('#c_MaVT').val()),
+                SDT: $('#c_SDT').val(),
+                TrangThai: $('#c_TrangThai').val()
+            };
+
+            $.ajax({
+                url: '/Admin/NhanVien/Create',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#createError').text(res.message).show();
+                }
+            });
+        }
+
+        function openEditModal(id) {
+            $('#editError').hide();
+            $.ajax({
+                url: '/Admin/NhanVien/GetById?id=' + id,
+                type: 'GET',
+                success: function (d) {
+                    $('#e_MaNV').val(d.maNV);
+                    $('#e_TenDangNhap').val(d.tenDangNhap);
+                    $('#e_MatKhau').val(''); 
+                    $('#e_HoTen').val(d.hoTen);
+                    $('#e_MaVT').val(d.maVT);
+                    $('#e_SDT').val(d.sdt);
+                    $('#e_TrangThai').val(d.trangThai);
+                    $('#editModal').modal('show');
+                }
+            });
+        }
+
+        function submitEdit() {
+            var data = {
+                MaNV: parseInt($('#e_MaNV').val()),
+                TenDangNhap: $('#e_TenDangNhap').val(),
+                MatKhau: $('#e_MatKhau').val(), 
+                HoTen: $('#e_HoTen').val(),
+                MaVT: parseInt($('#e_MaVT').val()),
+                SDT: $('#e_SDT').val(),
+                TrangThai: $('#e_TrangThai').val()
+            };
+
+            $.ajax({
+                url: '/Admin/NhanVien/Edit',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#editError').text(res.message).show();
+                }
+            });
+        }
+    </script>
+}

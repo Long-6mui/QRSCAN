@@ -1,0 +1,209 @@
+﻿@model IEnumerable<QRSCAN.Models.Entities.DonHang>
+@{
+    ViewData["Title"] = "Quản lý Đơn Hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid pt-4 px-4">
+
+    <div class="bg-white rounded p-4 shadow-sm mb-4">
+        <h5 class="mb-3 text-dark"><i class="fas fa-filter me-2"></i>Bộ lọc tìm kiếm</h5>
+        <form method="get" action="/Admin/DonHang/Index">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Từ ngày</label>
+                    <input type="date" class="form-control" name="fromDate" value="@ViewBag.FromDate">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Đến ngày</label>
+                    <input type="date" class="form-control" name="toDate" value="@ViewBag.ToDate">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small">Tên Khách Hàng</label>
+                    <input type="text" class="form-control" name="customerName" value="@ViewBag.CustomerName" placeholder="Tên khách...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small">Giá từ (đ)</label>
+                    <input type="number" class="form-control" name="minPrice" value="@ViewBag.MinPrice" placeholder="0">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small">Giá đến (đ)</label>
+                    <input type="number" class="form-control" name="maxPrice" value="@ViewBag.MaxPrice" placeholder="9999999">
+                </div>
+                <div class="col-12 text-end">
+                    <a href="/Admin/DonHang/Index" class="btn btn-light border me-2">
+                        <i class="fas fa-undo"></i> Xóa lọc
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white text-center rounded p-4 shadow-sm">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="mb-0 text-dark">Danh sách Đơn Hàng</h4>
+            <span class="badge bg-info text-dark p-2">Tổng số: @Model.Count() đơn</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Mã ĐH</th>
+                        <th scope="col">Mã KH</th>
+                        <th scope="col">Bàn</th>
+                        <th scope="col">Thời Gian</th>
+                        <th scope="col">Tổng Thanh Toán</th>
+                        <th scope="col">Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr style="cursor: pointer;" onclick="openDetailsModal(@item.MaDonHang)">
+                            <td class="fw-bold text-primary">#@item.MaDonHang</td>
+                            <td>KH-@item.MaKH</td>
+                            <td>@(item.MaBan.HasValue ? "Bàn " + item.MaBan.Value : "Mang đi")</td>
+                            <td>@item.ThoiGianDat.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="fw-bold text-danger">@item.TongThanhToan.ToString("N0") đ</td>
+                            <td>
+                                @if (item.TrangThai == "Hoàn thành")
+                                {
+                                    <span class="badge bg-success">Hoàn thành</span>
+                                }
+                                else if (item.TrangThai == "Đã hủy")
+                                {
+
+                                    <span class="badge bg-danger">Đã hủy</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge bg-warning text-dark">@item.TrangThai</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="6" class="text-center text-muted py-4">Không tìm thấy đơn hàng nào!</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title text-primary fw-bold" id="modalTitle">Chi tiết đơn hàng #...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <p class="mb-1 text-muted">Thời gian đặt:</p>
+                        <h6 id="d_ThoiGian">...</h6>
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        <p class="mb-1 text-muted">Trạng thái:</p>
+                        <h6 id="d_TrangThai">...</h6>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Món ăn</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chiTietBody">
+                        </tbody>
+                        <tfoot class="fw-bold bg-light">
+                            <tr>
+                                <td colspan="3" class="text-end">Tổng tiền:</td>
+                                <td class="text-end" id="d_TongTien">0 đ</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end text-success">Voucher giảm:</td>
+                                <td class="text-end text-success" id="d_TienGiam">- 0 đ</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end fs-5">Khách phải trả:</td>
+                                <td class="text-end fs-5 text-danger" id="d_TongThanhToan">0 đ</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary"><i class="fas fa-print"></i> In Bill</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function formatCurrency(number) {
+            return new Intl.NumberFormat('vi-VN').format(number) + ' đ';
+        }
+        function openDetailsModal(id) {
+            $('#chiTietBody').html('<tr><td colspan="4" class="text-center"><div class="spinner-border text-primary" role="status"></div> Đang tải...</td></tr>');
+            $('#detailsModal').modal('show');
+
+            $.ajax({
+                url: '/Admin/DonHang/GetChiTiet?id=' + id,
+                type: 'GET',
+                success: function (res) {
+                    if (res.success) {
+                        $('#modalTitle').text('Chi tiết đơn hàng #' + res.maDonHang);
+                        $('#d_ThoiGian').text(res.thoiGian);
+                        $('#d_TrangThai').html('<span class="badge bg-secondary">' + res.trangThai + '</span>');
+                        var htmlRows = '';
+                        if (res.chiTiets && res.chiTiets.length > 0) {
+                            $.each(res.chiTiets, function(index, item) {
+                                htmlRows += `
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="${item.hinhAnh}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                                <span>${item.tenMon}</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">${item.soLuong}</td>
+                                        <td class="text-end">${formatCurrency(item.donGia)}</td>
+                                        <td class="text-end text-primary fw-bold">${formatCurrency(item.thanhTien)}</td>
+                                    </tr>
+                                `;
+                            });
+                        } else {
+                            htmlRows = '<tr><td colspan="4" class="text-center text-muted">Lỗi: Không tìm thấy chi tiết món ăn!</td></tr>';
+                        }
+                        $('#chiTietBody').html(htmlRows);
+                        $('#d_TongTien').text(formatCurrency(res.tongTien));
+                        $('#d_TienGiam').text('- ' + formatCurrency(res.tienGiam));
+                        $('#d_TongThanhToan').text(formatCurrency(res.tongThanhToan));
+
+                    } else {
+                        $('#chiTietBody').html('<tr><td colspan="4" class="text-center text-danger">Không thể tải dữ liệu đơn hàng.</td></tr>');
+                    }
+                },
+                error: function() {
+                    $('#chiTietBody').html('<tr><td colspan="4" class="text-center text-danger">Lỗi kết nối Server.</td></tr>');
+                }
+            });
+        }
+    </script>
+}

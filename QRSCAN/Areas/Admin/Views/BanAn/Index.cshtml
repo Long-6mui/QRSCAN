@@ -1,0 +1,186 @@
+﻿@model IEnumerable<QRSCAN.Models.Entities.BanAn>
+@{
+    ViewData["Title"] = "Quản lý Bàn Ăn";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-white text-center rounded p-4 shadow-sm">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="mb-0 text-dark"><i class="fas fa-th-large me-2 text-primary"></i>Sơ đồ Bàn Ăn</h4>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="fas fa-plus me-2"></i>Thêm Bàn
+            </button>
+        </div>
+
+        <div class="row g-4 text-start">
+            @foreach (var item in Model)
+            {
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm rounded-4 border-2 @(item.TrangThai == "Trống" ? "border-success" : "border-danger")"
+                         style="background-color: @(item.TrangThai == "Trống" ? "#f0fdf4" : "#fff1f2"); transition: transform 0.2s;"
+                         onmouseover="this.style.transform='translateY(-5px)'"
+                         onmouseout="this.style.transform='translateY(0)'">
+
+                        <div class="card-body text-center d-flex flex-column justify-content-center pt-4">
+                            <div class="mb-3">
+                                <i class="fas fa-square fa-3x @(item.TrangThai == "Trống" ? "text-success" : "text-danger")" style="opacity: 0.8;"></i>
+                            </div>
+
+                            <h5 class="fw-bold text-dark mt-2 mb-1">@item.TenBan</h5>
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-user-friends me-1"></i> @item.SoChoNgoi chỗ ngồi
+                            </p>
+
+                            <div>
+                                @if (item.TrangThai == "Trống")
+                                {
+                                    <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">Trống</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger px-3 py-2 rounded-pill shadow-sm">Đang phục vụ</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0 d-flex justify-content-center gap-2 pb-3 pt-0">
+                            <a href="@item.NoiDungQR" target="_blank" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;" title="Xem QR">
+                                <i class="fas fa-qrcode"></i>
+                            </a>
+                            <button class="btn btn-sm btn-warning text-white rounded-pill px-3 fw-medium shadow-sm" onclick="openEditModal(@item.MaBan)">
+                                <i class="fas fa-edit me-1"></i> Sửa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="col-12 text-center text-muted py-5">
+                    <i class="fas fa-chair fa-3x mb-3 opacity-50"></i>
+                    <p>Chưa có bàn ăn nào. Hãy bấm "Thêm Bàn" để bắt đầu!</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Bàn Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="createError" style="display:none;"></div>
+                <div class="mb-3">
+                    <label class="form-label">Tên Bàn</label>
+                    <input type="text" class="form-control" id="createTenBan" placeholder="VD: Bàn 01">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số chỗ ngồi</label>
+                    <input type="number" class="form-control" id="createSoCho" value="4">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select class="form-select" id="createTrangThai">
+                        <option value="Trống">Trống</option>
+                        <option value="Đang phục vụ">Đang phục vụ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreate()">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh Sửa Bàn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="editError" style="display:none;"></div>
+                <input type="hidden" id="editMaBan">
+                <div class="mb-3">
+                    <label class="form-label">Tên Bàn</label>
+                    <input type="text" class="form-control" id="editTenBan">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số chỗ ngồi</label>
+                    <input type="number" class="form-control" id="editSoCho">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select class="form-select" id="editTrangThai">
+                        <option value="Trống">Trống</option>
+                        <option value="Đang phục vụ">Đang phục vụ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning text-white" onclick="submitEdit()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function submitCreate() {
+            var data = {
+                TenBan: $('#createTenBan').val(),
+                SoChoNgoi: parseInt($('#createSoCho').val()),
+                TrangThai: $('#createTrangThai').val()
+            };
+            $.ajax({
+                url: '/Admin/BanAn/Create', type: 'POST', contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#createError').text(res.message).show();
+                }
+            });
+        }
+
+        function openEditModal(id) {
+            $('#editError').hide();
+            $.ajax({
+                url: '/Admin/BanAn/GetById?id=' + id, type: 'GET',
+                success: function (data) {
+                    $('#editMaBan').val(data.maBan);
+                    $('#editTenBan').val(data.tenBan);
+                    $('#editSoCho').val(data.soChoNgoi);
+                    $('#editTrangThai').val(data.trangThai);
+                    $('#editModal').modal('show');
+                }
+            });
+        }
+
+        function submitEdit() {
+            var data = {
+                MaBan: parseInt($('#editMaBan').val()),
+                TenBan: $('#editTenBan').val(),
+                SoChoNgoi: parseInt($('#editSoCho').val()),
+                TrangThai: $('#editTrangThai').val()
+            };
+            $.ajax({
+                url: '/Admin/BanAn/Edit', type: 'POST', contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#editError').text(res.message).show();
+                }
+            });
+        }
+    </script>
+}
