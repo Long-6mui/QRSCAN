@@ -7,10 +7,10 @@ namespace QRSCAN.Controllers
         public IActionResult TestLogin()
         {
             HttpContext.Session.SetInt32("MaNV", 999);
-            HttpContext.Session.SetInt32("MaVT", 1); // 1 = nhân viên phục vụ (thu ngân)
-            HttpContext.Session.SetString("HoTenNV", "Nhan Vien Test");
-            HttpContext.Session.SetString("TenVaiTro", "Nhan vien phuc vu");
-            HttpContext.Session.SetString("LoaiTaiKhoan", "NhanVien");
+            HttpContext.Session.SetInt32("MaVT", 4); // 1 = nhân viên phục vụ (thu ngân)
+            HttpContext.Session.SetString("HoTenNV", "Thu Ngân Test");
+            HttpContext.Session.SetString("TenVaiTro", "Thu Ngan");
+            HttpContext.Session.SetString("LoaiTaiKhoan", "ThuNgan");
 
             return RedirectToAction("Index");
         }

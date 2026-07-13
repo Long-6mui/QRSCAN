@@ -18,16 +18,28 @@ namespace QRSCAN.Controllers
             return HttpContext.Session.GetInt32("MaNV") != null;
         }
 
-        // Danh sách đơn hàng thanh toán tiền mặt đang chờ thu ngân xử lý
+        // Danh sách đơn hàng thanh toán tiền mặt đang chờ thu ngân xử lý (dạng lưới số bàn)
         public async Task<IActionResult> DanhSach()
         {
             if (!IsNhanVienDangNhap()) return RedirectToAction("Login", "Account");
 
             var dsDon = await _context.ThanhToans
-                .Include(t => t.DonHang)
                 .Where(t => t.PhuongThuc == "TienMat" && t.TrangThai == "ChoThanhToan")
                 .OrderBy(t => t.NgayThanhToan)
                 .ToListAsync();
+
+            var maDonHangs = dsDon.Select(t => t.MaDonHang).Distinct().ToList();
+            var donHangs = await _context.DonHangs
+                .Where(d => maDonHangs.Contains(d.MaDonHang))
+                .ToDictionaryAsync(d => d.MaDonHang);
+
+            foreach (var t in dsDon)
+            {
+                if (donHangs.TryGetValue(t.MaDonHang, out var dh))
+                    t.DonHang = dh;
+            }
+
+            ViewBag.ActiveTab = "thu";
 
             return View(dsDon);
         }
@@ -72,16 +84,28 @@ namespace QRSCAN.Controllers
             return RedirectToAction("HoaDon", new { maDonHang });
         }
 
-        // Danh sách hóa đơn đã thanh toán (xem hóa đơn)
+        // Danh sách hóa đơn đã thanh toán (dạng lưới số bàn)
         public async Task<IActionResult> DanhSachHoaDon()
         {
             if (!IsNhanVienDangNhap()) return RedirectToAction("Login", "Account");
 
             var dsHoaDon = await _context.ThanhToans
-                .Include(t => t.DonHang)
                 .Where(t => t.TrangThai == "DaThanhToan")
                 .OrderByDescending(t => t.NgayThanhToan)
                 .ToListAsync();
+
+            var maDonHangs = dsHoaDon.Select(t => t.MaDonHang).Distinct().ToList();
+            var donHangs = await _context.DonHangs
+                .Where(d => maDonHangs.Contains(d.MaDonHang))
+                .ToDictionaryAsync(d => d.MaDonHang);
+
+            foreach (var t in dsHoaDon)
+            {
+                if (donHangs.TryGetValue(t.MaDonHang, out var dh))
+                    t.DonHang = dh;
+            }
+
+            ViewBag.ActiveTab = "hoadon";
 
             return View(dsHoaDon);
         }
@@ -92,9 +116,9 @@ namespace QRSCAN.Controllers
             if (!IsNhanVienDangNhap()) return RedirectToAction("Login", "Account");
 
             var donHang = await _context.DonHangs
-     .Include(x => x.ChiTietDonHangs!)
-         .ThenInclude(ct => ct.MonAn)
-     .FirstOrDefaultAsync(x => x.MaDonHang == maDonHang);
+                .Include(x => x.ChiTietDonHangs!)
+                    .ThenInclude(ct => ct.MonAn)
+                .FirstOrDefaultAsync(x => x.MaDonHang == maDonHang);
 
             if (donHang == null) return NotFound();
 

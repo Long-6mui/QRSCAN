@@ -35,6 +35,10 @@
             {
                 <span>Giao diện dành cho quản trị viên hệ thống.</span>
             }
+            else if (maVT == 4)
+            {
+                <span>Giao diện dành cho thu ngân.</span>
+            }
             else
             {
                 <span>Giao diện nhân sự.</span>
@@ -53,6 +57,10 @@
             else if (maVT == 3)
             {
                 <span>AD</span>
+            }
+            else if (maVT == 4)
+            {
+                <span>TN</span>
             }
             else
             {
@@ -89,19 +97,6 @@
                     <h3>Hỗ trợ khách</h3>
                     <p>Tiếp nhận yêu cầu hỗ trợ từ khách tại bàn.</p>
                     <button>Đang phát triển</button>
-                </div>
-                <div class="staff-card">
-                    <div>💵</div>
-                    <h3>Thu ngân</h3>
-                    <p>Xử lý thanh toán tiền mặt cho đơn khách.</p>
-                    <a class="staff-btn" asp-controller="ThanhToan" asp-action="DanhSach">Mở</a>
-                </div>
-
-                <div class="staff-card">
-                    <div>🧾</div>
-                    <h3>Xem hóa đơn</h3>
-                    <p>Tra cứu các hóa đơn đã thanh toán.</p>
-                    <a class="staff-btn" asp-controller="ThanhToan" asp-action="DanhSachHoaDon">Mở</a>
                 </div>
 
                 <div class="staff-card">
@@ -187,6 +182,31 @@
                     <h3>Thống kê doanh thu</h3>
                     <p>Xem doanh thu, số đơn và tình hình bán hàng.</p>
                     <button>Đang phát triển</button>
+                </div>
+            </div>
+        </section>
+    }
+    else if (maVT == 4)
+    {
+        <section class="staff-section">
+            <div class="section-title">
+                <p>Thu Ngân</p>
+                <h2>Chức năng dành cho thu ngân </h2>
+            </div>
+
+            <div class="staff-grid">
+                <div class="staff-card">
+                    <div>💵</div>
+                    <h3>Thu ngân</h3>
+                    <p>Xử lý thanh toán tiền mặt cho đơn khách.</p>
+                    <a class="staff-btn" asp-controller="ThanhToan" asp-action="DanhSach">Mở</a>
+                </div>
+
+                <div class="staff-card">
+                    <div>🧾</div>
+                    <h3>Xem hóa đơn</h3>
+                    <p>Tra cứu các hóa đơn đã thanh toán.</p>
+                    <a class="staff-btn" asp-controller="ThanhToan" asp-action="DanhSachHoaDon">Mở</a>
                 </div>
             </div>
         </section>

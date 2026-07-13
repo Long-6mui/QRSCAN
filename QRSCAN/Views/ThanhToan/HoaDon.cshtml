@@ -8,13 +8,14 @@
 }
 <div class="staff-page">
     <nav class="staff-navbar">
-        <div><p>KIMURA RAMEN</p><h2>Hóa đơn #@Model.MaDonHang</h2></div>
+        <div><p>KIMURA RAMEN</p><h2>Hóa đơn - Bàn @Model.MaBan</h2></div>
         <a asp-action="DanhSachHoaDon">Quay lại</a>
     </nav>
 
     <section class="staff-section" style="margin-top:40px;">
         <p>Trạng thái thanh toán: <b>@(thanhToan?.TrangThai ?? "Chưa xác định")</b></p>
         <p>Phương thức: <b>@(thanhToan?.PhuongThuc)</b></p>
+        <p>Thời gian thanh toán: <b>@(thanhToan != null ? thanhToan.NgayThanhToan.ToString("HH:mm 'ngày' dd/MM/yyyy") : "Chưa xác định")</b></p>
 
         <table class="staff-table">
             <thead><tr><th>Món</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
