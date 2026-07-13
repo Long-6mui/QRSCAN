@@ -20,8 +20,8 @@ namespace QRSCAN.Areas.Admin.Controllers
         public class PhienGoiMonViewModel
         {
             public int MaBan { get; set; }
-            public string TenBan { get; set; }
-            public string TrangThaiBan { get; set; }
+            public string? TenBan { get; set; }
+            public string? TrangThaiBan { get; set; }
             public int SoChoNgoi { get; set; }
 
             public int? MaDonHangThucTe { get; set; }
