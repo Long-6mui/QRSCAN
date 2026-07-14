@@ -82,6 +82,7 @@ namespace QRSCAN.Areas.Admin.Controllers
                 tongTien = donHang.TongTien,
                 tienGiam = donHang.TienGiam,
                 tongThanhToan = donHang.TongThanhToan
+
             });
         }
     }

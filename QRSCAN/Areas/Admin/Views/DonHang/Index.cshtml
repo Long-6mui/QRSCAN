@@ -114,6 +114,10 @@
                         <p class="mb-1 text-muted">Trạng thái:</p>
                         <h6 id="d_TrangThai">...</h6>
                     </div>
+                    <div class="col-sm-12 mt-2">
+                        <p class="mb-1 text-muted">Phương thức thanh toán:</p>
+                        <h6 id="d_PhuongThuc" class="text-primary fw-bold">...</h6>
+                    </div>
                 </div>
 
                 <div class="table-responsive">
@@ -171,6 +175,7 @@
                         $('#modalTitle').text('Chi tiết đơn hàng #' + res.maDonHang);
                         $('#d_ThoiGian').text(res.thoiGian);
                         $('#d_TrangThai').html('<span class="badge bg-secondary">' + res.trangThai + '</span>');
+                        $('#d_PhuongThuc').text(res.phuongThucThanhToan || "Chưa có phương thức thanh toán");
                         var htmlRows = '';
                         if (res.chiTiets && res.chiTiets.length > 0) {
                             $.each(res.chiTiets, function(index, item) {

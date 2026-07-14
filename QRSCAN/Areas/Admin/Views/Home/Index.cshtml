@@ -5,24 +5,78 @@
 
 <h5 class="mb-3">📊 Báo cáo tổng quan</h5>
 <div class="row mb-5">
-    <div class="col-md-4 mb-3">
-        <div class="card bg-primary text-white h-100 p-3 shadow-sm">
-            <h4>Doanh thu</h4>
-            <h2>24.500.000đ</h2>
-        </div>
-    </div>
-    <div class="col-md-4 mb-3">
-        <a href="/Admin/DonHang" class="text-decoration-none">
-            <div class="card bg-success text-white h-100 p-3 shadow-sm">
-                <h4>Đơn hàng</h4>
-                <h2>142 Đơn</h2>
+    <div class="mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <!-- Bộ lọc nhanh trên cùng 1 dòng -->
+            <div class="d-flex gap-2 align-items-center">
+                <input type="date" class="form-control form-control-sm" id="fromDate" title="Từ ngày">
+                <span class="text-muted">-</span>
+                <input type="date" class="form-control form-control-sm" id="toDate" title="Đến ngày">
+                <button class="btn btn-sm btn-primary" onclick="loadData()"><i class="fas fa-filter"></i></button>
             </div>
-        </a>    
-    </div>
-    <div class="col-md-4 mb-3">
-        <div class="card bg-info text-white h-100 p-3 shadow-sm">
-            <h4>Món ăn bán chạy</h4>
-            <h2>Top 5</h2>
+        </div>
+
+        <!-- Cảnh báo lỗi ngày -->
+        <div id="errorAlert" class="alert alert-danger py-2 mb-3" style="display: none;"></div>
+
+        <!-- CÁC THẺ CARD (CÓ THỂ CLICK VÀO ĐƯỢC) -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <a href="/Admin/DonHang/Index" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-white h-100" style="background-color: #1a73e8; border-radius: 12px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div class="card-body p-4 position-relative overflow-hidden">
+                            <i class="fas fa-wallet fa-4x position-absolute opacity-25" style="right: -10px; bottom: -10px;"></i>
+                            <h5 class="card-title text-white-50 mb-2 fw-bold text-uppercase fs-6">Tổng doanh thu</h5>
+                            <h2 class="fw-bold mb-0" id="cardDoanhThu">Đang tải...</h2>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/Admin/DonHang/Index" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-white h-100" style="background-color: #1e8e3e; border-radius: 12px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div class="card-body p-4 position-relative overflow-hidden">
+                            <i class="fas fa-shopping-bag fa-4x position-absolute opacity-25" style="right: -10px; bottom: -10px;"></i>
+                            <h5 class="card-title text-white-50 mb-2 fw-bold text-uppercase fs-6">Đơn hoàn thành</h5>
+                            <h2 class="fw-bold mb-0" id="cardDonHang">Đang tải...</h2>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/Admin/MonAn/Index" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-white h-100" style="background-color: #12b5cb; border-radius: 12px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div class="card-body p-4 position-relative overflow-hidden">
+                            <i class="fas fa-utensils fa-4x position-absolute opacity-25" style="right: -10px; bottom: -10px;"></i>
+                            <h5 class="card-title text-white-50 mb-2 fw-bold text-uppercase fs-6">Món bán chạy nhất</h5>
+                            <h2 class="fw-bold mb-0" id="cardMonChayNhat">Đang tải...</h2>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- BIỂU ĐỒ (CHART.JS) -->
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="bg-white rounded p-4 shadow-sm border h-100" style="overflow: hidden;">
+                    <h6 class="mb-4 text-dark fw-bold">Doanh thu theo tháng</h6>
+                    <!-- Ép cứng chiều rộng và chiều cao tại đây -->
+                    <div style="height: 300px; width: 100%;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="bg-white rounded p-4 shadow-sm border h-100">
+                    <h6 class="mb-4 text-dark fw-bold">Tỉ lệ món ăn bán chạy</h6>
+                    <div style="height: 300px; width: 100%; position: relative;">
+                        <canvas id="dishChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -81,3 +135,115 @@
         </a>
     </div>    
 </div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var revChart = null;
+        var pieChart = null;
+
+        $(document).ready(function () {
+            var today = new Date();
+    
+            // Tạo ngày cách đây đúng 1 năm
+            var oneYearAgo = new Date();
+            oneYearAgo.setFullYear(today.getFullYear() - 1);
+    
+            // Hàm format date chuẩn YYYY-MM-DD cho input HTML
+            function formatDate(date) {
+                var d = new Date(date),
+                    month = '' + (d.getMonth() + 1),
+                    day = '' + d.getDate(),
+                    year = d.getFullYear();
+
+                if (month.length < 2) month = '0' + month;
+                if (day.length < 2) day = '0' + day;
+                return [year, month, day].join('-');
+            }
+
+            // Gán giá trị vào input
+            $('#fromDate').val(formatDate(oneYearAgo));
+            $('#toDate').val(formatDate(today));
+
+            // Gọi hàm load dữ liệu
+            loadData();
+        });
+
+        function loadData() {
+            var from = $('#fromDate').val();
+            var to = $('#toDate').val();
+
+            $.ajax({
+                url: '/Admin/Home/GetDashboardData',
+                data: { fromDate: from, toDate: to },
+                success: function(res) {
+                    $('#cardDoanhThu').text(new Intl.NumberFormat('vi-VN').format(res.tongDoanhThu) + ' đ');
+                    $('#cardDonHang').text(res.tongDonHang + ' Đơn');
+                    $('#cardMonChayNhat').text(res.bieuDoMonAn.length > 0 ? res.bieuDoMonAn[0].tenMon : 'Chưa có');
+                    
+                    drawRevenueChart(res.bieuDoDoanhThu);
+                    drawDishChart(res.bieuDoMonAn);
+                },
+                error: function() {
+                    console.error("Lỗi khi gọi API");
+                }
+            });
+        }
+
+        function drawRevenueChart(data) {
+            var ctx = document.getElementById('revenueChart').getContext('2d');
+            if (revChart) revChart.destroy();
+
+            var labels = data.map(function(e) { return e.ngay; });
+            var values = data.map(function(e) { return e.doanhThu; });
+            var maxValue = values.length > 0 ? Math.max(...values) : 100;
+
+            revChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: values,
+                        backgroundColor: '#1a73e8',
+                        borderRadius: 5,
+                        barThickness: 30,       // Đã sửa: Xóa dòng trùng lặp
+                        maxBarThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxRotation: 0 } },
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: maxValue * 1.2,
+                            ticks: {
+                                callback: function(value) {
+                                    return (value / 1000000).toLocaleString() + 'tr';
+                                }
+                            }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function drawDishChart(data) {
+            var ctx = document.getElementById('dishChart').getContext('2d');
+            if (pieChart) pieChart.destroy();
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(e => e.tenMon),
+                    datasets: [{ 
+                        data: data.map(e => e.soLuong), 
+                        backgroundColor: ['#1a73e8', '#1e8e3e', '#fbbc04', '#ea4335', '#8ab4f8'] 
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+    </script>
+}

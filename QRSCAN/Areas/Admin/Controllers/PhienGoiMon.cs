@@ -24,6 +24,8 @@ namespace QRSCAN.Areas.Admin.Controllers
             public string? TrangThaiBan { get; set; }
             public int SoChoNgoi { get; set; }
 
+            public string? PhuongThucThanhToan { get; set; }
+
             public int? MaDonHangThucTe { get; set; }
             public DateTime? ThoiGianVao { get; set; }
             public decimal? TongTienHienTai { get; set; }
@@ -89,6 +91,7 @@ namespace QRSCAN.Areas.Admin.Controllers
                 maDonHang = donHang.MaDonHang,
                 thoiGian = donHang.ThoiGianDat.ToString("HH:mm dd/MM/yyyy"),
                 trangThai = donHang.TrangThai,
+                phuongThucThanhToan = donHang.PhuongThucThanhToan,
                 tongThanhToan = donHang.TongThanhToan,
                 chiTiets = chiTiets
             });
