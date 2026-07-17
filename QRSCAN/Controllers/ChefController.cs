@@ -4,126 +4,135 @@ using QRSCAN.Data;
 
 namespace QRSCAN.Controllers
 {
-	public class ChefController : Controller
-	{
-		private readonly AppDbContext _context;
+    public class ChefController : Controller
+    {
+        private readonly AppDbContext _context;
 
-		public ChefController(AppDbContext context)
-		{
-			_context = context;
-		}
+        public ChefController(AppDbContext context)
+        {
+            _context = context;
+        }
 
-		// Hàm kiểm tra quyền Chef (MaVT = 2)
-		private bool IsChefLoggedIn()
-		{
-			var maVT = HttpContext.Session.GetInt32("MaVT");
-			return maVT == 2;
-		}
+        private bool IsBepDangNhap()
+        {
+            var maVT = HttpContext.Session.GetInt32("MaVT");
+            var tenVaiTro = HttpContext.Session.GetString("TenVaiTro");
 
-		// 1. Hiển thị danh sách đơn hàng cho màn hình nhà bếp
-		public async Task<IActionResult> Index()
-		{
-			if (!IsChefLoggedIn())
-			{
-				return RedirectToAction("Login", "Account");
-			}
+            return maVT == 2 || tenVaiTro == "Bep";
+        }
 
-			var danhSachDonHang = await _context.DonHangs
-				.Include(x => x.ChiTietDonHangs)
-					.ThenInclude(c => c.MonAn)
-				.Where(x => x.TrangThai == "Chờ xác nhận"
-							|| x.TrangThai == "Đang chế biến"
-							|| x.TrangThai == "Đã phục vụ"
-							|| x.TrangThai == "Hoàn thành")
-				.OrderBy(x => x.ThoiGianDat)
-				.ToListAsync();
+        public async Task<IActionResult> Index()
+        {
+            if (!IsBepDangNhap())
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-			return View(danhSachDonHang);
-		}
+            var danhSachDonHang = await _context.DonHangs
+                .Include(d => d.PhienGoiMon)
+                    .ThenInclude(p => p!.BanAn)
+                .Include(d => d.ChiTietDonHangs)
+                    .ThenInclude(ct => ct.MonAn)
+                .Where(d => d.TrangThai == "ChoXacNhan"
+                    || d.TrangThai == "DangCheBien")
+                .OrderBy(d => d.ThoiGianTao)
+                .ToListAsync();
 
-		// 2. Tiếp nhận toàn bộ đơn hàng (Chuyển trạng thái đơn sang "Đang chế biến")
-		[HttpPost]
-		public async Task<IActionResult> TiepNhanDonHang(int id)
-		{
-			if (!IsChefLoggedIn())
-			{
-				return RedirectToAction("Login", "Account");
-			}
+            return View(danhSachDonHang);
+        }
 
-			var donHang = await _context.DonHangs
-				.FirstOrDefaultAsync(x => x.MaDonHang == id);
+        [HttpPost]
+        public async Task<IActionResult> NhanDon(int maDH)
+        {
+            if (!IsBepDangNhap())
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-			if (donHang != null)
-			{
-				donHang.TrangThai = "Đang chế biến";
-				_context.DonHangs.Update(donHang);
-				await _context.SaveChangesAsync();
-			}
+            var donHang = await _context.DonHangs
+                .Include(d => d.ChiTietDonHangs)
+                .FirstOrDefaultAsync(d => d.MaDH == maDH);
 
-			return RedirectToAction(nameof(Index));
-		}
+            if (donHang == null)
+            {
+                return NotFound();
+            }
 
-		// 3. Xác nhận hoàn thành từng món ăn riêng lẻ
-		[HttpPost]
-		public async Task<IActionResult> HoanThanhMon(int id)
-		{
-			if (!IsChefLoggedIn())
-			{
-				return RedirectToAction("Login", "Account");
-			}
+            donHang.TrangThai = "DangCheBien";
 
-			var chiTiet = await _context.ChiTietDonHangs
-				.FirstOrDefaultAsync(x => x.MaChiTiet == id);
+            foreach (var ct in donHang.ChiTietDonHangs)
+            {
+                ct.TrangThai = "DangCheBien";
+            }
 
-			if (chiTiet != null)
-			{
-				chiTiet.TrangThai = "Hoàn thành";
-				_context.ChiTietDonHangs.Update(chiTiet);
-				await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-				// Tự động chuyển đơn hàng sang "Đã phục vụ" khi tất cả các món trong đơn đã xong
-				var maDonHang = chiTiet.MaDonHang;
-				var tatCaMon = await _context.ChiTietDonHangs
-					.Where(x => x.MaDonHang == maDonHang)
-					.ToListAsync();
+            return RedirectToAction("Index");
+        }
 
-				if (tatCaMon.All(x => x.TrangThai == "Hoàn thành"))
-				{
-					var donHang = await _context.DonHangs
-						.FirstOrDefaultAsync(x => x.MaDonHang == maDonHang);
+        [HttpPost]
+        public async Task<IActionResult> HoanThanhMon(int maCT_DH)
+        {
+            if (!IsBepDangNhap())
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-					if (donHang != null && donHang.TrangThai == "Đang chế biến")
-					{
-						donHang.TrangThai = "Đã phục vụ";
-						_context.DonHangs.Update(donHang);
-						await _context.SaveChangesAsync();
-					}
-				}
-			}
+            var chiTiet = await _context.ChiTietDonHangs
+                .Include(ct => ct.DonHang)
+                    .ThenInclude(d => d!.ChiTietDonHangs)
+                .FirstOrDefaultAsync(ct => ct.MaCT_DH == maCT_DH);
 
-			return RedirectToAction(nameof(Index));
-		}
+            if (chiTiet == null)
+            {
+                return NotFound();
+            }
 
-		// 4. Xác nhận hoàn tất toàn bộ đơn hàng (Chuyển sang "Hoàn thành")
-		[HttpPost]
-		public async Task<IActionResult> HoanThanhDonHang(int maDonHang)
-		{
-			if (!IsChefLoggedIn())
-			{
-				return RedirectToAction("Login", "Account");
-			}
+            chiTiet.TrangThai = "HoanThanh";
 
-			var donHang = await _context.DonHangs
-				.FirstOrDefaultAsync(x => x.MaDonHang == maDonHang);
+            if (chiTiet.DonHang != null)
+            {
+                var tatCaDaXong = chiTiet.DonHang.ChiTietDonHangs
+                    .All(ct => ct.TrangThai == "HoanThanh");
 
-			if (donHang != null)
-			{
-				donHang.TrangThai = "Hoàn thành";
-				_context.DonHangs.Update(donHang);
-				await _context.SaveChangesAsync();
-			}
+                if (tatCaDaXong)
+                {
+                    chiTiet.DonHang.TrangThai = "DaPhucVu";
+                }
+            }
 
-			return RedirectToAction(nameof(Index));
-		}
-	}
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> HoanThanhDon(int maDH)
+        {
+            if (!IsBepDangNhap())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var donHang = await _context.DonHangs
+                .Include(d => d.ChiTietDonHangs)
+                .FirstOrDefaultAsync(d => d.MaDH == maDH);
+
+            if (donHang == null)
+            {
+                return NotFound();
+            }
+
+            donHang.TrangThai = "DaPhucVu";
+
+            foreach (var ct in donHang.ChiTietDonHangs)
+            {
+                ct.TrangThai = "HoanThanh";
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+    }
 }

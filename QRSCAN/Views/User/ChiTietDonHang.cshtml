@@ -1,8 +1,8 @@
-﻿@model List<QRSCAN.Models.Entities.ChiTietDonHang>
+﻿@model QRSCAN.Models.Entities.DonHang
 
 @{
     ViewData["Title"] = "Chi tiết đơn hàng";
-    var donHang = ViewBag.DonHang as QRSCAN.Models.Entities.DonHang;
+    var tongThanhToan = Model.TongTien - Model.SoTienGiam;
 }
 
 @section Styles {
@@ -13,31 +13,49 @@
     <div class="user-header">
         <div>
             <p>KIMURA RAMEN</p>
-            <h1>Chi tiết đơn #@donHang?.MaDonHang</h1>
-            <span>Bàn @donHang?.MaBan - @donHang?.ThoiGianDat.ToString("dd/MM/yyyy HH:mm")</span>
+            <h1>Chi tiết đơn hàng #@Model.MaDH</h1>
+            <span>@(Model.PhienGoiMon?.BanAn?.TenBan ?? "Không rõ bàn")</span>
         </div>
 
-        <a asp-controller="User" asp-action="LichSuDonHang" class="user-back-btn">← Lịch sử</a>
+        <a asp-controller="User" asp-action="LichSuDonHang">← Quay lại</a>
     </div>
 
-    <div class="order-detail-box">
-        @foreach (var item in Model)
-        {
-            <div class="order-detail-item">
-                <img src="@item.MonAn?.HinhAnh" alt="@item.MonAn?.TenMon" />
+    <div class="order-detail-card">
+        <div class="order-detail-info">
+            <p><strong>Thời gian tạo:</strong> @Model.ThoiGianTao.ToString("dd/MM/yyyy HH:mm")</p>
+            <p><strong>Trạng thái:</strong> @Model.TrangThai</p>
+            <p><strong>Voucher:</strong> @(Model.Voucher?.MaCode ?? "Không có")</p>
+        </div>
 
-                <div>
-                    <h3>@item.MonAn?.TenMon</h3>
-                    <p>@item.DonGia.ToString("N0")đ x @item.SoLuong</p>
-                </div>
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Món</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
 
-                <strong>@item.ThanhTien.ToString("N0")đ</strong>
-            </div>
-        }
+            <tbody>
+                @foreach (var ct in Model.ChiTietDonHangs)
+                {
+                    <tr>
+                        <td>@ct.MonAn?.TenMon</td>
+                        <td>@ct.SoLuong</td>
+                        <td>@ct.DonGia.ToString("N0")đ</td>
+                        <td>@ct.ThanhTien.ToString("N0")đ</td>
+                        <td>@ct.TrangThai</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
-        <div class="order-detail-total">
-            <span>Tổng tiền</span>
-            <strong>@donHang?.TongTien.ToString("N0")đ</strong>
+        <div class="order-total-box">
+            <p>Tổng tiền món: <strong>@Model.TongTien.ToString("N0")đ</strong></p>
+            <p>Giảm giá: <strong>-@Model.SoTienGiam.ToString("N0")đ</strong></p>
+            <h2>Tổng thanh toán: @tongThanhToan.ToString("N0")đ</h2>
         </div>
     </div>
 </div>

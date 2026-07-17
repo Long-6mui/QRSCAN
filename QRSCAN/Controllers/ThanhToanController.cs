@@ -18,117 +18,131 @@ namespace QRSCAN.Controllers
             return HttpContext.Session.GetInt32("MaNV") != null;
         }
 
-        // Danh sách đơn hàng thanh toán tiền mặt đang chờ thu ngân xử lý (dạng lưới số bàn)
         public async Task<IActionResult> DanhSach()
         {
-            if (!IsNhanVienDangNhap()) return RedirectToAction("Login", "Account");
-
-            var dsDon = await _context.ThanhToans
-                .Where(t => t.PhuongThuc == "TienMat" && t.TrangThai == "ChoThanhToan")
-                .OrderBy(t => t.NgayThanhToan)
-                .ToListAsync();
-
-            var maDonHangs = dsDon.Select(t => t.MaDonHang).Distinct().ToList();
-            var donHangs = await _context.DonHangs
-                .Where(d => maDonHangs.Contains(d.MaDonHang))
-                .ToDictionaryAsync(d => d.MaDonHang);
-
-            foreach (var t in dsDon)
+            if (!IsNhanVienDangNhap())
             {
-                if (donHangs.TryGetValue(t.MaDonHang, out var dh))
-                    t.DonHang = dh;
+                return RedirectToAction("Login", "Account");
             }
+
+            var dsHoaDon = await _context.HoaDons
+                .Include(h => h.DonHang)
+                    .ThenInclude(d => d!.PhienGoiMon)
+                        .ThenInclude(p => p!.BanAn)
+                .Include(h => h.PhuongThucThanhToan)
+                .Where(h => h.PhuongThucThanhToan != null
+                    && h.PhuongThucThanhToan.TenPT == "Tien mat"
+                    && h.TrangThai == "ChuaThanhToan")
+                .OrderBy(h => h.ThoiGianTao)
+                .ToListAsync();
 
             ViewBag.ActiveTab = "thu";
 
-            return View(dsDon);
+            return View(dsHoaDon);
         }
 
-        // GET: hiển thị chi tiết đơn trước khi thu ngân bấm xác nhận
-        public async Task<IActionResult> ThuTien(int maDonHang)
+        public async Task<IActionResult> ThuTien(int maDH)
         {
-            if (!IsNhanVienDangNhap()) return RedirectToAction("Login", "Account");
+            if (!IsNhanVienDangNhap())
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var donHang = await _context.DonHangs
-                .Include(x => x.ChiTietDonHangs!)
+                .Include(d => d.PhienGoiMon)
+                    .ThenInclude(p => p!.BanAn)
+                .Include(d => d.ChiTietDonHangs)
                     .ThenInclude(ct => ct.MonAn)
-                .FirstOrDefaultAsync(x => x.MaDonHang == maDonHang);
+                .FirstOrDefaultAsync(d => d.MaDH == maDH);
 
-            if (donHang == null) return NotFound();
+            if (donHang == null)
+            {
+                return NotFound();
+            }
 
             return View(donHang);
         }
 
-        // Xác nhận đã thu tiền mặt (thu ngân chỉ cần bấm 1 nút)
         [HttpPost]
-        public async Task<IActionResult> XacNhanDaThanhToan(int maDonHang)
+        public async Task<IActionResult> XacNhanDaThanhToan(int maDH)
         {
-            if (!IsNhanVienDangNhap()) return RedirectToAction("Login", "Account");
+            if (!IsNhanVienDangNhap())
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            var thanhToan = await _context.ThanhToans
-                .Where(t => t.MaDonHang == maDonHang)
-                .OrderByDescending(t => t.MaThanhToan)
+            var hoaDon = await _context.HoaDons
+                .Include(h => h.DonHang)
+                .Where(h => h.MaDH == maDH)
+                .OrderByDescending(h => h.MaHD)
                 .FirstOrDefaultAsync();
 
-            if (thanhToan == null)
+            if (hoaDon == null)
             {
-                TempData["Error"] = "Không tìm thấy đơn hàng.";
+                TempData["Error"] = "Không tìm thấy hóa đơn.";
                 return RedirectToAction("DanhSach");
             }
 
-            thanhToan.TrangThai = "DaThanhToan";
-            thanhToan.NgayThanhToan = DateTime.Now;
+            hoaDon.TrangThai = "DaThanhToan";
+            hoaDon.ThoiGianTao = DateTime.Now;
+            hoaDon.MaNV = HttpContext.Session.GetInt32("MaNV");
+
+            if (hoaDon.DonHang != null)
+            {
+                hoaDon.DonHang.TrangThai = "DaThanhToan";
+            }
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("HoaDon", new { maDonHang });
+            return RedirectToAction("HoaDon", new { maDH });
         }
 
-        // Danh sách hóa đơn đã thanh toán (dạng lưới số bàn)
         public async Task<IActionResult> DanhSachHoaDon()
         {
-            if (!IsNhanVienDangNhap()) return RedirectToAction("Login", "Account");
-
-            var dsHoaDon = await _context.ThanhToans
-                .Where(t => t.TrangThai == "DaThanhToan")
-                .OrderByDescending(t => t.NgayThanhToan)
-                .ToListAsync();
-
-            var maDonHangs = dsHoaDon.Select(t => t.MaDonHang).Distinct().ToList();
-            var donHangs = await _context.DonHangs
-                .Where(d => maDonHangs.Contains(d.MaDonHang))
-                .ToDictionaryAsync(d => d.MaDonHang);
-
-            foreach (var t in dsHoaDon)
+            if (!IsNhanVienDangNhap())
             {
-                if (donHangs.TryGetValue(t.MaDonHang, out var dh))
-                    t.DonHang = dh;
+                return RedirectToAction("Login", "Account");
             }
+
+            var dsHoaDon = await _context.HoaDons
+                .Include(h => h.DonHang)
+                    .ThenInclude(d => d!.PhienGoiMon)
+                        .ThenInclude(p => p!.BanAn)
+                .Include(h => h.PhuongThucThanhToan)
+                .Include(h => h.NhanVien)
+                .Where(h => h.TrangThai == "DaThanhToan")
+                .OrderByDescending(h => h.ThoiGianTao)
+                .ToListAsync();
 
             ViewBag.ActiveTab = "hoadon";
 
             return View(dsHoaDon);
         }
 
-        // Xem chi tiết 1 hóa đơn
-        public async Task<IActionResult> HoaDon(int maDonHang)
+        public async Task<IActionResult> HoaDon(int maDH)
         {
-            if (!IsNhanVienDangNhap()) return RedirectToAction("Login", "Account");
+            if (!IsNhanVienDangNhap())
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            var donHang = await _context.DonHangs
-                .Include(x => x.ChiTietDonHangs!)
-                    .ThenInclude(ct => ct.MonAn)
-                .FirstOrDefaultAsync(x => x.MaDonHang == maDonHang);
+            var hoaDon = await _context.HoaDons
+                .Include(h => h.DonHang)
+                    .ThenInclude(d => d!.PhienGoiMon)
+                        .ThenInclude(p => p!.BanAn)
+                .Include(h => h.DonHang)
+                    .ThenInclude(d => d!.ChiTietDonHangs)
+                        .ThenInclude(ct => ct.MonAn)
+                .Include(h => h.PhuongThucThanhToan)
+                .Include(h => h.NhanVien)
+                .FirstOrDefaultAsync(h => h.MaDH == maDH);
 
-            if (donHang == null) return NotFound();
+            if (hoaDon == null)
+            {
+                return NotFound();
+            }
 
-            var thanhToan = await _context.ThanhToans
-                .Where(t => t.MaDonHang == maDonHang)
-                .OrderByDescending(t => t.MaThanhToan)
-                .FirstOrDefaultAsync();
-
-            ViewBag.ThanhToan = thanhToan;
-            return View(donHang);
+            return View(hoaDon);
         }
     }
 }

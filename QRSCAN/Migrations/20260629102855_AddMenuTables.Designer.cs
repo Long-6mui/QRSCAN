@@ -53,7 +53,7 @@ namespace QRSCAN.Migrations
 
             modelBuilder.Entity("QRSCAN.Models.Entities.DanhMucMon", b =>
                 {
-                    b.Property<int>("MaDanhMuc")
+                    b.Property<int>("MaDM")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -62,7 +62,7 @@ namespace QRSCAN.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.HasKey("MaDanhMuc");
+                    b.HasKey("MaDM");
 
                     b.ToTable("DanhMucMon", (string)null);
                 });
@@ -128,7 +128,7 @@ namespace QRSCAN.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
-                    b.Property<int>("MaDanhMuc")
+                    b.Property<int>("MaDM")
                         .HasColumnType("int");
 
                     b.Property<string>("MoTa")
@@ -147,7 +147,7 @@ namespace QRSCAN.Migrations
 
                     b.HasKey("MaMon");
 
-                    b.HasIndex("MaDanhMuc");
+                    b.HasIndex("MaDM");
 
                     b.ToTable("MonAn", (string)null);
                 });
@@ -183,7 +183,7 @@ namespace QRSCAN.Migrations
                 {
                     b.HasOne("QRSCAN.Models.Entities.DanhMucMon", "DanhMucMon")
                         .WithMany("MonAns")
-                        .HasForeignKey("MaDanhMuc")
+                        .HasForeignKey("MaDM")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

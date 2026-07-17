@@ -6,31 +6,28 @@ namespace QRSCAN.Models.Entities
     public class DonHang
     {
         [Key]
-        public int MaDonHang { get; set; }
+        public int MaDH { get; set; }
 
-        public int MaKH { get; set; }
-
-        public int? MaBan { get; set; }
-
-        public DateTime ThoiGianDat { get; set; } = DateTime.Now;
-
-        [StringLength(50)]
-        public string TrangThai { get; set; } = "ChoXacNhan";
-
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal TongTien { get; set; }
-        public string? PhuongThucThanhToan { get; set; }
         public int? MaVoucher { get; set; }
 
-        [StringLength(50)]
-        public string? MaVoucherCode { get; set; }
+        public int MaPhien { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal TienGiam { get; set; }
+        public DateTime ThoiGianTao { get; set; } = DateTime.Now;
 
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal TongThanhToan { get; set; }
+        public decimal TongTien { get; set; }
 
-        public ICollection<ChiTietDonHang>? ChiTietDonHangs { get; set; }
+        public string TrangThai { get; set; } = "ChoXacNhan";
+
+        public decimal SoTienGiam { get; set; }
+
+        [ForeignKey("MaVoucher")]
+        public Voucher? Voucher { get; set; }
+
+        [ForeignKey("MaPhien")]
+        public PhienGoiMon? PhienGoiMon { get; set; }
+
+        public ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; } = new List<ChiTietDonHang>();
+
+        public ICollection<HoaDon> HoaDons { get; set; } = new List<HoaDon>();
     }
 }

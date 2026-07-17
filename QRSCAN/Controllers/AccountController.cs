@@ -5,124 +5,167 @@ using QRSCAN.Models.Entities;
 
 namespace QRSCAN.Controllers
 {
-	public class AccountController : Controller
-	{
-		private readonly AppDbContext _context;
+    public class AccountController : Controller
+    {
+        private readonly AppDbContext _context;
 
-		public AccountController(AppDbContext context)
-		{
-			_context = context;
-		}
+        public AccountController(AppDbContext context)
+        {
+            _context = context;
+        }
 
-		[HttpGet]
-		public IActionResult Register()
-		{
-			return View();
-		}
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
 
-		[HttpPost]
-		public async Task<IActionResult> Register(KhachHang khachHang)
-		{
-			if (!ModelState.IsValid)
-			{
-				return View(khachHang);
-			}
+        [HttpPost]
+        public async Task<IActionResult> Login(string tenDangNhap, string matKhau)
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(matKhau))
+            {
+                ViewBag.Error = "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.";
+                return View();
+            }
 
-			var tenDangNhapTonTai = await _context.KhachHangs
-				.AnyAsync(k => k.TenDangNhap == khachHang.TenDangNhap);
+            // 1. Kiểm tra tài khoản khách hàng
+            var khachHang = await _context.KhachHangs
+                .FirstOrDefaultAsync(kh =>
+                    kh.TenDangNhap == tenDangNhap
+                    && kh.MatKhau == matKhau
+                    && kh.TrangThai == "HoatDong");
 
-			if (tenDangNhapTonTai)
-			{
-				ModelState.AddModelError("TenDangNhap", "Tên đăng nhập đã tồn tại");
-				return View(khachHang);
-			}
+            if (khachHang != null)
+            {
+                HttpContext.Session.SetInt32("MaKH", khachHang.MaKH);
+                HttpContext.Session.SetString("HoTenKH", khachHang.HoTen);
+                HttpContext.Session.SetString("LoaiTaiKhoan", "KhachHang");
 
-			var sdtTonTai = await _context.KhachHangs
-				.AnyAsync(k => k.SDT == khachHang.SDT);
+                return RedirectToAction("Index", "Home");
+            }
 
-			if (sdtTonTai)
-			{
-				ModelState.AddModelError("SDT", "Số điện thoại đã được sử dụng");
-				return View(khachHang);
-			}
+            // 2. Kiểm tra tài khoản nhân viên
+            var nhanVien = await _context.NhanViens
+                .Include(nv => nv.VaiTro)
+                .FirstOrDefaultAsync(nv =>
+                    nv.TenDangNhap == tenDangNhap
+                    && nv.MatKhau == matKhau
+                    && nv.TrangThai == "HoatDong");
 
-			khachHang.LoaiKhach = "Thuong";
-			khachHang.DiemTichLuy = 0;
-			khachHang.TrangThai = "HoatDong";
+            if (nhanVien != null)
+            {
+                HttpContext.Session.SetInt32("MaNV", nhanVien.MaNV);
+                HttpContext.Session.SetInt32("MaVT", nhanVien.MaVT);
+                HttpContext.Session.SetString("HoTenNV", nhanVien.HoTen);
+                HttpContext.Session.SetString("TenVaiTro", nhanVien.VaiTro?.TenVT ?? "");
+                HttpContext.Session.SetString("LoaiTaiKhoan", "NhanVien");
 
-			_context.KhachHangs.Add(khachHang);
-			await _context.SaveChangesAsync();
+                // Bếp
+                if (nhanVien.MaVT == 2 || nhanVien.VaiTro?.TenVT == "Bep")
+                {
+                    return RedirectToAction("Index", "Chef");
+                }
 
-			TempData["Success"] = "Đăng ký tài khoản thành công. Vui lòng đăng nhập.";
-			return RedirectToAction("Login");
-		}
+                // Thu ngân
+                if (nhanVien.MaVT == 4 || nhanVien.VaiTro?.TenVT == "ThuNgan")
+                {
+                    return RedirectToAction("DanhSach", "ThanhToan");
+                }
 
-		[HttpGet]
-		public IActionResult Login()
-		{
-			return View();
-		}
+                // Admin hoặc nhân viên phục vụ
+                return RedirectToAction("Index", "NhanVien");
+            }
 
-		[HttpPost]
-		public async Task<IActionResult> Login(string tenDangNhap, string matKhau)
-		{
-			if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(matKhau))
-			{
-				ViewBag.Error = "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.";
-				return View();
-			}
+            ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không đúng.";
+            return View();
+        }
 
-			tenDangNhap = tenDangNhap.Trim();
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
 
-			// Kiểm tra đăng nhập cho Khách Hàng
-			var khachHang = await _context.KhachHangs
-				.FirstOrDefaultAsync(x =>
-					x.TenDangNhap == tenDangNhap &&
-					x.MatKhau == matKhau);
+        [HttpPost]
+        public async Task<IActionResult> Register(
+            string hoTen,
+            string sdt,
+            string email,
+            string tenDangNhap,
+            string matKhau)
+        {
+            if (string.IsNullOrWhiteSpace(hoTen)
+                || string.IsNullOrWhiteSpace(tenDangNhap)
+                || string.IsNullOrWhiteSpace(matKhau))
+            {
+                ViewBag.Error = "Vui lòng nhập đầy đủ họ tên, tên đăng nhập và mật khẩu.";
+                return View();
+            }
 
-			if (khachHang != null)
-			{
-				HttpContext.Session.SetInt32("MaKH", khachHang.MaKH);
-				HttpContext.Session.SetString("HoTenKH", khachHang.HoTen);
-				HttpContext.Session.SetString("LoaiTaiKhoan", "KhachHang");
+            var trungTenDangNhap = await _context.KhachHangs
+                .AnyAsync(kh => kh.TenDangNhap == tenDangNhap);
 
-				return RedirectToAction("Index", "Home");
-			}
+            var trungNhanVien = await _context.NhanViens
+                .AnyAsync(nv => nv.TenDangNhap == tenDangNhap);
 
-			// Kiểm tra đăng nhập cho Nhân Viên (Bao gồm Chef và Nhân viên khác)
-			var nhanVien = await _context.NhanViens
-				.Include(x => x.VaiTro)
-				.FirstOrDefaultAsync(x =>
-					x.TenDangNhap == tenDangNhap &&
-					x.MatKhau == matKhau &&
-					x.TrangThai == "HoatDong");
+            if (trungTenDangNhap || trungNhanVien)
+            {
+                ViewBag.Error = "Tên đăng nhập đã tồn tại.";
+                return View();
+            }
 
-			if (nhanVien != null)
-			{
-				HttpContext.Session.SetInt32("MaNV", nhanVien.MaNV);
-				HttpContext.Session.SetInt32("MaVT", nhanVien.MaVT);
-				HttpContext.Session.SetString("HoTenNV", nhanVien.HoTen);
-				HttpContext.Session.SetString("TenVaiTro", nhanVien.VaiTro?.TenVT ?? "");
-				HttpContext.Session.SetString("Role", nhanVien.MaVT == 2 ? "Chef" : "NhanVien");
-				HttpContext.Session.SetString("LoaiTaiKhoan", "NhanVien");
+            if (!string.IsNullOrWhiteSpace(sdt))
+            {
+                var trungSDT = await _context.KhachHangs
+                    .AnyAsync(kh => kh.SDT == sdt);
 
-				// ĐIỀU HƯỚNG THEO MÃ VAI TRÒ (MaVT = 2 là Chef)
-				if (nhanVien.MaVT == 2)
-				{
-					return RedirectToAction("Index", "Chef");
-				}
+                if (trungSDT)
+                {
+                    ViewBag.Error = "Số điện thoại đã được sử dụng.";
+                    return View();
+                }
+            }
 
-				return RedirectToAction("Index", "NhanVien");
-			}
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                var trungEmail = await _context.KhachHangs
+                    .AnyAsync(kh => kh.Email == email);
 
-			ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không đúng.";
-			return View();
-		}
+                if (trungEmail)
+                {
+                    ViewBag.Error = "Email đã được sử dụng.";
+                    return View();
+                }
+            }
 
-		public IActionResult Logout()
-		{
-			HttpContext.Session.Clear();
-			return RedirectToAction("Login", "Account");
-		}
-	}
+            var khachHang = new KhachHang
+            {
+                HoTen = hoTen,
+                SDT = sdt,
+                Email = email,
+                LoaiKhach = "Thuong",
+                DiemTichLuy = 0,
+                TrangThai = "HoatDong",
+                TenDangNhap = tenDangNhap,
+                MatKhau = matKhau
+            };
+
+            _context.KhachHangs.Add(khachHang);
+            await _context.SaveChangesAsync();
+
+            HttpContext.Session.SetInt32("MaKH", khachHang.MaKH);
+            HttpContext.Session.SetString("HoTenKH", khachHang.HoTen);
+            HttpContext.Session.SetString("LoaiTaiKhoan", "KhachHang");
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Login", "Account");
+        }
+    }
 }

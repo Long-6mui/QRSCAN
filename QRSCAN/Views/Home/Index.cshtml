@@ -103,14 +103,14 @@
         </div>
 
         <div class="menu-grid">
-            @foreach (var mon in Model.Where(m => m.MaDanhMuc == 1 || m.MaDanhMuc == 2))
+            @foreach (var mon in Model.Where(m => m.MaDM == 1 || m.MaDM == 2))
             {
                 <div class="menu-card">
                     <img src="@mon.HinhAnh" alt="@mon.TenMon" />
 
                     <div class="menu-content">
                         <span class="tag">
-                            @mon.DanhMucMon?.TenDanhMuc
+                            @mon.DanhMucMon?.TenDM
                         </span>
 
                         <h3>@mon.TenMon</h3>
@@ -139,7 +139,7 @@
         </div>
 
         <div class="small-menu-grid">
-            @foreach (var mon in Model.Where(m => m.MaDanhMuc == 4 || m.MaDanhMuc == 5))
+            @foreach (var mon in Model.Where(m => m.MaDM == 4 || m.MaDM == 5))
             {
                 <div class="small-item">
                     <img src="@mon.HinhAnh" alt="@mon.TenMon" />

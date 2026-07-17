@@ -1,0 +1,537 @@
+﻿.nv-page {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px 24px 70px;
+}
+
+.nv-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.nv-top-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: #17110f;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 800;
+    border: 1px solid #17110f;
+    transition: 0.2s ease;
+}
+
+    .nv-top-btn:hover {
+        opacity: 0.88;
+        color: #fff;
+    }
+
+    .nv-top-btn.secondary {
+        background: #fff7ea;
+        color: #17110f;
+        border-color: #ead7bd;
+    }
+
+        .nv-top-btn.secondary:hover {
+            color: #17110f;
+        }
+
+    .nv-top-btn.logout {
+        background: #b82020;
+        border-color: #b82020;
+        color: #fff;
+    }
+
+.nv-dashboard-header {
+    margin: 24px 0;
+    background: linear-gradient(135deg, #17110f, #3b2418);
+    border-radius: 28px;
+    padding: 30px 34px;
+    color: #fff;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.14);
+}
+
+    .nv-dashboard-header p {
+        margin: 0 0 8px;
+        color: #f5c16c;
+        font-weight: 900;
+        letter-spacing: 4px;
+    }
+
+    .nv-dashboard-header h1 {
+        margin: 0 0 8px;
+        font-size: 38px;
+    }
+
+    .nv-dashboard-header span {
+        color: #f4e7d4;
+        font-weight: 600;
+    }
+
+.nv-dashboard {
+    display: grid;
+    grid-template-columns: 390px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.nv-left-panel,
+.nv-right-panel {
+    background: #fff;
+    border: 1px solid #ead7bd;
+    border-radius: 28px;
+    padding: 24px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.07);
+}
+
+.nv-left-panel {
+    position: sticky;
+    top: 20px;
+}
+
+.nv-panel-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+    .nv-panel-title p {
+        margin: 0 0 6px;
+        color: #b82020;
+        font-weight: 900;
+        letter-spacing: 3px;
+    }
+
+    .nv-panel-title h2 {
+        margin: 0;
+        color: #17110f;
+        font-size: 28px;
+    }
+
+    .nv-panel-title > span {
+        background: #fff1d2;
+        color: #9a4b00;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+.nv-empty-box {
+    background: #fff8ec;
+    border: 1px dashed #e0c8a8;
+    border-radius: 22px;
+    padding: 28px;
+    text-align: center;
+}
+
+    .nv-empty-box h3 {
+        margin: 0 0 8px;
+        color: #17110f;
+    }
+
+    .nv-empty-box p {
+        margin: 0;
+        color: #6d5848;
+    }
+
+.nv-order-list-compact {
+    display: grid;
+    gap: 14px;
+    max-height: 650px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.nv-order-box {
+    display: block;
+    background: #fff8ec;
+    border: 1px solid #ead7bd;
+    border-radius: 22px;
+    padding: 18px;
+    text-decoration: none;
+    color: inherit;
+    transition: 0.2s ease;
+}
+
+    .nv-order-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 26px rgba(0, 0, 0, 0.09);
+    }
+
+.nv-order-box-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.nv-order-box h3 {
+    margin: 0 0 4px;
+    color: #17110f;
+    font-size: 22px;
+}
+
+.nv-order-box p {
+    margin: 0;
+    color: #6d5848;
+    font-weight: 700;
+}
+
+.nv-order-box-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    color: #6d5848;
+}
+
+    .nv-order-box-info strong {
+        color: #b82020;
+        font-size: 18px;
+    }
+
+.nv-mini-status {
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+    .nv-mini-status.waiting {
+        background: #fff1d2;
+        color: #9a4b00;
+    }
+
+    .nv-mini-status.cooking {
+        background: #e8f0ff;
+        color: #214f9c;
+    }
+
+    .nv-mini-status.served {
+        background: #e9f9ef;
+        color: #16813a;
+    }
+
+    .nv-mini-status.payment {
+        background: #ffe8e8;
+        color: #b82020;
+    }
+
+.nv-table-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+    .nv-table-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #6d5848;
+        font-weight: 800;
+    }
+
+.legend-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+    .legend-dot.empty {
+        background: #b8b8b8;
+    }
+
+    .legend-dot.serving {
+        background: #16813a;
+    }
+
+    .legend-dot.payment {
+        background: #b82020;
+    }
+
+.nv-table-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 16px;
+}
+
+.nv-table-card {
+    min-height: 128px;
+    border-radius: 24px;
+    padding: 18px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: 0.2s ease;
+    border: 2px solid transparent;
+}
+
+    .nv-table-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+    }
+
+    .nv-table-card h3 {
+        margin: 0 0 8px;
+        font-size: 24px;
+    }
+
+    .nv-table-card p {
+        margin: 0;
+        font-weight: 900;
+    }
+
+    .nv-table-card strong {
+        font-size: 18px;
+    }
+
+    .nv-table-card.empty {
+        background: #f5f5f5;
+        border-color: #dedede;
+        color: #555;
+    }
+
+    .nv-table-card.serving {
+        background: #e9f9ef;
+        border-color: #bceacb;
+        color: #135f2e;
+    }
+
+    .nv-table-card.payment {
+        background: #ffe8e8;
+        border-color: #ffc8c8;
+        color: #b82020;
+    }
+
+@media (max-width: 1100px) {
+    .nv-dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .nv-left-panel {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .nv-page {
+        padding: 20px 16px 56px;
+    }
+
+    .nv-top-actions {
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    .nv-top-btn {
+        width: 100%;
+    }
+
+    .nv-dashboard-header {
+        padding: 26px 22px;
+    }
+
+        .nv-dashboard-header h1 {
+            font-size: 30px;
+        }
+
+    .nv-left-panel,
+    .nv-right-panel {
+        padding: 18px;
+        border-radius: 22px;
+    }
+
+    .nv-panel-title {
+        flex-direction: column;
+    }
+
+    .nv-table-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+
+    /* chi tiet don hang */
+
+    .nv-detail-layout {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 24px;
+        align-items: start;
+        margin-top: 24px;
+    }
+
+    .nv-detail-card {
+        background: #fff;
+        border: 1px solid #ead7bd;
+        border-radius: 28px;
+        padding: 26px;
+        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.07);
+    }
+
+    .nv-detail-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: flex-start;
+        margin-bottom: 22px;
+    }
+
+        .nv-detail-head p {
+            margin: 0 0 8px;
+            color: #b82020;
+            font-weight: 900;
+            letter-spacing: 3px;
+        }
+
+        .nv-detail-head h1 {
+            margin: 0 0 8px;
+            font-size: 38px;
+            color: #17110f;
+        }
+
+        .nv-detail-head span {
+            color: #6d5848;
+            font-weight: 700;
+        }
+
+    .nv-detail-meta {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+        .nv-detail-meta div {
+            background: #fff8ec;
+            border-radius: 18px;
+            padding: 14px 16px;
+        }
+
+        .nv-detail-meta span {
+            display: block;
+            color: #6d5848;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .nv-detail-meta strong {
+            color: #17110f;
+        }
+
+    .nv-detail-actions {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+        .nv-detail-actions form {
+            margin: 0;
+        }
+
+    .nv-action-btn {
+        display: inline-flex;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        border: none;
+        border-radius: 999px;
+        background: #17110f;
+        color: #fff;
+        padding: 13px 20px;
+        font-weight: 900;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .nv-action-btn:hover {
+            color: #fff;
+            opacity: 0.9;
+        }
+
+    .nv-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 18px;
+        border: 1px solid #eee1cf;
+    }
+
+    .nv-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+    }
+
+        .nv-table th {
+            background: #17110f;
+            color: #fff;
+            padding: 13px 14px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .nv-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #eee1cf;
+            color: #2b211c;
+        }
+
+        .nv-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .nv-summary {
+        background: #fff8ec;
+        border-radius: 16px;
+        padding: 16px 18px;
+        display: grid;
+        gap: 8px;
+    }
+
+    .nv-summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+        .nv-summary-row.total {
+            font-size: 20px;
+            font-weight: 900;
+            color: #b82020;
+            border-top: 1px solid #ead7bd;
+            padding-top: 10px;
+            margin-top: 4px;
+        }
+
+    @media (max-width: 1100px) {
+        .nv-detail-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .nv-detail-meta {
+            grid-template-columns: 1fr;
+        }
+
+        .nv-detail-head {
+            flex-direction: column;
+        }
+
+            .nv-detail-head h1 {
+                font-size: 30px;
+            }
+    }
+}

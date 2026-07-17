@@ -8,25 +8,23 @@ namespace QRSCAN.Models.Entities
         [Key]
         public int MaMon { get; set; }
 
-        [Required]
-        [StringLength(150)]
+        public int MaDM { get; set; }
+
         public string TenMon { get; set; } = string.Empty;
 
-        [StringLength(500)]
-        public string? MoTa { get; set; }
-
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal DonGia { get; set; }
-
-        [StringLength(255)]
         public string? HinhAnh { get; set; }
 
-        [StringLength(50)]
+        public decimal DonGia { get; set; }
+
+        public string? MoTa { get; set; }
+
         public string TrangThai { get; set; } = "DangBan";
 
-        public int MaDanhMuc { get; set; }
+        public int SoLuong { get; set; }
 
-        [ForeignKey("MaDanhMuc")]
+        [ForeignKey("MaDM")]
         public DanhMucMon? DanhMucMon { get; set; }
+
+        public ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; } = new List<ChiTietDonHang>();
     }
 }

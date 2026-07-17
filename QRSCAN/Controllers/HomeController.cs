@@ -32,7 +32,7 @@ namespace QRSCAN.Controllers
             var danhSachMon = await _context.MonAns
                 .Include(m => m.DanhMucMon)
                 .Where(m => m.TrangThai == "DangBan")
-                .OrderBy(m => m.MaDanhMuc)
+                .OrderBy(m => m.MaDM)
                 .ThenBy(m => m.MaMon)
                 .ToListAsync();
 

@@ -1,0 +1,221 @@
+﻿@model QRSCAN.Models.Entities.PhienGoiMon?
+
+@{
+    ViewData["Title"] = "Chi tiết bàn";
+
+    var ban = ViewBag.Ban as QRSCAN.Models.Entities.BanAn;
+
+    var donMoiNhat = Model?.DonHangs?
+        .OrderByDescending(d => d.ThoiGianTao)
+        .FirstOrDefault();
+
+    var hoaDon = donMoiNhat?.HoaDons?.FirstOrDefault();
+
+    var tongThanhToan = donMoiNhat == null
+        ? 0
+        : donMoiNhat.TongTien - donMoiNhat.SoTienGiam;
+
+    var trangThaiBan = "Trống";
+
+    if (Model != null)
+    {
+        trangThaiBan = "Đang phục vụ";
+
+        if (hoaDon != null
+            && hoaDon.TrangThai == "ChuaThanhToan"
+            && (donMoiNhat?.TrangThai == "HoanThanh" || donMoiNhat?.TrangThai == "DaPhucVu"))
+        {
+            trangThaiBan = "Chờ thanh toán";
+        }
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/staff.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/nhanvien.css" asp-append-version="true" />
+}
+
+<div class="staff-page">
+    <div class="nv-page">
+        <nav class="staff-navbar">
+            <div>
+                <p>KIMURA RAMEN</p>
+                <h2>Chi tiết bàn</h2>
+            </div>
+
+            <div class="nv-top-actions">
+                <a asp-controller="NhanVien" asp-action="Index" class="nv-top-btn secondary">
+                    Quay lại
+                </a>
+
+                <a asp-controller="Account" asp-action="Logout" class="nv-top-btn logout">
+                    Đăng xuất
+                </a>
+            </div>
+        </nav>
+
+        <section class="nv-detail-layout">
+            <div class="nv-detail-main">
+                <div class="nv-detail-card">
+                    <div class="nv-detail-head">
+                        <div>
+                            <p>TABLE DETAIL</p>
+                            <h1>@(ban?.TenBan ?? "Không rõ bàn")</h1>
+                            <span>
+                                Trạng thái:
+                                <strong>@trangThaiBan</strong>
+                            </span>
+                        </div>
+
+                        <span class="nv-mini-status payment">
+                            @trangThaiBan
+                        </span>
+                    </div>
+
+                    @if (Model == null)
+                    {
+                        <div class="nv-empty-box">
+                            <h3>Bàn đang trống</h3>
+                            <p>Hiện tại bàn này chưa có phiên gọi món đang hoạt động.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="nv-detail-meta">
+                            <div>
+                                <span>Mã phiên</span>
+                                <strong>#@Model.MaPhien</strong>
+                            </div>
+
+                            <div>
+                                <span>Bắt đầu</span>
+                                <strong>@Model.BatDau.ToString("dd/MM/yyyy HH:mm")</strong>
+                            </div>
+
+                            <div>
+                                <span>Trạng thái phiên</span>
+                                <strong>@Model.TrangThai</strong>
+                            </div>
+                        </div>
+
+                        @if (donMoiNhat == null)
+                        {
+                            <div class="nv-empty-box">
+                                <h3>Chưa có đơn hàng</h3>
+                                <p>Khách đã mở bàn nhưng chưa gửi đơn gọi món.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="nv-table-wrap">
+                                <table class="nv-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Món</th>
+                                            <th>Số lượng</th>
+                                            <th>Đơn giá</th>
+                                            <th>Thành tiền</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @foreach (var ct in donMoiNhat.ChiTietDonHangs)
+                                        {
+                                            <tr>
+                                                <td>@ct.MonAn?.TenMon</td>
+                                                <td>@ct.SoLuong</td>
+                                                <td>@ct.DonGia.ToString("N0")đ</td>
+                                                <td>@ct.ThanhTien.ToString("N0")đ</td>
+                                                <td>@ct.TrangThai</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <aside class="nv-detail-side">
+                <div class="nv-detail-card">
+                    <div class="nv-panel-title">
+                        <div>
+                            <p>SUMMARY</p>
+                            <h2>Thông tin bàn</h2>
+                        </div>
+                    </div>
+
+                    <div class="nv-summary">
+                        <div class="nv-summary-row">
+                            <span>Mã bàn</span>
+                            <strong>#@(ban?.MaBan)</strong>
+                        </div>
+
+                        <div class="nv-summary-row">
+                            <span>Số chỗ ngồi</span>
+                            <strong>@(ban?.SoChoNgoi ?? 0)</strong>
+                        </div>
+
+                        <div class="nv-summary-row">
+                            <span>Trạng thái</span>
+                            <strong>@trangThaiBan</strong>
+                        </div>
+
+                        @if (donMoiNhat != null)
+                        {
+                            <div class="nv-summary-row">
+                                <span>Mã đơn</span>
+                                <strong>#@donMoiNhat.MaDH</strong>
+                            </div>
+
+                            <div class="nv-summary-row">
+                                <span>Tạm tính</span>
+                                <strong>@donMoiNhat.TongTien.ToString("N0")đ</strong>
+                            </div>
+
+                            <div class="nv-summary-row">
+                                <span>Giảm giá</span>
+                                <strong>-@donMoiNhat.SoTienGiam.ToString("N0")đ</strong>
+                            </div>
+
+                            <div class="nv-summary-row total">
+                                <span>Cần thu</span>
+                                <strong>@tongThanhToan.ToString("N0")đ</strong>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="nv-detail-actions">
+                        @if (donMoiNhat == null)
+                        {
+                            <p class="nv-note">
+                                Bàn chưa có đơn hàng cần xử lý.
+                            </p>
+                        }
+                        else
+                        {
+                            <a asp-controller="NhanVien"
+                               asp-action="ChiTietDonHang"
+                               asp-route-maDH="@donMoiNhat.MaDH"
+                               class="nv-action-btn">
+                                Xem chi tiết đơn
+                            </a>
+
+                            @if (donMoiNhat.TrangThai == "HoanThanh")
+                            {
+                                <a asp-controller="ThanhToan"
+                                   asp-action="ThuTien"
+                                   asp-route-maDH="@donMoiNhat.MaDH"
+                                   class="nv-action-btn">
+                                    Qua thanh toán
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </div>
+</div>

@@ -1,221 +1,173 @@
-﻿@{
-    ViewData["Title"] = "Trang nhân viên";
-    int maVT = ViewBag.MaVT ?? 0;
-    string tenVaiTro = ViewBag.TenVaiTro ?? "";
+﻿@model QRSCAN.ViewModels.NhanVienDashboardViewModel
+
+@{
+    ViewData["Title"] = "Nhân viên quầy";
+    var hoTenNV = Context.Session.GetString("HoTenNV") ?? "Nhân viên quầy";
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/staff.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/nhanvien.css" asp-append-version="true" />
 }
 
 <div class="staff-page">
-    <nav class="staff-navbar">
-        <div>
-            <p>KIMURA RAMEN</p>
-            <h2>Khu vực nhân sự</h2>
-        </div>
-
-        <a asp-controller="Account" asp-action="Logout">Đăng xuất</a>
-    </nav>
-
-    <section class="staff-hero">
-        <div>
-            <p class="staff-role">@tenVaiTro</p>
-            <h1>Xin chào, @ViewBag.HoTenNV</h1>
-
-            @if (maVT == 1)
-            {
-                <span>Giao diện dành cho nhân viên phục vụ và hỗ trợ khách hàng.</span>
-            }
-            else if (maVT == 2)
-            {
-                <span>Giao diện dành cho bộ phận bếp xử lý đơn gọi món.</span>
-            }
-            else if (maVT == 3)
-            {
-                <span>Giao diện dành cho quản trị viên hệ thống.</span>
-            }
-            else if (maVT == 4)
-            {
-                <span>Giao diện dành cho thu ngân.</span>
-            }
-            else
-            {
-                <span>Giao diện nhân sự.</span>
-            }
-        </div>
-
-        <div class="staff-badge">
-            @if (maVT == 1)
-            {
-                <span>NV</span>
-            }
-            else if (maVT == 2)
-            {
-                <span>BẾP</span>
-            }
-            else if (maVT == 3)
-            {
-                <span>AD</span>
-            }
-            else if (maVT == 4)
-            {
-                <span>TN</span>
-            }
-            else
-            {
-                <span>?</span>
-            }
-        </div>
-    </section>
-
-    @if (maVT == 1)
-    {
-        <section class="staff-section">
-            <div class="section-title">
-                <p>NHÂN VIÊN</p>
-                <h2>Chức năng dành cho nhân viên</h2>
+    <div class="nv-page">
+        <nav class="staff-navbar">
+            <div>
+                <p>KIMURA RAMEN</p>
+                <h2>Nhân viên quầy</h2>
             </div>
 
-            <div class="staff-grid">
-                <div class="staff-card">
-                    <div>🕒</div>
-                    <h3>Chấm công</h3>
-                    <p>Ghi nhận thời gian bắt đầu và kết thúc ca làm.</p>
-                    <button>Đang phát triển</button>
-                </div>
+            <div class="nv-top-actions">
+                <a asp-controller="ThanhToan" asp-action="DanhSach" class="nv-top-btn">
+                    Thanh toán hóa đơn
+                </a>
 
-                <div class="staff-card">
-                    <div>🧾</div>
-                    <h3>Xem đơn hàng</h3>
-                    <p>Theo dõi các đơn khách đã gửi trong hệ thống.</p>
-                    <button>Đang phát triển</button>
-                </div>
+                <a asp-controller="ThanhToan" asp-action="DanhSachHoaDon" class="nv-top-btn secondary">
+                    Xem hóa đơn
+                </a>
 
-                <div class="staff-card">
-                    <div>🙋</div>
-                    <h3>Hỗ trợ khách</h3>
-                    <p>Tiếp nhận yêu cầu hỗ trợ từ khách tại bàn.</p>
-                    <button>Đang phát triển</button>
-                </div>
-
-                <div class="staff-card">
-                    <div>✅</div>
-                    <h3>Cập nhật phục vụ</h3>
-                    <p>Xác nhận món đã được mang đến bàn.</p>
-                    <button>Đang phát triển</button>
-                </div>
+                <a asp-controller="Account" asp-action="Logout" class="nv-top-btn logout">
+                    Đăng xuất
+                </a>
             </div>
-        </section>
-    }
-    else if (maVT == 2)
-    {
-        <section class="staff-section">
-            <div class="section-title">
-                <p>BẾP</p>
-                <h2>Chức năng dành cho bếp</h2>
-            </div>
+        </nav>
 
-            <div class="staff-grid">
-                <div class="staff-card">
-                    <div>🔥</div>
-                    <h3>Đơn chờ xác nhận</h3>
-                    <p>Xem các đơn mới khách vừa gửi lên hệ thống.</p>
-                    <button>Đang phát triển</button>
+
+        <main class="nv-dashboard">
+            <section class="nv-left-panel">
+                <div class="nv-panel-title">
+                    <div>
+                        <p>ORDER</p>
+                        <h2>Đơn hàng cần xử lý</h2>
+                    </div>
+
+                    <span>@Model.DonHangsCanXuLy.Count đơn</span>
                 </div>
 
-                <div class="staff-card">
-                    <div>🍜</div>
-                    <h3>Đơn đang chế biến</h3>
-                    <p>Theo dõi các món đang được chuẩn bị trong bếp.</p>
-                    <button>Đang phát triển</button>
+                @if (Model.DonHangsCanXuLy == null || !Model.DonHangsCanXuLy.Any())
+                {
+                    <div class="nv-empty-box">
+                        <h3>Chưa có đơn cần xử lý</h3>
+                        <p>Khi khách gửi đơn, đơn sẽ hiển thị tại đây.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="nv-order-list-compact">
+                        @foreach (var don in Model.DonHangsCanXuLy)
+                        {
+                            var tongThanhToan = don.TongTien - don.SoTienGiam;
+
+                            var statusText = don.TrangThai switch
+                            {
+                                "ChoXacNhan" => "Chờ xác nhận",
+                                "DangCheBien" => "Đang chế biến",
+                                "DaPhucVu" => "Chờ phục vụ",
+                                "HoanThanh" => "Chờ thanh toán",
+                                _ => don.TrangThai
+                            };
+
+                            var statusClass = don.TrangThai switch
+                            {
+                                "ChoXacNhan" => "waiting",
+                                "DangCheBien" => "cooking",
+                                "DaPhucVu" => "served",
+                                "HoanThanh" => "payment",
+                                _ => ""
+                            };
+
+                            <a class="nv-order-box"
+                               asp-controller="NhanVien"
+                               asp-action="ChiTietDonHang"
+                               asp-route-maDH="@don.MaDH">
+                                <div class="nv-order-box-top">
+                                    <div>
+                                        <h3>Đơn #@don.MaDH</h3>
+                                        <p>@(don.PhienGoiMon?.BanAn?.TenBan ?? "Không rõ bàn")</p>
+                                    </div>
+
+                                    <span class="nv-mini-status @statusClass">
+                                        @statusText
+                                    </span>
+                                </div>
+
+                                <div class="nv-order-box-info">
+                                    <span>@don.ThoiGianTao.ToString("HH:mm dd/MM")</span>
+                                    <strong>@tongThanhToan.ToString("N0")đ</strong>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+            </section>
+
+            <section class="nv-right-panel">
+                <div class="nv-panel-title">
+                    <div>
+                        <p>TABLE</p>
+                        <h2>Sơ đồ bàn</h2>
+                    </div>
+
+                    <span>@Model.BanAns.Count bàn</span>
                 </div>
 
-                <div class="staff-card">
-                    <div>📦</div>
-                    <h3>Món đã hoàn thành</h3>
-                    <p>Đánh dấu món đã chế biến xong và chờ phục vụ.</p>
-                    <button>Đang phát triển</button>
+                <div class="nv-table-legend">
+                    <span><i class="legend-dot empty"></i>Trống</span>
+                    <span><i class="legend-dot serving"></i>Đang phục vụ</span>
+                    <span><i class="legend-dot payment"></i>Chờ thanh toán</span>
                 </div>
 
-                <div class="staff-card">
-                    <div>📋</div>
-                    <h3>Lịch sử xử lý</h3>
-                    <p>Xem lại các đơn đã hoàn thành trong ca làm.</p>
-                    <button>Đang phát triển</button>
-                </div>
-            </div>
-        </section>
-    }
-    else if (maVT == 3)
-    {
-        <section class="staff-section">
-            <div class="section-title">
-                <p>ADMIN</p>
-                <h2>Chức năng dành cho quản trị viên</h2>
-            </div>
+                @if (Model.BanAns == null || !Model.BanAns.Any())
+                {
+                    <div class="nv-empty-box">
+                        <h3>Chưa có dữ liệu bàn</h3>
+                        <p>Vui lòng kiểm tra bảng BanAn trong cơ sở dữ liệu.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="nv-table-grid">
+                        @foreach (var ban in Model.BanAns)
+                        {
+                            var banText = ban.TrangThai switch
+                            {
+                                "Trong" => "Trống",
+                                "DangPhucVu" => "Đang phục vụ",
+                                "ChoThanhToan" => "Chờ thanh toán",
+                                _ => ban.TrangThai
+                            };
 
-            <div class="staff-grid">
-                <div class="staff-card">
-                    <div>🍱</div>
-                    <h3>Quản lý món ăn</h3>
-                    <p>Thêm, sửa, xóa món ăn và danh mục món.</p>
-                    <button>Đang phát triển</button>
-                </div>
+                            var banClass = ban.TrangThai switch
+                            {
+                                "Trong" => "empty",
+                                "DangPhucVu" => "serving",
+                                "ChoThanhToan" => "payment",
+                                _ => "empty"
+                            };
 
-                <div class="staff-card">
-                    <div>🎟️</div>
-                    <h3>Quản lý voucher</h3>
-                    <p>Tạo và quản lý mã giảm giá cho khách hàng.</p>
-                    <button>Đang phát triển</button>
-                </div>
+                            <a class="nv-table-card @banClass"
+                               asp-controller="NhanVien"
+                               asp-action="ChiTietBan"
+                               asp-route-maBan="@ban.MaBan">
+                                <div>
+                                    <h3>@ban.TenBan</h3>
+                                    <p>@banText</p>
+                                </div>
 
-                <div class="staff-card">
-                    <div>👥</div>
-                    <h3>Quản lý nhân viên</h3>
-                    <p>Quản lý tài khoản nhân viên, bếp và admin.</p>
-                    <button>Đang phát triển</button>
-                </div>
-
-                <div class="staff-card">
-                    <div>📊</div>
-                    <h3>Thống kê doanh thu</h3>
-                    <p>Xem doanh thu, số đơn và tình hình bán hàng.</p>
-                    <button>Đang phát triển</button>
-                </div>
-            </div>
-        </section>
-    }
-    else if (maVT == 4)
-    {
-        <section class="staff-section">
-            <div class="section-title">
-                <p>Thu Ngân</p>
-                <h2>Chức năng dành cho thu ngân </h2>
-            </div>
-
-            <div class="staff-grid">
-                <div class="staff-card">
-                    <div>💵</div>
-                    <h3>Thu ngân</h3>
-                    <p>Xử lý thanh toán tiền mặt cho đơn khách.</p>
-                    <a class="staff-btn" asp-controller="ThanhToan" asp-action="DanhSach">Mở</a>
-                </div>
-
-                <div class="staff-card">
-                    <div>🧾</div>
-                    <h3>Xem hóa đơn</h3>
-                    <p>Tra cứu các hóa đơn đã thanh toán.</p>
-                    <a class="staff-btn" asp-controller="ThanhToan" asp-action="DanhSachHoaDon">Mở</a>
-                </div>
-            </div>
-        </section>
-    }
-    else
-    {
-        <div class="staff-empty">
-            <h2>Không xác định vai trò</h2>
-            <p>Tài khoản này chưa được phân quyền hợp lệ.</p>
-        </div>
-    }
+                                @if (ban.TongTien != null)
+                                {
+                                    <strong>@ban.TongTien.Value.ToString("N0")đ</strong>
+                                }
+                                else
+                                {
+                                    <strong>—</strong>
+                                }
+                            </a>
+                        }
+                    </div>
+                }
+            </section>
+        </main>
+    </div>
 </div>

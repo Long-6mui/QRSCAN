@@ -18,30 +18,30 @@ namespace QRSCAN.Migrations
                 {
                     MaThanhToan = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    MaDonHang = table.Column<int>(type: "int", nullable: false),
+                    MaDH = table.Column<int>(type: "int", nullable: false),
                     PhuongThuc = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     SoTien = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TrangThai = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     NgayThanhToan = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    DonHangMaDonHang = table.Column<int>(type: "int", nullable: true)
+                    DonHangMaDH = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ThanhToans", x => x.MaThanhToan);
                     table.ForeignKey(
-                        name: "FK_ThanhToans_DonHang_DonHangMaDonHang",
-                        column: x => x.DonHangMaDonHang,
+                        name: "FK_ThanhToans_DonHang_DonHangMaDH",
+                        column: x => x.DonHangMaDH,
                         principalTable: "DonHang",
-                        principalColumn: "MaDonHang");
+                        principalColumn: "MaDH");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ThanhToans_DonHangMaDonHang",
+                name: "IX_ThanhToans_DonHangMaDH",
                 table: "ThanhToans",
-                column: "DonHangMaDonHang");
+                column: "DonHangMaDH");
         }
 
         /// <inheritdoc />

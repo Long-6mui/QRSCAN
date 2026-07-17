@@ -39,28 +39,38 @@ namespace QRSCAN.Controllers
         {
             HttpContext.Session.Remove("MaVoucher");
             HttpContext.Session.Remove("MaVoucherCode");
-            HttpContext.Session.Remove("TenVoucher");
             HttpContext.Session.Remove("TienGiam");
+        }
+
+        public IActionResult Index()
+        {
+            var gioHang = LayGioHang();
+
+            var tongTien = gioHang.Sum(x => x.SoLuong * x.DonGia);
+
+            decimal tienGiam = 0;
+            var tienGiamSession = HttpContext.Session.GetString("TienGiam");
+
+            if (!string.IsNullOrEmpty(tienGiamSession))
+            {
+                decimal.TryParse(tienGiamSession, out tienGiam);
+            }
+
+            ViewBag.TongTien = tongTien;
+            ViewBag.TienGiam = tienGiam;
+            ViewBag.TongThanhToan = tongTien - tienGiam;
+            ViewBag.MaVoucherCode = HttpContext.Session.GetString("MaVoucherCode");
+
+            return View(gioHang);
         }
 
         [HttpPost]
         public async Task<IActionResult> ThemVaoGio(int maMon)
         {
-            var maKH = HttpContext.Session.GetInt32("MaKH");
+            var monAn = await _context.MonAns
+                .FirstOrDefaultAsync(x => x.MaMon == maMon && x.TrangThai == "DangBan");
 
-            if (maKH == null)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "Bạn cần đăng nhập để thêm món vào giỏ hàng."
-                });
-            }
-
-            var mon = await _context.MonAns
-                .FirstOrDefaultAsync(m => m.MaMon == maMon && m.TrangThai == "DangBan");
-
-            if (mon == null)
+            if (monAn == null)
             {
                 return Json(new
                 {
@@ -70,17 +80,16 @@ namespace QRSCAN.Controllers
             }
 
             var gioHang = LayGioHang();
-
             var item = gioHang.FirstOrDefault(x => x.MaMon == maMon);
 
             if (item == null)
             {
                 gioHang.Add(new GioHangItemViewModel
                 {
-                    MaMon = mon.MaMon,
-                    TenMon = mon.TenMon,
-                    DonGia = mon.DonGia,
-                    HinhAnh = mon.HinhAnh,
+                    MaMon = monAn.MaMon,
+                    TenMon = monAn.TenMon,
+                    HinhAnh = monAn.HinhAnh,
+                    DonGia = monAn.DonGia,
                     SoLuong = 1
                 });
             }
@@ -95,52 +104,15 @@ namespace QRSCAN.Controllers
             return Json(new
             {
                 success = true,
-                message = "Đã thêm món vào giỏ hàng",
-                cartCount = gioHang.Sum(x => x.SoLuong)
+                message = "Đã thêm món vào giỏ hàng.",
+                soLuong = gioHang.Sum(x => x.SoLuong)
             });
-        }
-
-        public IActionResult Index()
-        {
-            var maKH = HttpContext.Session.GetInt32("MaKH");
-
-            if (maKH == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var gioHang = LayGioHang();
-
-            var tongTien = gioHang.Sum(x => x.ThanhTien);
-            var tienGiam = HttpContext.Session.GetString("TienGiam");
-
-            decimal tienGiamValue = 0;
-
-            if (!string.IsNullOrEmpty(tienGiam))
-            {
-                decimal.TryParse(tienGiam, out tienGiamValue);
-            }
-
-            if (tienGiamValue > tongTien)
-            {
-                tienGiamValue = tongTien;
-            }
-
-            ViewBag.TongTien = tongTien;
-            ViewBag.TienGiam = tienGiamValue;
-            ViewBag.TongThanhToan = tongTien - tienGiamValue;
-            ViewBag.MaBan = HttpContext.Session.GetInt32("MaBan");
-            ViewBag.MaVoucherCode = HttpContext.Session.GetString("MaVoucherCode");
-            ViewBag.TenVoucher = HttpContext.Session.GetString("TenVoucher");
-
-            return View(gioHang);
         }
 
         [HttpPost]
         public IActionResult TangSoLuong(int maMon)
         {
             var gioHang = LayGioHang();
-
             var item = gioHang.FirstOrDefault(x => x.MaMon == maMon);
 
             if (item != null)
@@ -158,7 +130,6 @@ namespace QRSCAN.Controllers
         public IActionResult GiamSoLuong(int maMon)
         {
             var gioHang = LayGioHang();
-
             var item = gioHang.FirstOrDefault(x => x.MaMon == maMon);
 
             if (item != null)
@@ -181,7 +152,6 @@ namespace QRSCAN.Controllers
         public IActionResult XoaMon(int maMon)
         {
             var gioHang = LayGioHang();
-
             var item = gioHang.FirstOrDefault(x => x.MaMon == maMon);
 
             if (item != null)
@@ -198,16 +168,9 @@ namespace QRSCAN.Controllers
         [HttpPost]
         public async Task<IActionResult> ApDungVoucher(string maCode)
         {
-            var maKH = HttpContext.Session.GetInt32("MaKH");
-
-            if (maKH == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
             var gioHang = LayGioHang();
 
-            if (gioHang.Count == 0)
+            if (!gioHang.Any())
             {
                 TempData["Error"] = "Giỏ hàng đang trống.";
                 return RedirectToAction("Index");
@@ -219,46 +182,49 @@ namespace QRSCAN.Controllers
                 return RedirectToAction("Index");
             }
 
-            maCode = maCode.Trim().ToUpper();
-
             var voucher = await _context.Vouchers
-                .FirstOrDefaultAsync(x => x.MaCode == maCode && x.TrangThai == "HoatDong");
+                .FirstOrDefaultAsync(x =>
+                    x.MaCode == maCode.Trim()
+                    && x.TrangThai == "HoatDong"
+                    && x.BatDau <= DateTime.Now
+                    && x.KetThuc >= DateTime.Now
+                    && x.SoLuong > 0);
 
             if (voucher == null)
             {
-                TempData["Error"] = "Mã voucher không hợp lệ.";
+                TempData["Error"] = "Voucher không hợp lệ hoặc đã hết hạn.";
                 return RedirectToAction("Index");
             }
 
-            var today = DateTime.Now.Date;
+            var tongTien = gioHang.Sum(x => x.SoLuong * x.DonGia);
 
-            if (today < voucher.NgayBatDau.Date || today > voucher.NgayKetThuc.Date)
+            if (tongTien < voucher.DieuKien)
             {
-                TempData["Error"] = "Voucher đã hết hạn hoặc chưa đến thời gian sử dụng.";
+                TempData["Error"] = $"Đơn hàng chưa đủ điều kiện áp dụng voucher. Tối thiểu {voucher.DieuKien:N0}đ.";
                 return RedirectToAction("Index");
             }
 
-            var tongTien = gioHang.Sum(x => x.ThanhTien);
+            decimal tienGiam;
 
-            if (tongTien < voucher.DonToiThieu)
+            if (voucher.LoaiGiamGia == "PhanTram")
             {
-                TempData["Error"] = $"Đơn hàng phải từ {voucher.DonToiThieu:N0}đ để dùng voucher này.";
-                return RedirectToAction("Index");
+                tienGiam = tongTien * voucher.GiaTriGiam / 100;
+            }
+            else
+            {
+                tienGiam = voucher.GiaTriGiam;
             }
 
-            var tienGiam = tongTien * voucher.PhanTramGiam / 100;
-
-            if (tienGiam > voucher.GiamToiDa)
+            if (tienGiam > tongTien)
             {
-                tienGiam = voucher.GiamToiDa;
+                tienGiam = tongTien;
             }
 
             HttpContext.Session.SetInt32("MaVoucher", voucher.MaVoucher);
             HttpContext.Session.SetString("MaVoucherCode", voucher.MaCode);
-            HttpContext.Session.SetString("TenVoucher", voucher.TenVoucher);
             HttpContext.Session.SetString("TienGiam", tienGiam.ToString());
 
-            TempData["Success"] = $"Áp dụng voucher {voucher.MaCode} thành công.";
+            TempData["Success"] = "Áp dụng voucher thành công.";
 
             return RedirectToAction("Index");
         }
@@ -272,16 +238,10 @@ namespace QRSCAN.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GuiDon(string phuongThucThanhToan)
+        public async Task<IActionResult> GuiDon(int maPT = 1)
         {
             var maKH = HttpContext.Session.GetInt32("MaKH");
             var maBan = HttpContext.Session.GetInt32("MaBan");
-
-            // Chỉ chấp nhận 2 phương thức: QR hoặc Tiền mặt
-            if (phuongThucThanhToan != "QR" && phuongThucThanhToan != "TienMat")
-            {
-                phuongThucThanhToan = "TienMat";
-            }
 
             if (maKH == null)
             {
@@ -290,50 +250,59 @@ namespace QRSCAN.Controllers
 
             if (maBan == null)
             {
-                TempData["Error"] = "Chưa xác định bàn. Vui lòng quét mã QR tại bàn.";
+                TempData["Error"] = "Bạn chưa quét mã QR bàn.";
                 return RedirectToAction("Index");
             }
 
             var gioHang = LayGioHang();
 
-            if (gioHang.Count == 0)
+            if (!gioHang.Any())
             {
                 TempData["Error"] = "Giỏ hàng đang trống.";
                 return RedirectToAction("Index");
             }
 
-            var tongTien = gioHang.Sum(x => x.ThanhTien);
-
-            var maVoucher = HttpContext.Session.GetInt32("MaVoucher");
-            var maVoucherCode = HttpContext.Session.GetString("MaVoucherCode");
-            var tienGiamString = HttpContext.Session.GetString("TienGiam");
+            var tongTien = gioHang.Sum(x => x.SoLuong * x.DonGia);
 
             decimal tienGiam = 0;
+            var tienGiamSession = HttpContext.Session.GetString("TienGiam");
 
-            if (!string.IsNullOrEmpty(tienGiamString))
+            if (!string.IsNullOrEmpty(tienGiamSession))
             {
-                decimal.TryParse(tienGiamString, out tienGiam);
+                decimal.TryParse(tienGiamSession, out tienGiam);
             }
 
-            if (tienGiam > tongTien)
-            {
-                tienGiam = tongTien;
-            }
+            var maVoucher = HttpContext.Session.GetInt32("MaVoucher");
 
-            var tongThanhToan = tongTien - tienGiam;
+            var phien = await _context.PhienGoiMons
+                .FirstOrDefaultAsync(x =>
+                    x.MaKH == maKH.Value
+                    && x.MaBan == maBan.Value
+                    && x.TrangThai == "DangMo");
+
+            if (phien == null)
+            {
+                phien = new PhienGoiMon
+                {
+                    MaKH = maKH.Value,
+                    MaBan = maBan.Value,
+                    BatDau = DateTime.Now,
+                    KetThuc = null,
+                    TrangThai = "DangMo"
+                };
+
+                _context.PhienGoiMons.Add(phien);
+                await _context.SaveChangesAsync();
+            }
 
             var donHang = new DonHang
             {
-                MaKH = maKH.Value,
-                MaBan = maBan.Value,
-                ThoiGianDat = DateTime.Now,
-                TrangThai = "ChoXacNhan",
-                PhuongThucThanhToan = phuongThucThanhToan,
-                TongTien = tongTien,
+                MaPhien = phien.MaPhien,
                 MaVoucher = maVoucher,
-                MaVoucherCode = maVoucherCode,
-                TienGiam = tienGiam,
-                TongThanhToan = tongThanhToan
+                ThoiGianTao = DateTime.Now,
+                TongTien = tongTien,
+                SoTienGiam = tienGiam,
+                TrangThai = "ChoXacNhan"
             };
 
             _context.DonHangs.Add(donHang);
@@ -343,93 +312,74 @@ namespace QRSCAN.Controllers
             {
                 var chiTiet = new ChiTietDonHang
                 {
-                    MaDonHang = donHang.MaDonHang,
+                    MaDH = donHang.MaDH,
                     MaMon = item.MaMon,
                     SoLuong = item.SoLuong,
                     DonGia = item.DonGia,
-                    ThanhTien = item.ThanhTien
+                    ThanhTien = item.SoLuong * item.DonGia,
+                    GhiChu = null,
+                    TrangThai = "ChoCheBien"
                 };
 
                 _context.ChiTietDonHangs.Add(chiTiet);
             }
 
-            // Tạo bản ghi thanh toán tương ứng với đơn hàng vừa tạo
-            var thanhToan = new ThanhToan
+            var hoaDon = new HoaDon
             {
-                MaDonHang = donHang.MaDonHang,
-                PhuongThuc = phuongThucThanhToan,
-                SoTien = tongThanhToan,
-                // Thanh toán tiền mặt sẽ được nhân viên thu và xác nhận trực tiếp,
-                // thanh toán QR chờ khách quét mã và chuyển khoản
-                TrangThai = "ChoThanhToan",
-                NgayThanhToan = DateTime.Now
+                MaDH = donHang.MaDH,
+                MaNV = null,
+                MaPT = maPT,
+                ThoiGianTao = DateTime.Now,
+                TongTien = donHang.TongTien,
+                SoTienGiam = donHang.SoTienGiam,
+                TrangThai = "ChuaThanhToan"
             };
 
-            _context.ThanhToans.Add(thanhToan);
+            _context.HoaDons.Add(hoaDon);
+
+            if (maVoucher != null)
+            {
+                var voucher = await _context.Vouchers
+                    .FirstOrDefaultAsync(x => x.MaVoucher == maVoucher.Value);
+
+                if (voucher != null && voucher.SoLuong > 0)
+                {
+                    voucher.SoLuong--;
+                }
+            }
 
             await _context.SaveChangesAsync();
 
             HttpContext.Session.Remove("GioHang");
             XoaVoucher();
 
-            return RedirectToAction("DatHangThanhCong", new { maDonHang = donHang.MaDonHang });
+            return RedirectToAction("DatHangThanhCong", new { maDH = donHang.MaDH });
         }
 
-        public async Task<IActionResult> DatHangThanhCong(int maDonHang)
+        public async Task<IActionResult> DatHangThanhCong(int maDH)
         {
             var donHang = await _context.DonHangs
-                .FirstOrDefaultAsync(x => x.MaDonHang == maDonHang);
+                .Include(x => x.PhienGoiMon)
+                    .ThenInclude(p => p!.BanAn)
+                .Include(x => x.Voucher)
+                .FirstOrDefaultAsync(x => x.MaDH == maDH);
 
             if (donHang == null)
             {
-                return RedirectToAction("Index", "Home");
+                return NotFound();
             }
 
-            var thanhToan = await _context.ThanhToans
-                .Where(x => x.MaDonHang == maDonHang)
-                .OrderByDescending(x => x.MaThanhToan)
-                .FirstOrDefaultAsync();
-
-            ViewBag.MaDonHang = donHang.MaDonHang;
-            ViewBag.MaBan = donHang.MaBan;
-            ViewBag.TongTien = donHang.TongTien;
-            ViewBag.TienGiam = donHang.TienGiam;
-            ViewBag.TongThanhToan = donHang.TongThanhToan;
-            ViewBag.MaVoucherCode = donHang.MaVoucherCode;
+            ViewBag.MaDH = donHang.MaDH;
+            ViewBag.MaDH = donHang.MaDH;
+            ViewBag.MaBan = donHang.PhienGoiMon?.MaBan;
+            ViewBag.TenBan = donHang.PhienGoiMon?.BanAn?.TenBan;
             ViewBag.TrangThai = donHang.TrangThai;
-            ViewBag.PhuongThucThanhToan = donHang.PhuongThucThanhToan ?? "TienMat";
-            ViewBag.TrangThaiThanhToan = thanhToan?.TrangThai ?? "ChoThanhToan";
-
-            if (ViewBag.PhuongThucThanhToan == "QR")
-            {
-                // Nội dung mã QR chuyển khoản: mã đơn + số tiền + bàn, dùng để nhân viên/khách đối chiếu
-                var noiDungQR = $"KIMURA RAMEN - Don hang #{donHang.MaDonHang} - Ban {donHang.MaBan} - So tien {donHang.TongThanhToan:N0}d";
-                ViewBag.QRCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=" + Uri.EscapeDataString(noiDungQR);
-            }
+            ViewBag.TongTien = donHang.TongTien;
+            ViewBag.TienGiam = donHang.SoTienGiam;
+            ViewBag.TongThanhToan = donHang.TongTien - donHang.SoTienGiam;
+            ViewBag.MaVoucherCode = donHang.Voucher?.MaCode;
 
             return View();
         }
-
-        // Xác nhận đơn hàng đã được thanh toán (QR: khách/nhân viên xác nhận sau khi chuyển khoản,
-        // Tiền mặt: nhân viên xác nhận sau khi thu tiền tại bàn)
-        [HttpPost]
-        public async Task<IActionResult> XacNhanThanhToan(int maDonHang)
-        {
-            var thanhToan = await _context.ThanhToans
-                .Where(x => x.MaDonHang == maDonHang)
-                .OrderByDescending(x => x.MaThanhToan)
-                .FirstOrDefaultAsync();
-
-            if (thanhToan != null)
-            {
-                thanhToan.TrangThai = "DaThanhToan";
-                thanhToan.NgayThanhToan = DateTime.Now;
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction("DatHangThanhCong", new { maDonHang });
-        }
-
-
     }
 }

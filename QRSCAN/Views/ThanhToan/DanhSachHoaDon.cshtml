@@ -1,33 +1,43 @@
-﻿@model List<QRSCAN.Models.Entities.ThanhToan>
+﻿@model List<QRSCAN.Models.Entities.HoaDon>
+
 @{
     ViewData["Title"] = "Xem hóa đơn";
 }
+
 @section Styles {
     <link rel="stylesheet" href="~/css/staff.css" asp-append-version="true" />
 }
+
 <div class="staff-page">
     <nav class="staff-navbar">
-        <div><p>KIMURA RAMEN</p><h2>Xem hóa đơn</h2></div>
+        <div>
+            <p>KIMURA RAMEN</p>
+            <h2>Xem hóa đơn</h2>
+        </div>
+
         <a asp-controller="NhanVien" asp-action="Index">Quay lại</a>
     </nav>
 
     <section class="staff-section" style="margin-top:40px;">
         <div class="tab-switch">
-            <a class="tab-btn" asp-action="DanhSach">Thu ngân</a>
-            <a class="tab-btn active" asp-action="DanhSachHoaDon">Xem hóa đơn</a>
+            <a class="tab-btn" asp-controller="ThanhToan" asp-action="DanhSach">Thu ngân</a>
+            <a class="tab-btn active" asp-controller="ThanhToan" asp-action="DanhSachHoaDon">Xem hóa đơn</a>
         </div>
 
-        @if (!Model.Any())
+        @if (Model == null || !Model.Any())
         {
             <p>Chưa có hóa đơn nào được thanh toán.</p>
         }
         else
         {
             <div class="table-grid">
-                @foreach (var tt in Model)
+                @foreach (var hd in Model)
                 {
-                    <a class="table-item" asp-action="HoaDon" asp-route-maDonHang="@tt.MaDonHang">
-                        Bàn @tt.DonHang?.MaBan
+                    <a class="table-item"
+                       asp-controller="ThanhToan"
+                       asp-action="HoaDon"
+                       asp-route-maDH="@hd.MaDH">
+                        @(hd.DonHang?.PhienGoiMon?.BanAn?.TenBan ?? $"HĐ #{hd.MaHD}")
                     </a>
                 }
             </div>

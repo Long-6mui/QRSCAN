@@ -15,14 +15,14 @@ namespace QRSCAN.Migrations
                 name: "DanhMucMon",
                 columns: table => new
                 {
-                    MaDanhMuc = table.Column<int>(type: "int", nullable: false)
+                    MaDM = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     TenDanhMuc = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DanhMucMon", x => x.MaDanhMuc);
+                    table.PrimaryKey("PK_DanhMucMon", x => x.MaDM);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -41,24 +41,24 @@ namespace QRSCAN.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     TrangThai = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    MaDanhMuc = table.Column<int>(type: "int", nullable: false)
+                    MaDM = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MonAn", x => x.MaMon);
                     table.ForeignKey(
-                        name: "FK_MonAn_DanhMucMon_MaDanhMuc",
-                        column: x => x.MaDanhMuc,
+                        name: "FK_MonAn_DanhMucMon_MaDM",
+                        column: x => x.MaDM,
                         principalTable: "DanhMucMon",
-                        principalColumn: "MaDanhMuc",
+                        principalColumn: "MaDM",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MonAn_MaDanhMuc",
+                name: "IX_MonAn_MaDM",
                 table: "MonAn",
-                column: "MaDanhMuc");
+                column: "MaDM");
         }
 
         /// <inheritdoc />

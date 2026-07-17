@@ -16,18 +16,18 @@ namespace QRSCAN.Migrations
                 name: "DonHang",
                 columns: table => new
                 {
-                    MaDonHang = table.Column<int>(type: "int", nullable: false)
+                    MaDH = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     MaKH = table.Column<int>(type: "int", nullable: false),
                     MaBan = table.Column<int>(type: "int", nullable: true),
-                    ThoiGianDat = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ThoiGianTao = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     TrangThai = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     TongTien = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DonHang", x => x.MaDonHang);
+                    table.PrimaryKey("PK_DonHang", x => x.MaDH);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -37,7 +37,7 @@ namespace QRSCAN.Migrations
                 {
                     MaChiTiet = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    MaDonHang = table.Column<int>(type: "int", nullable: false),
+                    MaDH = table.Column<int>(type: "int", nullable: false),
                     MaMon = table.Column<int>(type: "int", nullable: false),
                     SoLuong = table.Column<int>(type: "int", nullable: false),
                     DonGia = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -47,10 +47,10 @@ namespace QRSCAN.Migrations
                 {
                     table.PrimaryKey("PK_ChiTietDonHang", x => x.MaChiTiet);
                     table.ForeignKey(
-                        name: "FK_ChiTietDonHang_DonHang_MaDonHang",
-                        column: x => x.MaDonHang,
+                        name: "FK_ChiTietDonHang_DonHang_MaDH",
+                        column: x => x.MaDH,
                         principalTable: "DonHang",
-                        principalColumn: "MaDonHang",
+                        principalColumn: "MaDH",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ChiTietDonHang_MonAn_MaMon",
@@ -62,9 +62,9 @@ namespace QRSCAN.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChiTietDonHang_MaDonHang",
+                name: "IX_ChiTietDonHang_MaDH",
                 table: "ChiTietDonHang",
-                column: "MaDonHang");
+                column: "MaDH");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ChiTietDonHang_MaMon",

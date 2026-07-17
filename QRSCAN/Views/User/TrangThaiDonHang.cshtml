@@ -8,159 +8,75 @@
     <link rel="stylesheet" href="~/css/user.css" asp-append-version="true" />
 }
 
-<div class="user-page order-tracking-page">
+<div class="user-page">
     <div class="user-header">
         <div>
             <p>KIMURA RAMEN</p>
             <h1>Trạng thái đơn hàng</h1>
-            <span>Các đơn hàng đang được xử lý của bạn</span>
+            <span>Theo dõi tiến trình xử lý món ăn của bạn.</span>
         </div>
 
-        <a asp-controller="User" asp-action="Profile" class="user-back-btn">← Hồ sơ</a>
+        <a asp-controller="Home" asp-action="Index">← Về trang chủ</a>
     </div>
 
-    @if (Model.Count == 0)
+    @if (Model == null || !Model.Any())
     {
-        <div class="empty-user-box">
+        <div class="empty-box">
             <h2>Không có đơn đang xử lý</h2>
-            <p>Hiện tại bạn chưa có đơn nào đang chờ xác nhận hoặc đang chế biến.</p>
-            <a asp-controller="Home" asp-action="Index">Xem menu</a>
+            <p>Hiện tại bạn chưa có đơn hàng nào đang được xử lý.</p>
         </div>
     }
     else
     {
-        <div class="tracking-list-v2">
+        <div class="tracking-list">
             @foreach (var don in Model)
             {
+                var tongThanhToan = don.TongTien - don.SoTienGiam;
+
                 <div class="tracking-card-v2">
-                    <div class="tracking-card-head">
+                    <div class="tracking-header">
                         <div>
-                            <span>Mã đơn</span>
-                            <h2>#@don.MaDonHang</h2>
+                            <h2>Đơn #@don.MaDH</h2>
+                            <p>@(don.PhienGoiMon?.BanAn?.TenBan ?? "Không rõ bàn")</p>
+                            <span>@don.ThoiGianTao.ToString("dd/MM/yyyy HH:mm")</span>
                         </div>
 
-                        <div class="tracking-status-badge">
-                            @if (don.TrangThai == "Chờ xác nhận")
-                            {
-                                <text>Chờ xác nhận</text>
-                            }
-                            else if (don.TrangThai == "Đang chế biến")
-                            {
-                                <text>Đang chế biến</text>
-                            }
-                            else if (don.TrangThai == "Đã phục vụ")
-                            {
-                                <text>Đã phục vụ</text>
-                            }
-                            else if (don.TrangThai == "Hoàn thành")
-                            {
-                                <text>Hoàn thành</text>
-                            }
-                            else
-                            {
-                                @don.TrangThai
-                            }
-                        </div>
+                        <strong>@don.TrangThai</strong>
                     </div>
 
-                    <div class="tracking-info-v2">
-                        <div>
-                            <span>Bàn</span>
-                            <strong>Bàn @don.MaBan</strong>
-                        </div>
+                    <div class="tracking-body">
+                        <p>Tổng thanh toán: <b>@tongThanhToan.ToString("N0")đ</b></p>
 
-                        <div>
-                            <span>Thời gian đặt</span>
-                            <strong>@don.ThoiGianDat.ToString("dd/MM/yyyy HH:mm")</strong>
-                        </div>
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Món</th>
+                                    <th>SL</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
 
-                        <div>
-                            <span>Tổng tiền</span>
-                            <strong class="price">@don.TongTien.ToString("N0")đ</strong>
-                        </div>
+                            <tbody>
+                                @foreach (var ct in don.ChiTietDonHangs)
+                                {
+                                    <tr>
+                                        <td>@ct.MonAn?.TenMon</td>
+                                        <td>@ct.SoLuong</td>
+                                        <td>@ct.TrangThai</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
 
-                    <div class="tracking-progress-v2">
-                        <div class="tracking-step-v2 active">
-                            <div class="step-circle">1</div>
-                            <div>
-                                <h3>Chờ xác nhận</h3>
-                                <p>Đơn đã được gửi đến nhà bếp</p>
-                            </div>
-                        </div>
-
-                        <div class="step-line @(don.TrangThai == "Đang chế biến" || don.TrangThai == "Đã phục vụ" || don.TrangThai == "Hoàn thành" ? "active" : "")"></div>
-
-                        <div class="tracking-step-v2 @(don.TrangThai == "Đang chế biến" || don.TrangThai == "Đã phục vụ" || don.TrangThai == "Hoàn thành" ? "active" : "")">
-                            <div class="step-circle">2</div>
-                            <div>
-                                <h3>Đang chế biến</h3>
-                                <p>Nhà bếp đang chuẩn bị món</p>
-                            </div>
-                        </div>
-
-                        <div class="step-line @(don.TrangThai == "Đã phục vụ" || don.TrangThai == "Hoàn thành" ? "active" : "")"></div>
-
-                        <div class="tracking-step-v2 @(don.TrangThai == "Đã phục vụ" || don.TrangThai == "Hoàn thành" ? "active" : "")">
-                            <div class="step-circle">3</div>
-                            <div>
-                                <h3>Đã phục vụ</h3>
-                                <p>Món đã được mang đến bàn</p>
-                            </div>
-                        </div>
-
-                        <div class="step-line @(don.TrangThai == "Hoàn thành" ? "active" : "")"></div>
-
-                        <div class="tracking-step-v2 @(don.TrangThai == "Hoàn thành" ? "active" : "")">
-                            <div class="step-circle">4</div>
-                            <div>
-                                <h3>Hoàn thành</h3>
-                                <p>Đơn hàng đã hoàn tất</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tracking-card-footer">
-                        <p>
-                            Trạng thái hiện tại:
-                            <strong>
-                                @if (don.TrangThai == "Chờ xác nhận")
-                                {
-                                    <text>Chờ xác nhận</text>
-                                }
-                                else if (don.TrangThai == "Đang chế biến")
-                                {
-                                    <text>Đang chế biến</text>
-                                }
-                                else if (don.TrangThai == "Đã phục vụ")
-                                {
-                                    <text>Đã phục vụ</text>
-                                }
-                                else if (don.TrangThai == "Hoàn thành")
-                                {
-                                    <text>Hoàn thành</text>
-                                }
-                                else
-                                {
-                                    @don.TrangThai
-                                }
-                            </strong>
-                        </p>
-
-                        <a asp-controller="User"
-                           asp-action="ChiTietDonHang"
-                           asp-route-maDonHang="@don.MaDonHang">
-                            Xem chi tiết đơn
-                        </a>
-                    </div>
+                    <a asp-controller="User"
+                       asp-action="ChiTietDonHang"
+                       asp-route-maDH="@don.MaDH"
+                       class="user-action-btn">
+                        Xem chi tiết
+                    </a>
                 </div>
             }
         </div>
     }
 </div>
-
-<script>
-    setInterval(function () {
-        location.reload();
-    }, 4000);
-</script>
