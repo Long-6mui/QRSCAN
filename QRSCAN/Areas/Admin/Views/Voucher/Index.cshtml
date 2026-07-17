@@ -1,0 +1,234 @@
+﻿@model IEnumerable<QRSCAN.Models.Entities.Voucher>
+@{
+    ViewData["Title"] = "Quản lý Voucher";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-white text-center rounded p-4 shadow-sm">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="mb-0 text-dark">Danh sách Voucher</h4>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="fas fa-plus me-2"></i>Thêm Voucher
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Code</th>
+                        <th scope="col">Tên Voucher</th>
+                        <th scope="col">Giảm (%)</th>
+                        <th scope="col">Tối đa</th>
+                        <th scope="col">Hạn sử dụng</th>
+                        <th scope="col">Trạng Thái</th>
+                        <th scope="col" class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">@item.MaCode</td>
+                            <td>@item.TenVoucher</td>
+                            <td>@item.PhanTramGiam %</td>
+                            <td>@item.GiamToiDa.ToString("N0") đ</td>
+                            <td>@item.NgayKetThuc.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (item.TrangThai == "Đang áp dụng")
+                                {
+                                    <span class="badge bg-success">Đang áp dụng</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge bg-secondary">Hết hạn/Khóa</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-warning text-white" onclick="openEditModal(@item.MaVoucher)">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Voucher Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="createError" style="display:none;"></div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mã Code (Viết hoa, không dấu)</label>
+                        <input type="text" class="form-control" id="c_MaCode" placeholder="VD: GIOVANG10">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tên mô tả Voucher</label>
+                        <input type="text" class="form-control" id="c_TenVoucher" placeholder="VD: Giảm 10% giờ vàng">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Phần trăm giảm (%)</label>
+                        <input type="number" class="form-control" id="c_PhanTram" value="10">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Giảm tối đa (VNĐ)</label>
+                        <input type="number" class="form-control" id="c_GiamToiDa" value="50000">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Đơn tối thiểu (VNĐ)</label>
+                        <input type="number" class="form-control" id="c_DonToiThieu" value="100000">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Từ ngày</label>
+                        <input type="date" class="form-control" id="c_NgayBatDau">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Đến ngày</label>
+                        <input type="date" class="form-control" id="c_NgayKetThuc">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" id="c_TrangThai">
+                            <option value="Đang áp dụng">Đang áp dụng</option>
+                            <option value="Tạm khóa">Tạm khóa</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreate()">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập Nhật Voucher</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="alert alert-danger" id="editError" style="display:none;"></div>
+                <input type="hidden" id="e_MaVoucher">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mã Code</label>
+                        <input type="text" class="form-control" id="e_MaCode">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tên Voucher</label>
+                        <input type="text" class="form-control" id="e_TenVoucher">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Phần trăm giảm</label>
+                        <input type="number" class="form-control" id="e_PhanTram">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Giảm tối đa</label>
+                        <input type="number" class="form-control" id="e_GiamToiDa">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Đơn tối thiểu</label>
+                        <input type="number" class="form-control" id="e_DonToiThieu">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Từ ngày</label>
+                        <input type="date" class="form-control" id="e_NgayBatDau">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Đến ngày</label>
+                        <input type="date" class="form-control" id="e_NgayKetThuc">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" id="e_TrangThai">
+                            <option value="Đang áp dụng">Đang áp dụng</option>
+                            <option value="Tạm khóa">Tạm khóa</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning text-white" onclick="submitEdit()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function submitCreate() {
+            var data = {
+                MaCode: $('#c_MaCode').val(),
+                TenVoucher: $('#c_TenVoucher').val(),
+                PhanTramGiam: parseInt($('#c_PhanTram').val()),
+                GiamToiDa: parseFloat($('#c_GiamToiDa').val()),
+                DonToiThieu: parseFloat($('#c_DonToiThieu').val()),
+                NgayBatDau: $('#c_NgayBatDau').val(),
+                NgayKetThuc: $('#c_NgayKetThuc').val(),
+                TrangThai: $('#c_TrangThai').val()
+            };
+            $.ajax({
+                url: '/Admin/Voucher/Create', type: 'POST', contentType: 'application/json', data: JSON.stringify(data),
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#createError').text(res.message).show();
+                }
+            });
+        }
+
+        function openEditModal(id) {
+            $('#editError').hide();
+            $.ajax({
+                url: '/Admin/Voucher/GetById?id=' + id, type: 'GET',
+                success: function (d) {
+                    $('#e_MaVoucher').val(d.maVoucher);
+                    $('#e_MaCode').val(d.maCode);
+                    $('#e_TenVoucher').val(d.tenVoucher);
+                    $('#e_PhanTram').val(d.phanTramGiam);
+                    $('#e_GiamToiDa').val(d.giamToiDa);
+                    $('#e_DonToiThieu').val(d.donToiThieu);
+                    $('#e_NgayBatDau').val(d.ngayBatDau.split('T')[0]);
+                    $('#e_NgayKetThuc').val(d.ngayKetThuc.split('T')[0]);
+                    $('#e_TrangThai').val(d.trangThai);
+                    $('#editModal').modal('show');
+                }
+            });
+        }
+
+        function submitEdit() {
+            var data = {
+                MaVoucher: parseInt($('#e_MaVoucher').val()),
+                MaCode: $('#e_MaCode').val(),
+                TenVoucher: $('#e_TenVoucher').val(),
+                PhanTramGiam: parseInt($('#e_PhanTram').val()),
+                GiamToiDa: parseFloat($('#e_GiamToiDa').val()),
+                DonToiThieu: parseFloat($('#e_DonToiThieu').val()),
+                NgayBatDau: $('#e_NgayBatDau').val(),
+                NgayKetThuc: $('#e_NgayKetThuc').val(),
+                TrangThai: $('#e_TrangThai').val()
+            };
+            $.ajax({
+                url: '/Admin/Voucher/Edit', type: 'POST', contentType: 'application/json', data: JSON.stringify(data),
+                success: function (res) {
+                    if(res.success) location.reload();
+                    else $('#editError').text(res.message).show();
+                }
+            });
+        }
+    </script>
+}

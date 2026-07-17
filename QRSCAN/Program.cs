@@ -13,6 +13,19 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSession();
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "Cookies";
+    options.DefaultChallengeScheme = "Cookies";
+})
+    .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/Admin/Account/Login";
+        options.Cookie.Path = "/";
+        options.ExpireTimeSpan = TimeSpan.FromDays(1);
+        options.SlidingExpiration = true;
+    });
+
 
 var app = builder.Build();
 
@@ -31,7 +44,14 @@ app.UseRouting();
 
 app.UseSession();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
 
 app.MapControllerRoute(
     name: "default",
