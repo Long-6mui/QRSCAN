@@ -6,7 +6,7 @@ using QRSCAN.Data;
 namespace QRSCAN.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = "Admin,Phục vụ")]
     public class HomeController : Controller
     {
         private readonly AppDbContext _context;
@@ -16,72 +16,32 @@ namespace QRSCAN.Areas.Admin.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        public IActionResult Index() => View();
 
         [HttpGet]
         public IActionResult GetDashboardData(DateTime? fromDate, DateTime? toDate)
         {
-            DateTime start = fromDate ?? DateTime.Now.AddYears(-1).AddMonths(-11).AddDays(-DateTime.Now.Day + 1).Date;
+            DateTime start = fromDate ?? DateTime.Now.AddMonths(-11).AddDays(-DateTime.Now.Day + 1).Date;
             DateTime end = toDate ?? DateTime.Now.Date;
             DateTime endOfDay = end.AddDays(1).AddTicks(-1);
 
-            // 3. Lọc Đơn hàng ĐÃ HOÀN THÀNH trong khoảng thời gian
-            var donHangs = _context.DonHangs
-                .Where(d => d.TrangThai == "Đã thanh toán" && d.ThoiGianDat >= start && d.ThoiGianDat <= endOfDay)
-                .ToList();
-
-            // Tổng quan (Thẻ Card)
-            var tongDoanhThu = donHangs.Sum(d => d.TongThanhToan);
-            var tongDonHang = donHangs.Count;
-
-            // 4. Dữ liệu Biểu đồ Doanh thu theo ngày
-            //var doanhThuTheoNgay = donHangs
-            //    .GroupBy(d => d.ThoiGianDat.Date)
-            //    .Select(g => new
-            //    {
-            //        Ngay = g.Key.ToString("dd/MM"),
-            //        DoanhThu = g.Sum(d => d.TongThanhToan)
-            //    })
-            //    .OrderBy(x => x.Ngay)
-            //    .ToList();
-            // 4. Dữ liệu Biểu đồ Doanh thu theo tháng
-            var doanhThuTheoThang = donHangs
-                .GroupBy(d => new { d.ThoiGianDat.Year, d.ThoiGianDat.Month })
-                .Select(g => new
-                {
-                    Ngay = $"{g.Key.Month}/{g.Key.Year}",
-                    SortKey = new DateTime(g.Key.Year, g.Key.Month, 1),
-                    DoanhThu = g.Sum(d => d.TongThanhToan)
-                })
-                .OrderBy(x => x.SortKey)
-                .ToList();
-
-
-            // 5. Dữ liệu Biểu đồ Top 5 Món bán chạy nhất
-            var topMonAn = _context.ChiTietDonHangs
-                .Include(c => c.DonHang)
-                .Include(c => c.MonAn)
-                .Where(c => c.DonHang.TrangThai == "Đã thanh toán" && c.DonHang.ThoiGianDat >= start && c.DonHang.ThoiGianDat <= endOfDay)
-                .GroupBy(c => c.MonAn.TenMon)
-                .Select(g => new
-                {
-                    TenMon = g.Key,
-                    SoLuong = g.Sum(c => c.SoLuong)
-                })
-                .OrderByDescending(x => x.SoLuong)  
-                .Take(5)
+            var hoaDons = _context.DonHangs
+                .Where(d => d.TrangThai == "Hoàn thành" && d.ThoiGianTao >= start && d.ThoiGianTao <= endOfDay)
                 .ToList();
 
             return Json(new
             {
                 success = true,
-                tongDoanhThu = tongDoanhThu,
-                tongDonHang = tongDonHang,
-                bieuDoDoanhThu = doanhThuTheoThang,
-                bieuDoMonAn = topMonAn
+                tongDoanhThu = hoaDons.Sum(d => d.TongTien),
+                tongDonHang = hoaDons.Count,
+                bieuDoDoanhThu = hoaDons.GroupBy(d => new { d.ThoiGianTao.Year, d.ThoiGianTao.Month })
+                                         .Select(g => new { Ngay = $"{g.Key.Month}/{g.Key.Year}", DoanhThu = g.Sum(d => d.TongTien) }),
+                bieuDoMonAn = _context.ChiTietDonHangs
+                    .Include(c => c.MonAn)
+                    .Where(c => c.DonHang.TrangThai == "Hoàn thành" && c.DonHang.ThoiGianTao >= start && c.DonHang.ThoiGianTao <= endOfDay)
+                    .GroupBy(c => c.MonAn.TenMon)
+                    .Select(g => new { TenMon = g.Key, SoLuong = g.Sum(c => c.SoLuong) })
+                    .OrderByDescending(x => x.SoLuong).Take(5).ToList()
             });
         }
     }

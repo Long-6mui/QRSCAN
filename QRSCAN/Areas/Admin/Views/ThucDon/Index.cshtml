@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<QRSCAN.Models.Entities.MonAn>
+@{
     ViewData["Title"] = "Quản lý Thực Đơn";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     var dsMonAn = ViewBag.MonAns as List<QRSCAN.Models.Entities.MonAn>;
@@ -21,7 +22,8 @@
             </li>
         </ul>
 
-        <div class="tab-content" id="pills-tabContent">            <div class="tab-pane fade show active" id="pills-monan" role="tabpanel">
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-monan" role="tabpanel">
                 <div class="d-flex justify-content-end mb-3">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddMonAn">
                         <i class="fas fa-plus me-2"></i>Thêm Món
@@ -46,24 +48,26 @@
                                 {
                                     <tr>
                                         <td>
-                                            <img src="@item.HinhAnh" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                            <img src="@item.HinhAnh" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" onerror="this.src='https://placehold.co/50x50/eee/999?text=No+Img'">
                                         </td>
                                         <td class="fw-bold">@item.TenMon</td>
-                                        <td><span class="badge bg-secondary">@(item.DanhMucMon?.TenDanhMuc ?? "N/A")</span></td>
+
+                                        <!-- Đã sửa thành TenDM -->
+                                        <td><span class="badge bg-secondary">@(item.DanhMucMon?.TenDM ?? "N/A")</span></td>
+
                                         <td class="text-danger fw-bold">@item.DonGia.ToString("N0") đ</td>
                                         <td>
-                                            @if (item.TrangThai == "Đang bán")
+                                            <!-- So sánh với trạng thái không dấu từ database -->
+                                            @if (item.TrangThai == "DangBan" || item.TrangThai == "Đang bán")
                                             {
                                                 <span class="badge bg-success">Đang bán</span>
                                             }
-                                            else if (item.TrangThai == "Ngưng bán")
+                                            else if (item.TrangThai == "NgungBan" || item.TrangThai == "Ngưng bán")
                                             {
-
                                                 <span class="badge bg-danger">Ngưng bán</span>
                                             }
                                             else
                                             {
-
                                                 <span class="badge bg-warning text-dark">Hết hàng</span>
                                             }
                                         </td>
@@ -79,6 +83,7 @@
                     </table>
                 </div>
             </div>
+
             <div class="tab-pane fade" id="pills-danhmuc" role="tabpanel">
                 <div class="d-flex justify-content-end mb-3">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddDanhMuc">
@@ -100,10 +105,11 @@
                                 foreach (var item in dsDanhMuc)
                                 {
                                     <tr>
-                                        <td>#@item.MaDanhMuc</td>
-                                        <td class="fw-bold">@item.TenDanhMuc</td>
+                                        <!-- Đã sửa thành MaDM và TenDM -->
+                                        <td>#@item.MaDM</td>
+                                        <td class="fw-bold">@item.TenDM</td>
                                         <td class="text-end">
-                                            <button class="btn btn-sm btn-warning text-white" onclick="openEditDanhMuc(@item.MaDanhMuc)">
+                                            <button class="btn btn-sm btn-warning text-white" onclick="openEditDanhMuc(@item.MaDM)">
                                                 <i class="fas fa-edit"></i> Sửa
                                             </button>
                                         </td>
@@ -118,6 +124,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="modalAddMonAn" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -139,13 +146,13 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label text-danger fw-bold">Danh Mục (*)</label>
-                            <select class="form-select" name="MaDanhMuc" id="c_MaDanhMuc" required>
+                            <select class="form-select" name="MaDM" id="c_MaDM" required>
                                 <option value="">-- Chọn danh mục --</option>
                                 @if (dsDanhMuc != null)
                                 {
                                     foreach (var dm in dsDanhMuc)
                                     {
-                                        <option value="@dm.MaDanhMuc">@dm.TenDanhMuc</option>
+                                        <option value="@dm.MaDM">@dm.TenDM</option>
                                     }
                                 }
                             </select>
@@ -153,9 +160,9 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label text-danger fw-bold">Trạng thái (*)</label>
                             <select class="form-select" name="TrangThai" id="c_TrangThai">
-                                <option value="Đang bán">Đang bán</option>
-                                <option value="Hết hàng">Hết hàng</option>
-                                <option value="Ngưng bán">Ngưng bán</option>
+                                <option value="DangBan">Đang bán</option>
+                                <option value="HetHang">Hết hàng</option>
+                                <option value="NgungBan">Ngưng bán</option>
                             </select>
                         </div>
                         <div class="col-md-12 mb-3">
@@ -199,12 +206,12 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Danh Mục</label>
-                            <select class="form-select" name="MaDanhMuc" id="e_MaDanhMuc">
+                            <select class="form-select" name="MaDM" id="e_MaDM">
                                 @if (dsDanhMuc != null)
                                 {
                                     foreach (var dm in dsDanhMuc)
                                     {
-                                        <option value="@dm.MaDanhMuc">@dm.TenDanhMuc</option>
+                                        <option value="@dm.MaDM">@dm.TenDM</option>
                                     }
                                 }
                             </select>
@@ -212,9 +219,9 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Trạng thái</label>
                             <select class="form-select" name="TrangThai" id="e_TrangThai">
-                                <option value="Đang bán">Đang bán</option>
-                                <option value="Hết hàng">Hết hàng</option>
-                                <option value="Ngưng bán" class="text-danger fw-bold">Ngưng bán (Không xóa)</option>
+                                <option value="DangBan">Đang bán</option>
+                                <option value="HetHang">Hết hàng</option>
+                                <option value="NgungBan" class="text-danger fw-bold">Ngưng bán (Không xóa)</option>
                             </select>
                         </div>
                         <div class="col-md-12 mb-3">
@@ -235,6 +242,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="modalAddDanhMuc" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -246,7 +254,7 @@
                 <div class="alert alert-danger" id="errDMAdd" style="display:none;"></div>
                 <div class="mb-3">
                     <label class="form-label">Tên danh mục</label>
-                    <input type="text" class="form-control" id="c_TenDanhMuc" placeholder="VD: Mì Ramen">
+                    <input type="text" class="form-control" id="c_TenDM" placeholder="VD: Mì Ramen">
                 </div>
             </div>
             <div class="modal-footer">
@@ -266,10 +274,10 @@
             </div>
             <div class="modal-body text-start">
                 <div class="alert alert-danger" id="errDMEdit" style="display:none;"></div>
-                <input type="hidden" id="e_MaDanhMuc">
+                <input type="hidden" id="e_MaDM">
                 <div class="mb-3">
                     <label class="form-label">Tên danh mục</label>
-                    <input type="text" class="form-control" id="e_TenDanhMuc">
+                    <input type="text" class="form-control" id="e_TenDM">
                 </div>
             </div>
             <div class="modal-footer">
@@ -282,11 +290,16 @@
 
 @section Scripts {
     <script>
+        function showModal(id) {
+            var myModal = new bootstrap.Modal(document.getElementById(id));
+            myModal.show();
+        }
+
         function submitAddMonAn() {
             var formData = new FormData();
             formData.append("TenMon", $('#c_TenMon').val());
             formData.append("DonGia", $('#c_DonGia').val());
-            formData.append("MaDanhMuc", $('#c_MaDanhMuc').val());
+            formData.append("MaDM", $('#c_MaDM').val()); // Đã sửa MaDanhMuc -> MaDM
             formData.append("TrangThai", $('#c_TrangThai').val());
             formData.append("MoTa", $('#c_MoTa').val());
 
@@ -294,7 +307,7 @@
             if (file) formData.append("FileHinhAnh", file);
 
             $.ajax({
-                url: '/Admin/MonAn/CreateMonAn', type: 'POST', data: formData, processData: false, contentType: false,
+                url: '/Admin/ThucDon/CreateMonAn', type: 'POST', data: formData, processData: false, contentType: false,
                 success: function (res) {
                     if(res.success) location.reload();
                     else $('#errMonAnAdd').text(res.message).show();
@@ -303,15 +316,28 @@
         }
 
         function openEditMonAn(id) {
+            console.log("Đang mở edit món ăn ID:", id);
             $('#errMonAnEdit').hide();
             $.ajax({
-                url: '/Admin/MonAn/GetMonAnById?id=' + id, type: 'GET',
+                url: '/Admin/ThucDon/GetMonAnById?id=' + id,
+                type: 'GET',
                 success: function (d) {
-                    $('#e_MaMon').val(d.maMon); $('#e_TenMon').val(d.tenMon);
-                    $('#e_DonGia').val(d.donGia); $('#e_MaDanhMuc').val(d.maDanhMuc);
-                    $('#e_TrangThai').val(d.trangThai); $('#e_MoTa').val(d.moTa);
-                    $('#e_FileHinhAnh').val('');
-                    $('#modalEditMonAn').modal('show');
+                    // Log ra để kiểm tra tên trường (thường là PascalCase: MaDM, TenDM)
+                    console.log("Dữ liệu nhận về:", d);
+
+                    // Lưu ý: Đảm bảo tên thuộc tính khớp với JSON nhận được (thường là MaMon, MaDM, TenMon...)
+                    $('#e_MaMon').val(d.maMon || d.MaMon);
+                    $('#e_TenMon').val(d.tenMon || d.TenMon);
+                    $('#e_DonGia').val(d.donGia || d.DonGia);
+                    $('#e_MaDanhMuc').val(d.maDM || d.MaDM);
+                    $('#e_TrangThai').val(d.trangThai || d.TrangThai);
+                    $('#e_MoTa').val(d.moTa || d.MoTa);
+
+                    showModal('modalEditMonAn');
+                },
+                error: function(err) {
+                    alert("Lỗi tải dữ liệu món ăn!");
+                    console.error(err);
                 }
             });
         }
@@ -321,7 +347,7 @@
             formData.append("MaMon", $('#e_MaMon').val());
             formData.append("TenMon", $('#e_TenMon').val());
             formData.append("DonGia", $('#e_DonGia').val());
-            formData.append("MaDanhMuc", $('#e_MaDanhMuc').val());
+            formData.append("MaDM", $('#e_MaDM').val()); // Đã sửa MaDanhMuc -> MaDM
             formData.append("TrangThai", $('#e_TrangThai').val());
             formData.append("MoTa", $('#e_MoTa').val());
 
@@ -329,7 +355,7 @@
             if (file) formData.append("FileHinhAnh", file);
 
             $.ajax({
-                url: '/Admin/MonAn/EditMonAn', type: 'POST', data: formData, processData: false, contentType: false,
+                url: '/Admin/ThucDon/EditMonAn', type: 'POST', data: formData, processData: false, contentType: false,
                 success: function (res) {
                     if(res.success) location.reload();
                     else $('#errMonAnEdit').text(res.message).show();
@@ -338,10 +364,10 @@
         }
 
         function submitAddDanhMuc() {
-            var tenDM = $('#c_TenDanhMuc').val();
+            var tenDM = $('#c_TenDM').val();
             $.ajax({
-                url: '/Admin/MonAn/CreateDanhMuc', type: 'POST', contentType: 'application/json',
-                data: JSON.stringify({ TenDanhMuc: tenDM }),
+                url: '/Admin/ThucDon/CreateDanhMuc', type: 'POST', contentType: 'application/json',
+                data: JSON.stringify({ TenDM: tenDM }), // Đã sửa TenDanhMuc -> TenDM
                 success: function (res) {
                     if(res.success) location.reload();
                     else $('#errDMAdd').text(res.message).show();
@@ -350,21 +376,32 @@
         }
 
         function openEditDanhMuc(id) {
+            console.log("Đang mở edit danh mục ID:", id);
             $('#errDMEdit').hide();
             $.ajax({
-                url: '/Admin/MonAn/GetDanhMucById?id=' + id, type: 'GET',
+                url: '/Admin/ThucDon/GetDanhMucById?id=' + id,
+                type: 'GET',
                 success: function (d) {
-                    $('#e_MaDanhMuc').val(d.maDanhMuc);
-                    $('#e_TenDanhMuc').val(d.tenDanhMuc);
-                    $('#modalEditDanhMuc').modal('show');
+                    console.log("Dữ liệu nhận về:", d);
+
+                    // Kiểm tra kỹ tên biến nhận về (MaDM/MaDanhMuc và TenDM/TenDanhMuc)
+                    $('#e_MaDM').val(d.maDM || d.MaDM);
+                    $('#e_TenDM').val(d.tenDM || d.TenDM);
+
+                    showModal('modalEditDanhMuc');
+                },
+                error: function(err) {
+                    alert("Lỗi tải dữ liệu danh mục!");
+                    console.error(err);
                 }
             });
         }
 
         function submitEditDanhMuc() {
             $.ajax({
-                url: '/Admin/MonAn/EditDanhMuc', type: 'POST', contentType: 'application/json',
-                data: JSON.stringify({ MaDanhMuc: parseInt($('#e_MaDanhMuc').val()), TenDanhMuc: $('#e_TenDanhMuc').val() }),
+                url: '/Admin/ThucDon/EditDanhMuc', type: 'POST', contentType: 'application/json',
+                // Đã sửa MaDanhMuc -> MaDM, TenDanhMuc -> TenDM
+                data: JSON.stringify({ MaDM: parseInt($('#e_MaDM').val()), TenDM: $('#e_TenDM').val() }),
                 success: function (res) {
                     if(res.success) location.reload();
                     else $('#errDMEdit').text(res.message).show();

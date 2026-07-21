@@ -18,34 +18,33 @@ namespace QRSCAN.Areas.Admin.Controllers
             _context = context;
             _env = env;
         }
+
         public IActionResult Index()
         {
             ViewBag.MonAns = _context.MonAns.Include(m => m.DanhMucMon).OrderByDescending(m => m.MaMon).ToList();
-            ViewBag.DanhMucs = _context.DanhMucMons.OrderByDescending(d => d.MaDanhMuc).ToList();
+            ViewBag.DanhMucs = _context.DanhMucMons.OrderByDescending(d => d.MaDM).ToList();
             return View();
         }
 
+        // ==========================================
+        // 1. CÁC HÀM XỬ LÝ MÓN ĂN
+        // ==========================================
         [HttpPost]
         public async Task<IActionResult> CreateMonAn([FromForm] MonAn model, IFormFile? FileHinhAnh)
         {
-            if (string.IsNullOrEmpty(model.TenMon) || model.DonGia <= 0 || model.MaDanhMuc <= 0)
-                return Json(new { success = false, message = "Vui lòng nhập đầy đủ Tên món, Danh mục và Giá!" });
+            if (string.IsNullOrEmpty(model.TenMon) || model.DonGia <= 0 || model.MaDM <= 0)
+                return Json(new { success = false, message = "Vui lòng nhập đầy đủ thông tin!" });
 
             if (FileHinhAnh != null && FileHinhAnh.Length > 0)
             {
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(FileHinhAnh.FileName);
                 string uploadPath = Path.Combine(_env.WebRootPath, "images");
                 if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
-                string filePath = Path.Combine(uploadPath, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(Path.Combine(uploadPath, fileName), FileMode.Create))
                 {
                     await FileHinhAnh.CopyToAsync(stream);
                 }
                 model.HinhAnh = "/images/" + fileName;
-            }
-            else
-            {
-                model.HinhAnh = "/images/default-food.jpg";
             }
 
             _context.MonAns.Add(model);
@@ -70,16 +69,13 @@ namespace QRSCAN.Areas.Admin.Controllers
             monAnCu.TenMon = model.TenMon;
             monAnCu.MoTa = model.MoTa;
             monAnCu.DonGia = model.DonGia;
-            monAnCu.TrangThai = model.TrangThai; 
-            monAnCu.MaDanhMuc = model.MaDanhMuc;
+            monAnCu.TrangThai = model.TrangThai;
+            monAnCu.MaDM = model.MaDM;
 
             if (FileHinhAnh != null && FileHinhAnh.Length > 0)
             {
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(FileHinhAnh.FileName);
-                string uploadPath = Path.Combine(_env.WebRootPath, "images");
-                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
-                string filePath = Path.Combine(uploadPath, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(Path.Combine(_env.WebRootPath, "images", fileName), FileMode.Create))
                 {
                     await FileHinhAnh.CopyToAsync(stream);
                 }
@@ -90,11 +86,15 @@ namespace QRSCAN.Areas.Admin.Controllers
             return Json(new { success = true });
         }
 
+        // ==========================================
+        // 2. CÁC HÀM XỬ LÝ DANH MỤC (MỚI THÊM)
+        // ==========================================
+
         [HttpPost]
         public IActionResult CreateDanhMuc([FromBody] DanhMucMon model)
         {
-            if (string.IsNullOrEmpty(model.TenDanhMuc))
-                return Json(new { success = false, message = "Tên danh mục không được để trống!" });
+            if (string.IsNullOrEmpty(model.TenDM))
+                return Json(new { success = false, message = "Tên danh mục không được trống!" });
 
             _context.DanhMucMons.Add(model);
             _context.SaveChanges();
@@ -112,10 +112,10 @@ namespace QRSCAN.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult EditDanhMuc([FromBody] DanhMucMon model)
         {
-            var dmCu = _context.DanhMucMons.Find(model.MaDanhMuc);
+            var dmCu = _context.DanhMucMons.Find(model.MaDM);
             if (dmCu == null) return Json(new { success = false, message = "Không tìm thấy danh mục!" });
 
-            dmCu.TenDanhMuc = model.TenDanhMuc;
+            dmCu.TenDM = model.TenDM;
             _context.SaveChanges();
             return Json(new { success = true });
         }

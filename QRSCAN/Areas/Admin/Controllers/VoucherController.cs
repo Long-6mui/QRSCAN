@@ -18,7 +18,7 @@ namespace QRSCAN.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            var vouchers = _context.Vouchers.ToList();
+            var vouchers = _context.Vouchers.OrderByDescending(v => v.MaVoucher).ToList();
             return View(vouchers);
         }
 
@@ -28,8 +28,14 @@ namespace QRSCAN.Areas.Admin.Controllers
             if (string.IsNullOrEmpty(model.MaCode))
                 return Json(new { success = false, message = "Mã Code không được để trống!" });
 
-            if (model.NgayBatDau >= model.NgayKetThuc)
+            // Sử dụng trường BatDau và KetThuc khớp với Model
+            if (model.BatDau >= model.KetThuc)
                 return Json(new { success = false, message = "Ngày kết thúc phải lớn hơn ngày bắt đầu!" });
+
+            // Kiểm tra trùng mã Code
+            bool isExist = _context.Vouchers.Any(v => v.MaCode.ToLower() == model.MaCode.ToLower());
+            if (isExist)
+                return Json(new { success = false, message = "Mã Code này đã tồn tại trong hệ thống!" });
 
             _context.Vouchers.Add(model);
             _context.SaveChanges();
@@ -49,15 +55,22 @@ namespace QRSCAN.Areas.Admin.Controllers
         public IActionResult Edit([FromBody] Voucher model)
         {
             var oldVoucher = _context.Vouchers.Find(model.MaVoucher);
-            if (oldVoucher == null) return Json(new { success = false, message = "Lỗi dữ liệu!" });
+            if (oldVoucher == null) return Json(new { success = false, message = "Lỗi dữ liệu, không tìm thấy Voucher!" });
 
+            // Kiểm tra trùng mã Code với các Voucher khác
+            bool isExist = _context.Vouchers.Any(v => v.MaCode.ToLower() == model.MaCode.ToLower() && v.MaVoucher != model.MaVoucher);
+            if (isExist)
+                return Json(new { success = false, message = "Mã Code này đang được sử dụng cho Voucher khác!" });
+
+            // Cập nhật chuẩn các trường theo Model Voucher.cs
             oldVoucher.MaCode = model.MaCode;
             oldVoucher.TenVoucher = model.TenVoucher;
-            oldVoucher.PhanTramGiam = model.PhanTramGiam;
-            oldVoucher.GiamToiDa = model.GiamToiDa;
-            oldVoucher.DonToiThieu = model.DonToiThieu;
-            oldVoucher.NgayBatDau = model.NgayBatDau;
-            oldVoucher.NgayKetThuc = model.NgayKetThuc;
+            oldVoucher.LoaiGiamGia = model.LoaiGiamGia;
+            oldVoucher.GiaTriGiam = model.GiaTriGiam;
+            oldVoucher.DieuKien = model.DieuKien;
+            oldVoucher.BatDau = model.BatDau;
+            oldVoucher.KetThuc = model.KetThuc;
+            oldVoucher.SoLuong = model.SoLuong;
             oldVoucher.TrangThai = model.TrangThai;
 
             _context.SaveChanges();

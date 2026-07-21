@@ -34,7 +34,7 @@
                             <td><span class="badge bg-info text-dark">@(item.VaiTro?.TenVT ?? "N/A")</span></td>
                             <td>@item.SDT</td>
                             <td>
-                                @if (item.TrangThai == "Hoạt động")
+                                @if (item.TrangThai == "HoatDong")
                                 {
                                     <span class="badge bg-success">Hoạt động</span>
                                 }
@@ -98,8 +98,8 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Trạng thái</label>
                         <select class="form-select" id="c_TrangThai">
-                            <option value="Hoạt động">Hoạt động</option>
-                            <option value="Khóa">Khóa</option>
+                            <option value="HoatDong">Hoạt động</option>
+                            <option value="Khoa">Khóa</option>
                         </select>
                     </div>
                 </div>

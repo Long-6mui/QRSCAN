@@ -17,14 +17,14 @@
             @foreach (var item in Model)
             {
                 <div class="col-sm-6 col-md-4 col-lg-3">
-                    <div class="card h-100 shadow-sm rounded-4 border-2 @(item.TrangThai == "Trống" ? "border-success" : "border-danger")"
-                         style="background-color: @(item.TrangThai == "Trống" ? "#f0fdf4" : "#fff1f2"); transition: transform 0.2s;"
+                    <div class="card h-100 shadow-sm rounded-4 border-2 @(item.TrangThai == "TrOog" ? "border-success" : "border-danger")"
+                         style="background-color: @(item.TrangThai == "Trong" ? "#f0fdf4" : "#fff1f2"); transition: transform 0.2s;"
                          onmouseover="this.style.transform='translateY(-5px)'"
                          onmouseout="this.style.transform='translateY(0)'">
 
                         <div class="card-body text-center d-flex flex-column justify-content-center pt-4">
                             <div class="mb-3">
-                                <i class="fas fa-square fa-3x @(item.TrangThai == "Trống" ? "text-success" : "text-danger")" style="opacity: 0.8;"></i>
+                                <i class="fas fa-square fa-3x @(item.TrangThai == "Trong" ? "text-success" : "text-danger")" style="opacity: 0.8;"></i>
                             </div>
 
                             <h5 class="fw-bold text-dark mt-2 mb-1">@item.TenBan</h5>
@@ -33,7 +33,7 @@
                             </p>
 
                             <div>
-                                @if (item.TrangThai == "Trống")
+                                @if (item.TrangThai == "Trong")
                                 {
                                     <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">Trống</span>
                                 }
@@ -87,8 +87,8 @@
                 <div class="mb-3">
                     <label class="form-label">Trạng thái</label>
                     <select class="form-select" id="createTrangThai">
-                        <option value="Trống">Trống</option>
-                        <option value="Đang phục vụ">Đang phục vụ</option>
+                        <option value="Trong">Trống</option>
+                        <option value="HoatDong">Đang phục vụ</option>
                     </select>
                 </div>
             </div>
@@ -121,8 +121,8 @@
                 <div class="mb-3">
                     <label class="form-label">Trạng thái</label>
                     <select class="form-select" id="editTrangThai">
-                        <option value="Trống">Trống</option>
-                        <option value="Đang phục vụ">Đang phục vụ</option>
+                        <option value="Trong">Trống</option>
+                        <option value="HoatDong">Đang phục vụ</option>
                     </select>
                 </div>
             </div>

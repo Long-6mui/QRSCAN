@@ -14,11 +14,12 @@
             </div>
         </div>
 
-        <div class="row g-4">
+        <!-- Thêm id="banAnGrid" để hàm setInterval ở dưới có thể tự động tải lại khu vực này -->
+        <div class="row g-4" id="banAnGrid">
             @foreach (var item in Model)
             {
                 <div class="col-sm-6 col-md-4 col-lg-3">
-                    @if (item.TrangThaiBan == "Trống")
+                    @if (item.TrangThaiBan == "Trong")
                     {
                         <div class="card h-100 border-success shadow-sm" style="background-color: #f0fdf4;">
                             <div class="card-body text-center d-flex flex-column justify-content-center">
@@ -40,21 +41,22 @@
                                 <div class="text-dark fw-bold fs-5 mt-2 mb-2">
                                     @((item.TongTienHienTai ?? 0).ToString("N0")) đ
                                 </div>
-                                @if (item.ThoiGianVao.HasValue)
+                                <!-- Sửa thành item.BatDau và item.MaPhien -->
+                                @if (item.BatDau.HasValue)
                                 {
                                     <div class="text-muted small">
-                                        Vào lúc: @item.ThoiGianVao.Value.ToString("HH:mm")
+                                        Vào lúc: @item.BatDau.Value.ToString("HH:mm")
                                     </div>
                                     <div class="text-muted small">
-                                        Mã ĐH: #@item.MaDonHangThucTe
+                                        Mã Phiên: #@item.MaPhien
                                     </div>
                                 }
                             </div>
                             <div class="card-footer bg-transparent border-0 d-flex flex-wrap justify-content-center gap-2 pb-3">
-                                <button class="btn btn-sm btn-primary shadow-sm" onclick="openChiTiet(@item.MaDonHangThucTe, '@item.TenBan')" title="Xem món">
+                                <button class="btn btn-sm btn-primary shadow-sm" onclick="openChiTiet(@item.MaPhien, '@item.TenBan')" title="Xem món">
                                     <i class="fas fa-list"></i> Xem món
                                 </button>
-                                <button class="btn btn-sm btn-info text-dark shadow-sm" onclick="openDoiBanModal(@item.MaDonHangThucTe, '@item.TenBan')" title="Đổi bàn">
+                                <button class="btn btn-sm btn-info text-dark shadow-sm" onclick="openDoiBanModal(@item.MaPhien, '@item.TenBan')" title="Đổi bàn">
                                     <i class="fas fa-exchange-alt"></i> Đổi bàn
                                 </button>
                             </div>
@@ -102,7 +104,7 @@
             </div>
             <div class="modal-body text-start">
                 <div class="alert alert-danger" id="doiBanError" style="display:none;"></div>
-                <input type="hidden" id="db_MaDonHang">
+                <input type="hidden" id="db_MaPhien">
 
                 <div class="mb-3">
                     <label class="form-label text-muted mb-1">Đang ngồi tại</label>
@@ -123,13 +125,13 @@
 
 @section Scripts {
     <script>
-        function openChiTiet(maDH, tenBan) {
+        function openChiTiet(maPhien, tenBan) {
             $('#chiTietTitle').text('Chi tiết ' + tenBan);
             $('#chiTietBody').html('<tr><td colspan="3" class="text-center">Đang tải...</td></tr>');
             $('#modalChiTiet').modal('show');
 
             $.ajax({
-                url: '/Admin/PhienGoiMon/GetChiTiet?maDonHang=' + maDH,
+                url: '/Admin/PhienGoiMon/GetChiTiet?maPhien=' + maPhien, // Gọi đúng tham số maPhien
                 type: 'GET',
                 success: function(res) {
                     var html = '';
@@ -146,9 +148,9 @@
             });
         }
 
-        function openDoiBanModal(maDH, tenBanHienTai) {
+        function openDoiBanModal(maPhien, tenBanHienTai) {
             $('#doiBanError').hide();
-            $('#db_MaDonHang').val(maDH);
+            $('#db_MaPhien').val(maPhien);
             $('#db_BanHienTai').val(tenBanHienTai);
             $('#db_MaBanMoi').html('<option value="">-- Đang tải... --</option>');
             $('#doiBanModal').modal('show');
@@ -174,7 +176,8 @@
                 url: '/Admin/PhienGoiMon/DoiBan',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ MaDonHang: parseInt($('#db_MaDonHang').val()), MaBanMoi: parseInt(maBanMoi) }),
+                // Cập nhật tên JSON object: MaPhien
+                data: JSON.stringify({ MaPhien: parseInt($('#db_MaPhien').val()), MaBanMoi: parseInt(maBanMoi) }),
                 success: function (res) {
                     if(res.success) location.reload();
                     else $('#doiBanError').text(res.message).show();
@@ -183,11 +186,12 @@
         }
 
         $(document).ready(function() {
+            // Tải lại ngầm định danh sách bàn (Thời gian tôi để 10 giây (10000ms) để đỡ lag server)
             setInterval(function() {
                 if ($('.modal.show').length === 0) {
                     $('#banAnGrid').load(location.href + ' #banAnGrid > *');
                 }
-            }, 1000); 
+            }, 10000);
         });
     </script>
 }
