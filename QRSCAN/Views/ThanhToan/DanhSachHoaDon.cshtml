@@ -6,41 +6,100 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/staff.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/thanhtoan.css" asp-append-version="true" />
 }
 
 <div class="staff-page">
-    <nav class="staff-navbar">
-        <div>
+    <div class="cashier-page">
+        <nav class="staff-navbar">
+            <div>
+                <p>KIMURA RAMEN</p>
+                <h2>Xem hóa đơn</h2>
+            </div>
+
+            <a asp-controller="NhanVien" asp-action="Index">Quay lại nhân viên</a>
+        </nav>
+
+        <section class="cashier-title">
             <p>KIMURA RAMEN</p>
-            <h2>Xem hóa đơn</h2>
-        </div>
+            <h1>Hóa đơn đã thanh toán</h1>
+        </section>
 
-        <a asp-controller="NhanVien" asp-action="Index">Quay lại</a>
-    </nav>
+        <div class="cashier-tabs">
+            <a class="cashier-tab"
+               asp-controller="ThanhToan"
+               asp-action="DanhSach">
+                Thu ngân
+            </a>
 
-    <section class="staff-section" style="margin-top:40px;">
-        <div class="tab-switch">
-            <a class="tab-btn" asp-controller="ThanhToan" asp-action="DanhSach">Thu ngân</a>
-            <a class="tab-btn active" asp-controller="ThanhToan" asp-action="DanhSachHoaDon">Xem hóa đơn</a>
+            <a class="cashier-tab active"
+               asp-controller="ThanhToan"
+               asp-action="DanhSachHoaDon">
+                Xem hóa đơn đã thanh toán
+            </a>
         </div>
 
         @if (Model == null || !Model.Any())
         {
-            <p>Chưa có hóa đơn nào được thanh toán.</p>
+            <div class="cashier-empty">
+                <h2>Chưa có hóa đơn nào</h2>
+                <p>Hiện tại chưa có hóa đơn nào được thanh toán.</p>
+            </div>
         }
         else
         {
-            <div class="table-grid">
+            <div class="cashier-list">
                 @foreach (var hd in Model)
                 {
-                    <a class="table-item"
-                       asp-controller="ThanhToan"
-                       asp-action="HoaDon"
-                       asp-route-maDH="@hd.MaDH">
-                        @(hd.DonHang?.PhienGoiMon?.BanAn?.TenBan ?? $"HĐ #{hd.MaHD}")
-                    </a>
+                    var tongThanhToan = hd.TongTien - hd.SoTienGiam;
+
+                    <div class="cashier-card">
+                        <div class="cashier-card-top">
+                            <div>
+                                <h2>@(hd.DonHang?.PhienGoiMon?.BanAn?.TenBan ?? $"Đơn #{hd.MaDH}")</h2>
+                                <p>Mã hóa đơn: <strong>#@hd.MaHD</strong></p>
+                                <p>Mã đơn: <strong>#@hd.MaDH</strong></p>
+                            </div>
+
+                            <span class="cashier-status">@hd.TrangThai</span>
+                        </div>
+
+                        <p>
+                            Phương thức:
+                            <strong>@(hd.PhuongThucThanhToan?.TenPT ?? "Chưa rõ")</strong>
+                        </p>
+
+                        <p>
+                            Thời gian:
+                            @hd.ThoiGianTao.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+
+                        <div class="cashier-money">
+                            <div class="cashier-row">
+                                <span>Tạm tính</span>
+                                <strong>@hd.TongTien.ToString("N0")đ</strong>
+                            </div>
+
+                            <div class="cashier-row">
+                                <span>Giảm giá</span>
+                                <strong>-@hd.SoTienGiam.ToString("N0")đ</strong>
+                            </div>
+
+                            <div class="cashier-row total">
+                                <span>Đã thu</span>
+                                <strong>@tongThanhToan.ToString("N0")đ</strong>
+                            </div>
+                        </div>
+
+                        <a class="cashier-btn"
+                           asp-controller="ThanhToan"
+                           asp-action="HoaDon"
+                           asp-route-maDH="@hd.MaDH">
+                            Xem chi tiết hóa đơn
+                        </a>
+                    </div>
                 }
             </div>
         }
-    </section>
+    </div>
 </div>

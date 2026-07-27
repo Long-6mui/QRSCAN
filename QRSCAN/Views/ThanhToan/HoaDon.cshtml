@@ -22,42 +22,44 @@
     </nav>
 
     <section class="staff-section" style="margin-top:40px;">
-        <p>Trạng thái thanh toán: <b>@Model.TrangThai</b></p>
-        <p>Phương thức: <b>@Model.PhuongThucThanhToan?.TenPT</b></p>
-        <p>Nhân viên xử lý: <b>@(Model.NhanVien?.HoTen ?? "Chưa có")</b></p>
-        <p>Thời gian thanh toán: <b>@Model.ThoiGianTao.ToString("HH:mm 'ngày' dd/MM/yyyy")</b></p>
+        <div class="staff-invoice-card">
+            <p>Trạng thái thanh toán: <b>@Model.TrangThai</b></p>
+            <p>Phương thức: <b>@Model.PhuongThucThanhToan?.TenPT</b></p>
+            <p>Nhân viên xử lý: <b>@(Model.NhanVien?.HoTen ?? "Chưa có")</b></p>
+            <p>Thời gian thanh toán: <b>@Model.ThoiGianTao.ToString("HH:mm 'ngày' dd/MM/yyyy")</b></p>
 
-        <table class="staff-table">
-            <thead>
-                <tr>
-                    <th>Món</th>
-                    <th>SL</th>
-                    <th>Đơn giá</th>
-                    <th>Thành tiền</th>
-                </tr>
-            </thead>
+            <table class="staff-table">
+                <thead>
+                    <tr>
+                        <th>Món</th>
+                        <th>SL</th>
+                        <th>Đơn giá</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                @if (donHang?.ChiTietDonHangs != null)
-                {
-                    foreach (var ct in donHang.ChiTietDonHangs)
+                <tbody>
+                    @if (donHang?.ChiTietDonHangs != null)
                     {
-                        <tr>
-                            <td>@ct.MonAn?.TenMon</td>
-                            <td>@ct.SoLuong</td>
-                            <td>@ct.DonGia.ToString("N0")đ</td>
-                            <td>@ct.ThanhTien.ToString("N0")đ</td>
-                        </tr>
+                        foreach (var ct in donHang.ChiTietDonHangs)
+                        {
+                            <tr>
+                                <td>@ct.MonAn?.TenMon</td>
+                                <td>@ct.SoLuong</td>
+                                <td>@ct.DonGia.ToString("N0")đ</td>
+                                <td>@ct.ThanhTien.ToString("N0")đ</td>
+                            </tr>
+                        }
                     }
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
 
-        <p>Tổng tiền món: @Model.TongTien.ToString("N0")đ</p>
-        <p>Giảm giá: -@Model.SoTienGiam.ToString("N0")đ</p>
+            <p>Tổng tiền món: @Model.TongTien.ToString("N0")đ</p>
+            <p>Giảm giá: -@Model.SoTienGiam.ToString("N0")đ</p>
 
-        <p style="font-size:22px;">
-            Tổng thanh toán: <b>@tongThanhToan.ToString("N0")đ</b>
-        </p>
+            <p class="staff-invoice-total">
+                Tổng thanh toán: <b>@tongThanhToan.ToString("N0")đ</b>
+            </p>
+        </div>
     </section>
 </div>
