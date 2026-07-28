@@ -37,6 +37,8 @@ namespace QRSCAN.Areas.Admin.Controllers
             var donHang = _context.DonHangs.Find(id);
             if (donHang == null) return NotFound();
 
+            var hoaDon = _context.HoaDons.Where(c => c.MaDH == donHang.MaDH);
+
             var chiTiets = _context.ChiTietDonHangs
                 .Include(c => c.MonAn)
                 .Where(c => c.MaDH == id)
@@ -56,6 +58,7 @@ namespace QRSCAN.Areas.Admin.Controllers
                 tienGiam = donHang.SoTienGiam,
                 tongThanhToan = donHang.TongTien - donHang.SoTienGiam,
                 chiTiets = chiTiets
+
             });
         }
     }
