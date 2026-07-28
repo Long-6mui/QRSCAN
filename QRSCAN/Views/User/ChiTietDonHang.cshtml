@@ -17,7 +17,9 @@
             <span>@(Model.PhienGoiMon?.BanAn?.TenBan ?? "Không rõ bàn")</span>
         </div>
 
-        <a asp-controller="User" asp-action="LichSuDonHang">← Quay lại</a>
+        <a asp-controller="User" asp-action="LichSuDonHang" class="user-back-btn">
+            ← Quay lại
+        </a>
     </div>
 
     <div class="order-detail-card">
