@@ -1,0 +1,84 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán QR";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/cart.css" asp-append-version="true" />
+}
+
+<div class="order-success-page">
+    <div class="order-success-wrapper">
+        <div class="order-qr-card" id="qrCard" data-expire="@ViewBag.QrHetHanTs">
+            <h2>Quét mã QR để thanh toán</h2>
+
+            <div class="order-qr-image-box">
+                <img src="@ViewBag.QrImageUrl" alt="Mã QR thanh toán" />
+            </div>
+
+            <p class="order-qr-amount">@ViewBag.TongThanhToan.ToString("N0")đ</p>
+
+            <p class="order-qr-desc">
+                Đơn #@ViewBag.MaDH - @(ViewBag.TenBan ?? $"Bàn {ViewBag.MaBan}")
+            </p>
+
+            <p class="order-qr-desc" id="qrCountdownText">
+                Còn lại <strong id="qrTimer">02:00</strong> để hoàn tất thanh toán.
+            </p>
+
+            <p class="order-qr-desc order-status-red" id="qrExpiredText" style="display:none;">
+                Đã quá thời gian thanh toán. Đang quay về trang chủ...
+            </p>
+
+            <form asp-controller="GioHang" asp-action="XacNhanThanhToanQR" method="post" id="qrConfirmForm">
+                <input type="hidden" name="maDH" value="@ViewBag.MaDH" />
+                <button type="submit" class="confirm-payment-btn">Tôi đã thanh toán</button>
+            </form>
+        </div>
+
+        <script>
+            (function () {
+                var card = document.getElementById("qrCard");
+                var expireAt = Number(card.dataset.expire);
+                var timerEl = document.getElementById("qrTimer");
+                var countdownText = document.getElementById("qrCountdownText");
+                var expiredText = document.getElementById("qrExpiredText");
+                var imgBox = card.querySelector(".order-qr-image-box");
+                var confirmForm = document.getElementById("qrConfirmForm");
+                var redirectUrl = "@Url.Action("Index", "Home")";
+                var expired = false;
+
+                function render() {
+                    var remaining = expireAt - Date.now();
+
+                    if (remaining <= 0) {
+                        if (!expired) {
+                            expired = true;
+                            clearInterval(interval);
+
+                            countdownText.style.display = "none";
+                            imgBox.style.display = "none";
+                            confirmForm.style.display = "none";
+                            expiredText.style.display = "block";
+
+                            setTimeout(function () {
+                                window.location.href = redirectUrl;
+                            }, 2000);
+                        }
+
+                        return;
+                    }
+
+                    var totalSeconds = Math.floor(remaining / 1000);
+                    var m = Math.floor(totalSeconds / 60);
+                    var s = totalSeconds % 60;
+
+                    timerEl.textContent =
+                        String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+                }
+
+                render();
+                var interval = setInterval(render, 1000);
+            })();
+        </script>
+    </div>
+</div>
