@@ -37,6 +37,11 @@
                 <p>Tạo tài khoản khách hàng để bắt đầu gọi món</p>
             </div>
 
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert-error">@ViewBag.Error</div>
+            }
+
             <form asp-controller="Account" asp-action="Register" method="post">
                 <div class="form-group">
                     <label>Họ tên</label>
