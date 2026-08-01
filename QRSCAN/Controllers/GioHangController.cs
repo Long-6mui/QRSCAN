@@ -10,10 +10,12 @@ namespace QRSCAN.Controllers
     public class GioHangController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public GioHangController(AppDbContext context)
+        public GioHangController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         private List<GioHangItemViewModel> LayGioHang()
@@ -238,7 +240,7 @@ namespace QRSCAN.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GuiDon(int maPT = 1)
+        public async Task<IActionResult> GuiDon(string phuongThucThanhToan = "TienMat")
         {
             var maKH = HttpContext.Session.GetInt32("MaKH");
             var maBan = HttpContext.Session.GetInt32("MaBan");
@@ -324,11 +326,16 @@ namespace QRSCAN.Controllers
                 _context.ChiTietDonHangs.Add(chiTiet);
             }
 
+            var tenPT = phuongThucThanhToan == "QR" ? "Chuyen khoan" : "Tien mat";
+
+            var pt = await _context.PhuongThucThanhToans
+                .FirstOrDefaultAsync(x => x.TenPT == tenPT);
+
             var hoaDon = new HoaDon
             {
                 MaDH = donHang.MaDH,
                 MaNV = null,
-                MaPT = maPT,
+                MaPT = pt?.MaPT ?? 1,
                 ThoiGianTao = DateTime.Now,
                 TongTien = donHang.TongTien,
                 SoTienGiam = donHang.SoTienGiam,
@@ -353,7 +360,85 @@ namespace QRSCAN.Controllers
             HttpContext.Session.Remove("GioHang");
             XoaVoucher();
 
+            if (tenPT == "Chuyen khoan")
+            {
+                return RedirectToAction("ThanhToanQR", new { maDH = donHang.MaDH });
+            }
+
             return RedirectToAction("DatHangThanhCong", new { maDH = donHang.MaDH });
+        }
+
+        public async Task<IActionResult> ThanhToanQR(int maDH)
+        {
+            var donHang = await _context.DonHangs
+                .Include(x => x.PhienGoiMon)
+                    .ThenInclude(p => p!.BanAn)
+                .FirstOrDefaultAsync(x => x.MaDH == maDH);
+
+            if (donHang == null)
+            {
+                return NotFound();
+            }
+
+            var hoaDon = await _context.HoaDons
+                .Include(h => h.PhuongThucThanhToan)
+                .Where(h => h.MaDH == maDH)
+                .OrderByDescending(h => h.MaHD)
+                .FirstOrDefaultAsync();
+
+            if (hoaDon == null || hoaDon.PhuongThucThanhToan?.TenPT != "Chuyen khoan")
+            {
+                return RedirectToAction("DatHangThanhCong", new { maDH = donHang.MaDH });
+            }
+
+            if (hoaDon.TrangThai == "DaThanhToan")
+            {
+                return RedirectToAction("DatHangThanhCong", new { maDH = donHang.MaDH });
+            }
+
+            var tongThanhToan = donHang.TongTien - donHang.SoTienGiam;
+
+            var bankBin = _configuration["BankInfo:BankBin"];
+            var soTaiKhoan = _configuration["BankInfo:AccountNumber"];
+            var tenTaiKhoan = _configuration["BankInfo:AccountName"];
+            var noiDung = $"DH{donHang.MaDH} HD{hoaDon.MaHD}";
+
+            var qrUrl =
+                $"https://img.vietqr.io/image/{bankBin}-{soTaiKhoan}-qr_only.png" +
+                $"?amount={(long)tongThanhToan}" +
+                $"&addInfo={Uri.EscapeDataString(noiDung)}" +
+                $"&accountName={Uri.EscapeDataString(tenTaiKhoan ?? string.Empty)}";
+
+            ViewBag.MaDH = donHang.MaDH;
+            ViewBag.MaBan = donHang.PhienGoiMon?.MaBan;
+            ViewBag.TenBan = donHang.PhienGoiMon?.BanAn?.TenBan;
+            ViewBag.TongThanhToan = tongThanhToan;
+            ViewBag.QrImageUrl = qrUrl;
+            ViewBag.SoTaiKhoan = soTaiKhoan;
+            ViewBag.TenTaiKhoan = tenTaiKhoan;
+            ViewBag.NoiDung = noiDung;
+
+            var hetHan = hoaDon.ThoiGianTao.AddMinutes(2);
+            ViewBag.QrHetHanTs = new DateTimeOffset(hetHan).ToUnixTimeMilliseconds();
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> XacNhanThanhToanQR(int maDH)
+        {
+            var hoaDon = await _context.HoaDons
+                .Where(h => h.MaDH == maDH)
+                .OrderByDescending(h => h.MaHD)
+                .FirstOrDefaultAsync();
+
+            if (hoaDon != null)
+            {
+                hoaDon.TrangThai = "DaThanhToan";
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("DatHangThanhCong", new { maDH = maDH });
         }
 
         public async Task<IActionResult> DatHangThanhCong(int maDH)
@@ -369,7 +454,6 @@ namespace QRSCAN.Controllers
                 return NotFound();
             }
 
-            ViewBag.MaDH = donHang.MaDH;
             ViewBag.MaDH = donHang.MaDH;
             ViewBag.MaBan = donHang.PhienGoiMon?.MaBan;
             ViewBag.TenBan = donHang.PhienGoiMon?.BanAn?.TenBan;
