@@ -45,8 +45,15 @@
             </div>
 
             <div class="order-success-row">
-                <span>Trạng thái</span>
+                <span>Trạng thái đơn</span>
                 <strong class="order-status-red">@ViewBag.TrangThai</strong>
+            </div>
+
+            <div class="order-success-row">
+                <span>Thanh toán</span>
+                <strong class="order-status-red">
+                    @(ViewBag.TrangThaiThanhToan == "DaThanhToan" ? "Đã thanh toán" : "Chưa thanh toán")
+                </strong>
             </div>
 
             <div class="order-success-row">

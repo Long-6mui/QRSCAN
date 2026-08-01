@@ -418,7 +418,7 @@ namespace QRSCAN.Controllers
             ViewBag.TenTaiKhoan = tenTaiKhoan;
             ViewBag.NoiDung = noiDung;
 
-            var hetHan = hoaDon.ThoiGianTao.AddMinutes(2);
+            var hetHan = hoaDon.ThoiGianTao.AddMinutes(4);
             ViewBag.QrHetHanTs = new DateTimeOffset(hetHan).ToUnixTimeMilliseconds();
 
             return View();
@@ -462,6 +462,13 @@ namespace QRSCAN.Controllers
             ViewBag.TienGiam = donHang.SoTienGiam;
             ViewBag.TongThanhToan = donHang.TongTien - donHang.SoTienGiam;
             ViewBag.MaVoucherCode = donHang.Voucher?.MaCode;
+
+            var hoaDon = await _context.HoaDons
+                .Where(h => h.MaDH == maDH)
+                .OrderByDescending(h => h.MaHD)
+                .FirstOrDefaultAsync();
+
+            ViewBag.TrangThaiThanhToan = hoaDon?.TrangThai ?? "ChuaThanhToan";
 
             return View();
         }
