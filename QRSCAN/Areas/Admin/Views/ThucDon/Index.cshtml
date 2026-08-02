@@ -9,6 +9,7 @@
 <div class="container-fluid pt-4 px-4">
     <div class="bg-white rounded p-4 shadow-sm">
         <h4 class="mb-4 text-dark"><i class="fas fa-utensils me-2 text-primary"></i>Quản lý Thực Đơn</h4>
+
         <ul class="nav nav-pills mb-4 border-bottom pb-3" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active fw-bold px-4" id="pills-monan-tab" data-bs-toggle="pill" data-bs-target="#pills-monan" type="button" role="tab">
@@ -25,7 +26,7 @@
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-monan" role="tabpanel">
                 <div class="d-flex justify-content-end mb-3">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddMonAn">
+                    <button type="button" class="btn btn-primary" onclick="openAddMonAnModal()">
                         <i class="fas fa-plus me-2"></i>Thêm Món
                     </button>
                 </div>
@@ -51,13 +52,9 @@
                                             <img src="@item.HinhAnh" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" onerror="this.src='https://placehold.co/50x50/eee/999?text=No+Img'">
                                         </td>
                                         <td class="fw-bold">@item.TenMon</td>
-
-                                        <!-- Đã sửa thành TenDM -->
                                         <td><span class="badge bg-secondary">@(item.DanhMucMon?.TenDM ?? "N/A")</span></td>
-
                                         <td class="text-danger fw-bold">@item.DonGia.ToString("N0") đ</td>
                                         <td>
-                                            <!-- So sánh với trạng thái không dấu từ database -->
                                             @if (item.TrangThai == "DangBan" || item.TrangThai == "Đang bán")
                                             {
                                                 <span class="badge bg-success">Đang bán</span>
@@ -86,7 +83,7 @@
 
             <div class="tab-pane fade" id="pills-danhmuc" role="tabpanel">
                 <div class="d-flex justify-content-end mb-3">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddDanhMuc">
+                    <button type="button" class="btn btn-primary" onclick="openAddDanhMucModal()">
                         <i class="fas fa-plus me-2"></i>Thêm Danh Mục
                     </button>
                 </div>
@@ -105,7 +102,6 @@
                                 foreach (var item in dsDanhMuc)
                                 {
                                     <tr>
-                                        <!-- Đã sửa thành MaDM và TenDM -->
                                         <td>#@item.MaDM</td>
                                         <td class="fw-bold">@item.TenDM</td>
                                         <td class="text-end">
@@ -120,7 +116,6 @@
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -139,10 +134,12 @@
                         <div class="col-md-8 mb-3">
                             <label class="form-label text-danger fw-bold">Tên Món (*)</label>
                             <input type="text" class="form-control" name="TenMon" id="c_TenMon" required>
+                            <span class="text-danger small fw-medium" id="err-c_TenMon"></span>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label text-danger fw-bold">Đơn Giá (*)</label>
-                            <input type="number" class="form-control" name="DonGia" id="c_DonGia" required value="0">
+                            <input type="number" class="form-control" name="DonGia" id="c_DonGia" required min="0" value="0">
+                            <span class="text-danger small fw-medium" id="err-c_DonGia"></span>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label text-danger fw-bold">Danh Mục (*)</label>
@@ -156,11 +153,12 @@
                                     }
                                 }
                             </select>
+                            <span class="text-danger small fw-medium" id="err-c_MaDM"></span>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label text-danger fw-bold">Trạng thái (*)</label>
                             <select class="form-select" name="TrangThai" id="c_TrangThai">
-                                <option value="DangBan">Đang bán</option>
+                                <option value="DangBan">Đang bán (Còn)</option>
                                 <option value="HetHang">Hết hàng</option>
                                 <option value="NgungBan">Ngưng bán</option>
                             </select>
@@ -199,10 +197,12 @@
                         <div class="col-md-8 mb-3">
                             <label class="form-label">Tên Món</label>
                             <input type="text" class="form-control" name="TenMon" id="e_TenMon" required>
+                            <span class="text-danger small fw-medium" id="err-e_TenMon"></span>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Đơn Giá</label>
                             <input type="number" class="form-control" name="DonGia" id="e_DonGia">
+                            <span class="text-danger small fw-medium" id="err-e_DonGia"></span>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Danh Mục</label>
@@ -215,11 +215,12 @@
                                     }
                                 }
                             </select>
+                            <span class="text-danger small fw-medium" id="err-e_MaDM"></span>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Trạng thái</label>
                             <select class="form-select" name="TrangThai" id="e_TrangThai">
-                                <option value="DangBan">Đang bán</option>
+                                <option value="DangBan">Đang bán (Còn)</option>
                                 <option value="HetHang">Hết hàng</option>
                                 <option value="NgungBan" class="text-danger fw-bold">Ngưng bán (Không xóa)</option>
                             </select>
@@ -255,6 +256,7 @@
                 <div class="mb-3">
                     <label class="form-label">Tên danh mục</label>
                     <input type="text" class="form-control" id="c_TenDM" placeholder="VD: Mì Ramen">
+                    <span class="text-danger small fw-medium" id="err-c_TenDM"></span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -278,6 +280,7 @@
                 <div class="mb-3">
                     <label class="form-label">Tên danh mục</label>
                     <input type="text" class="form-control" id="e_TenDM">
+                    <span class="text-danger small fw-medium" id="err-e_TenDM"></span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -290,16 +293,68 @@
 
 @section Scripts {
     <script>
+        // Hàm Toast
+        function showSuccessToast(message) {
+            var toastHtml = `
+            <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055">
+                <div class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body fw-bold fs-6">
+                            <i class="fas fa-check-circle me-2 align-middle"></i> ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>`;
+            $('body').append(toastHtml);
+            var toastElement = $('.toast').last()[0];
+            var toast = new bootstrap.Toast(toastElement, { delay: 3500 });
+            toast.show();
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                $(this).closest('.toast-container').remove();
+            });
+        }
+
+        $(document).ready(function() {
+            var msg = sessionStorage.getItem('successMsg');
+            if (msg) {
+                showSuccessToast(msg);
+                sessionStorage.removeItem('successMsg');
+            }
+        });
+
+        // Hàm xóa và hiển thị lỗi
+        function clearErrors(prefix) {
+            $('.is-invalid').removeClass('is-invalid');
+            $('.text-danger.small').text('');
+            $('#errMonAnAdd, #errMonAnEdit, #errDMAdd, #errDMEdit').hide();
+        }
+
+        function handleErrors(errors, prefix) {
+            $.each(errors, function (key, value) {
+                $('#' + prefix + key).addClass('is-invalid');
+                $('#err-' + prefix + key).text(value);
+            });
+        }
+
         function showModal(id) {
             var myModal = new bootstrap.Modal(document.getElementById(id));
             myModal.show();
         }
 
+        // ==================== MÓN ĂN ====================
+        function openAddMonAnModal() {
+            clearErrors('c_');
+            $('#formAddMonAn')[0].reset();
+            showModal('modalAddMonAn');
+        }
+
         function submitAddMonAn() {
+            clearErrors('c_');
             var formData = new FormData();
             formData.append("TenMon", $('#c_TenMon').val());
             formData.append("DonGia", $('#c_DonGia').val());
-            formData.append("MaDM", $('#c_MaDM').val()); // Đã sửa MaDanhMuc -> MaDM
+            formData.append("MaDM", $('#c_MaDM').val());
             formData.append("TrangThai", $('#c_TrangThai').val());
             formData.append("MoTa", $('#c_MoTa').val());
 
@@ -307,47 +362,44 @@
             if (file) formData.append("FileHinhAnh", file);
 
             $.ajax({
-                url: '/Admin/ThucDon/CreateMonAn', type: 'POST', data: formData, processData: false, contentType: false,
+                url: '/Admin/ThucDon/CreateMonAn',
+                type: 'POST', data: formData, processData: false, contentType: false,
                 success: function (res) {
-                    if(res.success) location.reload();
+                    if(res.success) {
+                        sessionStorage.setItem('successMsg', 'Đã thêm món ăn mới thành công!');
+                        location.reload();
+                    }
+                    else if (res.errors) handleErrors(res.errors, 'c_');
                     else $('#errMonAnAdd').text(res.message).show();
-                }
+                },
+                error: function () { alert("Lỗi kết nối Server."); }
             });
         }
 
         function openEditMonAn(id) {
-            console.log("Đang mở edit món ăn ID:", id);
-            $('#errMonAnEdit').hide();
+            clearErrors('e_');
             $.ajax({
                 url: '/Admin/ThucDon/GetMonAnById?id=' + id,
                 type: 'GET',
                 success: function (d) {
-                    // Log ra để kiểm tra tên trường (thường là PascalCase: MaDM, TenDM)
-                    console.log("Dữ liệu nhận về:", d);
-
-                    // Lưu ý: Đảm bảo tên thuộc tính khớp với JSON nhận được (thường là MaMon, MaDM, TenMon...)
-                    $('#e_MaMon').val(d.maMon || d.MaMon);
-                    $('#e_TenMon').val(d.tenMon || d.TenMon);
-                    $('#e_DonGia').val(d.donGia || d.DonGia);
-                    $('#e_MaDanhMuc').val(d.maDM || d.MaDM);
-                    $('#e_TrangThai').val(d.trangThai || d.TrangThai);
-                    $('#e_MoTa').val(d.moTa || d.MoTa);
-
+                    $('#e_MaMon').val(d.maMon);
+                    $('#e_TenMon').val(d.tenMon);
+                    $('#e_DonGia').val(d.donGia);
+                    $('#e_MaDM').val(d.maDM);
+                    $('#e_TrangThai').val(d.trangThai);
+                    $('#e_MoTa').val(d.moTa);
                     showModal('modalEditMonAn');
-                },
-                error: function(err) {
-                    alert("Lỗi tải dữ liệu món ăn!");
-                    console.error(err);
                 }
             });
         }
 
         function submitEditMonAn() {
+            clearErrors('e_');
             var formData = new FormData();
             formData.append("MaMon", $('#e_MaMon').val());
             formData.append("TenMon", $('#e_TenMon').val());
             formData.append("DonGia", $('#e_DonGia').val());
-            formData.append("MaDM", $('#e_MaDM').val()); // Đã sửa MaDanhMuc -> MaDM
+            formData.append("MaDM", $('#e_MaDM').val());
             formData.append("TrangThai", $('#e_TrangThai').val());
             formData.append("MoTa", $('#e_MoTa').val());
 
@@ -355,55 +407,69 @@
             if (file) formData.append("FileHinhAnh", file);
 
             $.ajax({
-                url: '/Admin/ThucDon/EditMonAn', type: 'POST', data: formData, processData: false, contentType: false,
+                url: '/Admin/ThucDon/EditMonAn',
+                type: 'POST', data: formData, processData: false, contentType: false,
                 success: function (res) {
-                    if(res.success) location.reload();
+                    if(res.success) {
+                        sessionStorage.setItem('successMsg', 'Đã cập nhật món ăn thành công!');
+                        location.reload();
+                    }
+                    else if (res.errors) handleErrors(res.errors, 'e_');
                     else $('#errMonAnEdit').text(res.message).show();
                 }
             });
         }
 
+        // ==================== DANH MỤC ====================
+        function openAddDanhMucModal() {
+            clearErrors('c_');
+            $('#c_TenDM').val('');
+            showModal('modalAddDanhMuc');
+        }
+
         function submitAddDanhMuc() {
+            clearErrors('c_');
             var tenDM = $('#c_TenDM').val();
             $.ajax({
-                url: '/Admin/ThucDon/CreateDanhMuc', type: 'POST', contentType: 'application/json',
-                data: JSON.stringify({ TenDM: tenDM }), // Đã sửa TenDanhMuc -> TenDM
+                url: '/Admin/ThucDon/CreateDanhMuc',
+                type: 'POST', contentType: 'application/json',
+                data: JSON.stringify({ TenDM: tenDM }),
                 success: function (res) {
-                    if(res.success) location.reload();
+                    if(res.success) {
+                        sessionStorage.setItem('successMsg', 'Đã thêm danh mục mới thành công!');
+                        location.reload();
+                    }
+                    else if (res.errors) handleErrors(res.errors, 'c_');
                     else $('#errDMAdd').text(res.message).show();
                 }
             });
         }
 
         function openEditDanhMuc(id) {
-            console.log("Đang mở edit danh mục ID:", id);
-            $('#errDMEdit').hide();
+            clearErrors('e_');
             $.ajax({
                 url: '/Admin/ThucDon/GetDanhMucById?id=' + id,
                 type: 'GET',
                 success: function (d) {
-                    console.log("Dữ liệu nhận về:", d);
-
-                    // Kiểm tra kỹ tên biến nhận về (MaDM/MaDanhMuc và TenDM/TenDanhMuc)
                     $('#e_MaDM').val(d.maDM || d.MaDM);
                     $('#e_TenDM').val(d.tenDM || d.TenDM);
-
                     showModal('modalEditDanhMuc');
-                },
-                error: function(err) {
-                    alert("Lỗi tải dữ liệu danh mục!");
-                    console.error(err);
                 }
             });
         }
 
         function submitEditDanhMuc() {
+            clearErrors('e_');
             $.ajax({
-                url: '/Admin/ThucDon/EditDanhMuc', type: 'POST', contentType: 'application/json',
-                // Đã sửa MaDanhMuc -> MaDM, TenDanhMuc -> TenDM
+                url: '/Admin/ThucDon/EditDanhMuc',
+                type: 'POST', contentType: 'application/json',
                 data: JSON.stringify({ MaDM: parseInt($('#e_MaDM').val()), TenDM: $('#e_TenDM').val() }),
                 success: function (res) {
-                    if(res.success) location.reload();
+                    if(res.success) {
+                        sessionStorage.setItem('successMsg', 'Cập nhật danh mục thành công!');
+                        location.reload();
+                    }
+                    else if (res.errors) handleErrors(res.errors, 'e_');
                     else $('#errDMEdit').text(res.message).show();
                 }
             });

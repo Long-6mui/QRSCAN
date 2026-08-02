@@ -8,7 +8,7 @@
     <div class="bg-white text-center rounded p-4 shadow-sm">
         <div class="d-flex align-items-center justify-content-between mb-4">
             <h4 class="mb-0 text-dark"><i class="fas fa-th-large me-2 text-primary"></i>Sơ đồ Bàn Ăn</h4>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+            <button type="button" class="btn btn-primary" onclick="openCreateModal()">
                 <i class="fas fa-plus me-2"></i>Thêm Bàn
             </button>
         </div>
@@ -17,14 +17,14 @@
             @foreach (var item in Model)
             {
                 <div class="col-sm-6 col-md-4 col-lg-3">
-                    <div class="card h-100 shadow-sm rounded-4 border-2 @(item.TrangThai == "TrOog" ? "border-success" : "border-danger")"
-                         style="background-color: @(item.TrangThai == "Trong" ? "#f0fdf4" : "#fff1f2"); transition: transform 0.2s;"
+                    <div class="card h-100 shadow-sm rounded-4 border-2 @(item.TrangThai == "Trong" || item.TrangThai == "Trống" ? "border-success" : "border-danger")"
+                         style="background-color: @(item.TrangThai == "Trong" || item.TrangThai == "Trống" ? "#f0fdf4" : "#fff1f2"); transition: transform 0.2s;"
                          onmouseover="this.style.transform='translateY(-5px)'"
                          onmouseout="this.style.transform='translateY(0)'">
 
                         <div class="card-body text-center d-flex flex-column justify-content-center pt-4">
                             <div class="mb-3">
-                                <i class="fas fa-square fa-3x @(item.TrangThai == "Trong" ? "text-success" : "text-danger")" style="opacity: 0.8;"></i>
+                                <i class="fas fa-square fa-3x @(item.TrangThai == "Trong" || item.TrangThai == "Trống" ? "text-success" : "text-danger")" style="opacity: 0.8;"></i>
                             </div>
 
                             <h5 class="fw-bold text-dark mt-2 mb-1">@item.TenBan</h5>
@@ -33,7 +33,7 @@
                             </p>
 
                             <div>
-                                @if (item.TrangThai == "Trong")
+                                @if (item.TrangThai == "Trong" || item.TrangThai == "Trống")
                                 {
                                     <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">Trống</span>
                                 }
@@ -77,18 +77,20 @@
             <div class="modal-body text-start">
                 <div class="alert alert-danger" id="createError" style="display:none;"></div>
                 <div class="mb-3">
-                    <label class="form-label">Tên Bàn</label>
-                    <input type="text" class="form-control" id="createTenBan" placeholder="VD: Bàn 01">
+                    <label class="form-label">Tên Bàn (*)</label>
+                    <input type="text" class="form-control" id="c_TenBan" placeholder="VD: Bàn 01">
+                    <span class="text-danger small fw-medium" id="err-c_TenBan"></span>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Số chỗ ngồi</label>
-                    <input type="number" class="form-control" id="createSoCho" value="4">
+                    <label class="form-label">Số chỗ ngồi (*)</label>
+                    <input type="number" class="form-control" id="c_SoChoNgoi" value="4" min="1">
+                    <span class="text-danger small fw-medium" id="err-c_SoChoNgoi"></span>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Trạng thái</label>
-                    <select class="form-select" id="createTrangThai">
+                    <select class="form-select" id="c_TrangThai">
                         <option value="Trong">Trống</option>
-                        <option value="HoatDong">Đang phục vụ</option>
+                        <option value="DangPhucVu">Đang phục vụ</option>
                     </select>
                 </div>
             </div>
@@ -109,20 +111,22 @@
             </div>
             <div class="modal-body text-start">
                 <div class="alert alert-danger" id="editError" style="display:none;"></div>
-                <input type="hidden" id="editMaBan">
+                <input type="hidden" id="e_MaBan">
                 <div class="mb-3">
-                    <label class="form-label">Tên Bàn</label>
-                    <input type="text" class="form-control" id="editTenBan">
+                    <label class="form-label">Tên Bàn (*)</label>
+                    <input type="text" class="form-control" id="e_TenBan">
+                    <span class="text-danger small fw-medium" id="err-e_TenBan"></span>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Số chỗ ngồi</label>
-                    <input type="number" class="form-control" id="editSoCho">
+                    <label class="form-label">Số chỗ ngồi (*)</label>
+                    <input type="number" class="form-control" id="e_SoChoNgoi" min="1">
+                    <span class="text-danger small fw-medium" id="err-e_SoChoNgoi"></span>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Trạng thái</label>
-                    <select class="form-select" id="editTrangThai">
+                    <select class="form-select" id="e_TrangThai">
                         <option value="Trong">Trống</option>
-                        <option value="HoatDong">Đang phục vụ</option>
+                        <option value="DangPhucVu">Đang phục vụ</option>
                     </select>
                 </div>
             </div>
@@ -136,49 +140,115 @@
 
 @section Scripts {
     <script>
+        function showSuccessToast(message) {
+            var toastHtml = `
+            <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055">
+                <div class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body fw-bold fs-6">
+                            <i class="fas fa-check-circle me-2 align-middle"></i> ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>`;
+            $('body').append(toastHtml);
+            var toast = new bootstrap.Toast($('.toast').last()[0], { delay: 3500 });
+            toast.show();
+            $('.toast').last()[0].addEventListener('hidden.bs.toast', function () {
+                $(this).closest('.toast-container').remove();
+            });
+        }
+
+        $(document).ready(function() {
+            var msg = sessionStorage.getItem('successMsg');
+            if (msg) {
+                showSuccessToast(msg);
+                sessionStorage.removeItem('successMsg');
+            }
+        });
+
+        // Xóa viền đỏ và text lỗi
+        function clearErrors(prefix) {
+            $('.is-invalid').removeClass('is-invalid');
+            $('.text-danger.small').text('');
+            $('#createError').hide();
+            $('#editError').hide();
+        }
+
+        // Vẽ viền đỏ và text lỗi
+        function handleErrors(errors, prefix) {
+            $.each(errors, function (key, value) {
+                $('#' + prefix + key).addClass('is-invalid');
+                $('#err-' + prefix + key).text(value);
+            });
+        }
+
+        function openCreateModal() {
+            clearErrors('c_');
+            $('#c_TenBan').val('');
+            $('#c_SoChoNgoi').val(4);
+            $('#c_TrangThai').val('Trong');
+            $('#createModal').modal('show');
+        }
+
         function submitCreate() {
+            clearErrors('c_');
             var data = {
-                TenBan: $('#createTenBan').val(),
-                SoChoNgoi: parseInt($('#createSoCho').val()),
-                TrangThai: $('#createTrangThai').val()
+                TenBan: $('#c_TenBan').val(),
+                SoChoNgoi: parseInt($('#c_SoChoNgoi').val()),
+                TrangThai: $('#c_TrangThai').val()
             };
             $.ajax({
                 url: '/Admin/BanAn/Create', type: 'POST', contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (res) {
-                    if(res.success) location.reload();
-                    else $('#createError').text(res.message).show();
+                    if(res.success) {
+                        sessionStorage.setItem('successMsg', 'Đã thêm bàn thành công!');
+                        location.reload();
+                    } else if(res.errors) {
+                        handleErrors(res.errors, 'c_');
+                    } else {
+                        $('#createError').text(res.message).show();
+                    }
                 }
             });
         }
 
         function openEditModal(id) {
-            $('#editError').hide();
+            clearErrors('e_');
             $.ajax({
                 url: '/Admin/BanAn/GetById?id=' + id, type: 'GET',
                 success: function (data) {
-                    $('#editMaBan').val(data.maBan);
-                    $('#editTenBan').val(data.tenBan);
-                    $('#editSoCho').val(data.soChoNgoi);
-                    $('#editTrangThai').val(data.trangThai);
+                    $('#e_MaBan').val(data.maBan);
+                    $('#e_TenBan').val(data.tenBan);
+                    $('#e_SoChoNgoi').val(data.soChoNgoi);
+                    $('#e_TrangThai').val(data.trangThai);
                     $('#editModal').modal('show');
                 }
             });
         }
 
         function submitEdit() {
+            clearErrors('e_');
             var data = {
-                MaBan: parseInt($('#editMaBan').val()),
-                TenBan: $('#editTenBan').val(),
-                SoChoNgoi: parseInt($('#editSoCho').val()),
-                TrangThai: $('#editTrangThai').val()
+                MaBan: parseInt($('#e_MaBan').val()),
+                TenBan: $('#e_TenBan').val(),
+                SoChoNgoi: parseInt($('#e_SoChoNgoi').val()),
+                TrangThai: $('#e_TrangThai').val()
             };
             $.ajax({
                 url: '/Admin/BanAn/Edit', type: 'POST', contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (res) {
-                    if(res.success) location.reload();
-                    else $('#editError').text(res.message).show();
+                    if(res.success) {
+                        sessionStorage.setItem('successMsg', 'Cập nhật bàn thành công!');
+                        location.reload();
+                    } else if(res.errors) {
+                        handleErrors(res.errors, 'e_');
+                    } else {
+                        $('#editError').text(res.message).show();
+                    }
                 }
             });
         }

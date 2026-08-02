@@ -46,16 +46,19 @@
             </div>
 
             <div class="col-md-4">
-                <a href="/Admin/MonAn/Index" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm text-white h-100" style="background-color: #12b5cb; border-radius: 12px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                        <div class="card-body p-4 position-relative overflow-hidden">
-                            <i class="fas fa-utensils fa-4x position-absolute opacity-25" style="right: -10px; bottom: -10px;"></i>
-                            <h5 class="card-title text-white-50 mb-2 fw-bold text-uppercase fs-6">Món bán chạy nhất</h5>
-                            <h2 class="fw-bold mb-0" id="cardMonChayNhat">Đang tải...</h2>
-                        </div>
+                <div class="card p-4 shadow-sm text-white"
+                     style="background-color: #0dcaf0; cursor: pointer; transition: transform 0.2s;"
+                     onmouseover="this.style.transform='translateY(-5px)'"
+                     onmouseout="this.style.transform='translateY(0)'"
+                     onclick="chuyenTrangChiTietMon()"
+                     title="Nhấn để xem chi tiết các món đã bán">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="text-white-50 text-uppercase fw-bold mb-0">Món bán chạy nhất</h5>
+                        <i class="fas fa-arrow-right text-white-50"></i>
                     </div>
-                </a>
-            </div>
+                    <h2 id="cardMonChayNhat" class="fw-bold mt-2 mb-0">Đang tải...</h2>
+                </div>
+            </div> 
         </div>
 
         <!-- BIỂU ĐỒ (CHART.JS) -->
@@ -244,6 +247,12 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
+        }
+
+        function chuyenTrangChiTietMon() {
+            var from = $('#fromDate').val();
+            var to = $('#toDate').val();
+            window.location.href = `/Admin/Home/DanhSachMonDaBan?fromDate=${from}&toDate=${to}`;
         }
     </script>
 }

@@ -1,53 +1,48 @@
 ﻿@model IEnumerable<QRSCAN.Models.Entities.NhanVien>
 @{
-    ViewData["Title"] = "Quản lý Nhân Viên";
+    ViewData["Title"] = "Quản lý Nhân viên";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     var dsVaiTro = ViewBag.VaiTros as List<QRSCAN.Models.Entities.VaiTro>;
 }
 
 <div class="container-fluid pt-4 px-4">
-    <div class="bg-white text-center rounded p-4 shadow-sm">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <h4 class="mb-0 text-dark">Danh sách Nhân Viên</h4>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
-                <i class="fas fa-plus me-2"></i>Thêm Nhân Viên
+    <div class="bg-white rounded p-4 shadow-sm">
+        <div class="d-flex justify-content-between mb-4">
+            <h4 class="text-dark"><i class="fas fa-users me-2 text-primary"></i>Danh sách Nhân Viên</h4>
+            <button class="btn btn-primary" onclick="openCreateModal()">
+                <i class="fas fa-user-plus me-1"></i>Thêm Nhân viên
             </button>
         </div>
+
         <div class="table-responsive">
-            <table class="table text-start align-middle table-bordered table-hover mb-0">
+            <table class="table table-hover align-middle table-bordered text-start">
                 <thead class="table-dark">
                     <tr>
-                        <th scope="col">Tài Khoản</th>
-                        <th scope="col">Họ Tên</th>
-                        <th scope="col">Vai Trò</th>
-                        <th scope="col">SĐT</th>
-                        <th scope="col">Trạng Thái</th>
-                        <th scope="col" class="text-end">Thao tác</th>
+                        <th>Tài Khoản</th>
+                        <th>Họ tên</th>
+                        <th>Vai trò</th>
+                        <th>SĐT</th>
+                        <th>Email</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td class="fw-bold text-primary">@item.TenDangNhap</td>
-                            <td>@item.HoTen</td>
+                            <td class="text-primary fw-bold">@item.TenDangNhap</td>
+                            <td class="fw-medium">@item.HoTen</td>
                             <td><span class="badge bg-info text-dark">@(item.VaiTro?.TenVT ?? "N/A")</span></td>
                             <td>@item.SDT</td>
+                            <td>@item.Email</td>
                             <td>
-                                @if (item.TrangThai == "HoatDong")
-                                {
-                                    <span class="badge bg-success">Hoạt động</span>
-                                }
-                                else
-                                {
-
-                                    <span class="badge bg-danger">Khóa</span>
-                                }
+                                <span class="badge @(item.TrangThai == "HoatDong" ? "bg-success" : "bg-danger")">
+                                    @(item.TrangThai == "HoatDong" ? "Hoạt động" : "Đã khóa")
+                                </span>
                             </td>
                             <td class="text-end">
-                                <button class="btn btn-sm btn-warning text-white" onclick="openEditModal(@item.MaNV)">
-                                    <i class="fas fa-edit"></i> Sửa
-                                </button>
+                                <button class="btn btn-sm btn-warning text-white" onclick="openEditModal(@item.MaNV)"><i class="fas fa-edit"></i> Sửa</button>
                             </td>
                         </tr>
                     }
@@ -57,7 +52,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="createModal" tabindex="-1">
+<div class="modal fade" id="modalAddNhanVien" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -65,22 +60,27 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-start">
-                <div class="alert alert-danger" id="createError" style="display:none;"></div>
+                <!-- Thông báo lỗi chung (nếu có) -->
+                <div class="alert alert-danger d-none" id="errGeneralAdd"></div>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Tên đăng nhập (*)</label>
-                        <input type="text" class="form-control" id="c_TenDangNhap" required>
+                        <input type="text" class="form-control" id="c_TenDangNhap">
+                        <span class="text-danger small fw-medium" id="err-c_TenDangNhap"></span>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Mật khẩu (*)</label>
-                        <input type="password" class="form-control" id="c_MatKhau" required>
+                        <input type="password" class="form-control" id="c_MatKhau">
+                        <span class="text-danger small fw-medium" id="err-c_MatKhau"></span>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Họ và Tên (*)</label>
                         <input type="text" class="form-control" id="c_HoTen">
+                        <span class="text-danger small fw-medium" id="err-c_HoTen"></span>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Vai Trò</label>
+                        <label class="form-label">Vai trò (*)</label>
                         <select class="form-select" id="c_MaVT">
                             @if (dsVaiTro != null)
                             {
@@ -96,10 +96,15 @@
                         <input type="text" class="form-control" id="c_SDT">
                     </div>
                     <div class="col-md-6 mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="c_Email" placeholder="abc@gmail.com">
+                        <span class="text-danger small fw-medium" id="err-c_Email"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Trạng thái</label>
                         <select class="form-select" id="c_TrangThai">
                             <option value="HoatDong">Hoạt động</option>
-                            <option value="Khoa">Khóa</option>
+                            <option value="BiKhoa">Khóa tài khoản</option>
                         </select>
                     </div>
                 </div>
@@ -112,31 +117,33 @@
     </div>
 </div>
 
-<div class="modal fade" id="editModal" tabindex="-1">
+<div class="modal fade" id="modalEditNhanVien" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Cập Nhật Nhân Viên</h5>
+                <h5 class="modal-title">Cập Nhật Thông Tin</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-start">
-                <div class="alert alert-danger" id="editError" style="display:none;"></div>
+                <div class="alert alert-danger d-none" id="errGeneralEdit"></div>
                 <input type="hidden" id="e_MaNV">
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Tên đăng nhập (*)</label>
-                        <input type="text" class="form-control" id="e_TenDangNhap">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <input type="text" class="form-control bg-light" id="e_TenDangNhap" readonly title="Không thể đổi tên đăng nhập">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Mật khẩu mới (Để trống nếu không đổi)</label>
-                        <input type="password" class="form-control" id="e_MatKhau" placeholder="********">
+                        <label class="form-label">Đổi mật khẩu mới (Để trống nếu giữ nguyên)</label>
+                        <input type="password" class="form-control" id="e_MatKhau" placeholder="***">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Họ và Tên (*)</label>
                         <input type="text" class="form-control" id="e_HoTen">
+                        <span class="text-danger small fw-medium" id="err-e_HoTen"></span>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Vai Trò</label>
+                        <label class="form-label">Vai trò (*)</label>
                         <select class="form-select" id="e_MaVT">
                             @if (dsVaiTro != null)
                             {
@@ -152,10 +159,15 @@
                         <input type="text" class="form-control" id="e_SDT">
                     </div>
                     <div class="col-md-6 mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="e_Email">
+                        <span class="text-danger small fw-medium" id="err-e_Email"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Trạng thái</label>
                         <select class="form-select" id="e_TrangThai">
-                            <option value="Hoạt động">Hoạt động</option>
-                            <option value="Khóa">Khóa</option>
+                            <option value="HoatDong">Hoạt động</option>
+                            <option value="BiKhoa" class="text-danger fw-bold">Khóa tài khoản</option>
                         </select>
                     </div>
                 </div>
@@ -170,65 +182,137 @@
 
 @section Scripts {
     <script>
+        // Hệ thống hiển thị Toast giống y hệt trang Thực đơn
+        function showSuccessToast(message) {
+            var toastHtml = `
+            <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055">
+                <div class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body fw-bold fs-6">
+                            <i class="fas fa-check-circle me-2 align-middle"></i> ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>`;
+            $('body').append(toastHtml);
+            var toastElement = $('.toast').last()[0];
+            var toast = new bootstrap.Toast(toastElement, { delay: 3500 });
+            toast.show();
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                $(this).closest('.toast-container').remove();
+            });
+        }
+
+        $(document).ready(function() {
+            var msg = sessionStorage.getItem('successMsg');
+            if (msg) {
+                showSuccessToast(msg);
+                sessionStorage.removeItem('successMsg');
+            }
+        });
+
+        // Hàm xóa toàn bộ viền đỏ và text báo lỗi
+        function clearErrors(prefix) {
+            $('.is-invalid').removeClass('is-invalid');
+            $('.text-danger.small').text('');
+            $('#errGeneral' + prefix).addClass('d-none').text('');
+        }
+
+        // Hàm apply lỗi từ API trả về lên giao diện
+        function handleErrors(errors, prefix) {
+            $.each(errors, function (key, value) {
+                // Ví dụ: prefix='c_' và key='TenDangNhap' => id='c_TenDangNhap'
+                $('#' + prefix + key).addClass('is-invalid');
+                $('#err-' + prefix + key).text(value);
+            });
+        }
+
+        // --- THÊM MỚI ---
+        function openCreateModal() {
+            clearErrors('Add');
+            $('#modalAddNhanVien input').val('');
+            $('#c_TrangThai').val('HoatDong');
+            var myModal = new bootstrap.Modal(document.getElementById('modalAddNhanVien'));
+            myModal.show();
+        }
+
         function submitCreate() {
+            clearErrors('Add');
             var data = {
                 TenDangNhap: $('#c_TenDangNhap').val(),
                 MatKhau: $('#c_MatKhau').val(),
                 HoTen: $('#c_HoTen').val(),
                 MaVT: parseInt($('#c_MaVT').val()),
                 SDT: $('#c_SDT').val(),
+                Email: $('#c_Email').val(),
                 TrangThai: $('#c_TrangThai').val()
             };
 
             $.ajax({
                 url: '/Admin/NhanVien/Create',
-                type: 'POST',
-                contentType: 'application/json',
+                type: 'POST', contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (res) {
-                    if(res.success) location.reload();
-                    else $('#createError').text(res.message).show();
+                    if (res.success) {
+                        sessionStorage.setItem('successMsg', 'Đã thêm tài khoản nhân viên thành công!');
+                        location.reload();
+                    } else if (res.errors) {
+                        handleErrors(res.errors, 'c_'); // Bắt lỗi viền đỏ
+                    } else {
+                        $('#errGeneralAdd').removeClass('d-none').text(res.message || "Lỗi hệ thống.");
+                    }
                 }
             });
         }
 
+        // --- CẬP NHẬT ---
         function openEditModal(id) {
-            $('#editError').hide();
+            clearErrors('Edit');
             $.ajax({
                 url: '/Admin/NhanVien/GetById?id=' + id,
                 type: 'GET',
-                success: function (d) {
-                    $('#e_MaNV').val(d.maNV);
-                    $('#e_TenDangNhap').val(d.tenDangNhap);
-                    $('#e_MatKhau').val(''); 
-                    $('#e_HoTen').val(d.hoTen);
-                    $('#e_MaVT').val(d.maVT);
-                    $('#e_SDT').val(d.sdt);
-                    $('#e_TrangThai').val(d.trangThai);
-                    $('#editModal').modal('show');
+                success: function (data) {
+                    $('#e_MaNV').val(data.maNV);
+                    $('#e_TenDangNhap').val(data.tenDangNhap);
+                    $('#e_MatKhau').val(''); // Không gửi pass cũ về client
+                    $('#e_HoTen').val(data.hoTen);
+                    $('#e_MaVT').val(data.maVT);
+                    $('#e_SDT').val(data.sdt);
+                    $('#e_Email').val(data.email);
+                    $('#e_TrangThai').val(data.trangThai);
+
+                    var myModal = new bootstrap.Modal(document.getElementById('modalEditNhanVien'));
+                    myModal.show();
                 }
             });
         }
 
         function submitEdit() {
+            clearErrors('Edit');
             var data = {
                 MaNV: parseInt($('#e_MaNV').val()),
-                TenDangNhap: $('#e_TenDangNhap').val(),
-                MatKhau: $('#e_MatKhau').val(), 
+                MatKhau: $('#e_MatKhau').val(),
                 HoTen: $('#e_HoTen').val(),
                 MaVT: parseInt($('#e_MaVT').val()),
                 SDT: $('#e_SDT').val(),
+                Email: $('#e_Email').val(),
                 TrangThai: $('#e_TrangThai').val()
             };
 
             $.ajax({
                 url: '/Admin/NhanVien/Edit',
-                type: 'POST',
-                contentType: 'application/json',
+                type: 'POST', contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (res) {
-                    if(res.success) location.reload();
-                    else $('#editError').text(res.message).show();
+                    if (res.success) {
+                        sessionStorage.setItem('successMsg', 'Cập nhật thông tin nhân viên thành công!');
+                        location.reload();
+                    } else if (res.errors) {
+                        handleErrors(res.errors, 'e_');
+                    } else {
+                        $('#errGeneralEdit').removeClass('d-none').text(res.message || "Lỗi hệ thống.");
+                    }
                 }
             });
         }

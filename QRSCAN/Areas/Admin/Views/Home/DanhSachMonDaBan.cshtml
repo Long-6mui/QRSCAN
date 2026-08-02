@@ -1,0 +1,99 @@
+﻿@model List<QRSCAN.Areas.Admin.Controllers.HomeController.ThongKeMonAnViewModel>
+@{
+    ViewData["Title"] = "Danh sách món đã bán";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    int rank = 1;
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-white rounded p-4 shadow-sm">
+
+        <!-- HEADER CỦA TRANG -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="mb-1 text-dark">
+                    <i class="fas fa-chart-pie me-2 text-info"></i>Danh sách món ăn đã bán
+                </h4>
+                <p class="text-muted mb-0 small">
+                    Thống kê dữ liệu từ <strong class="text-primary">@ViewBag.TuNgay</strong> đến <strong class="text-primary">@ViewBag.DenNgay</strong>
+                </p>
+            </div>
+            <a href="/Admin/Home/Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại trang chủ
+            </a>
+        </div>
+
+        <!-- BẢNG THỐNG KÊ -->
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th scope="col" width="60">TOP</th>
+                        <th scope="col" width="80">Hình Ảnh</th>
+                        <th scope="col" class="text-start">Tên Món</th>
+                        <th scope="col">Danh Mục</th>
+                        <th scope="col">Số Lượng Bán</th>
+                        <th scope="col" class="text-end">Doanh Thu Mang Lại</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <!-- Đánh dấu Top 1, 2, 3 bằng màu sắc -->
+                            <td>
+                                @if (rank == 1)
+                                {
+                                    <span class="badge bg-warning text-dark fs-6 shadow-sm"><i class="fas fa-trophy"></i> 1</span>
+                                }
+                                else if (rank == 2)
+                                {
+
+                                    <span class="badge bg-secondary fs-6 shadow-sm">2</span>
+                                }
+                                else if (rank == 3)
+                                {
+
+                                    <span class="badge bg-danger fs-6 shadow-sm">3</span>
+                                }
+                                else
+                                {
+
+                                    <span class="fw-bold text-muted">@rank</span>
+                                }
+                            </td>
+
+                            <td>
+                                <img src="@item.HinhAnh" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onerror="this.src='https://placehold.co/45x45/eee/999?text=No+Img'">
+                            </td>
+
+                            <td class="text-start fw-bold text-primary">@item.TenMon</td>
+
+                            <td><span class="badge bg-light text-dark border">@item.TenDM</span></td>
+
+                            <td>
+                                <span class="badge bg-info text-dark px-3 py-2 fs-6">@item.SoLuongBan</span>
+                            </td>
+
+                            <td class="text-end fw-bold text-success fs-6">
+                                @item.DoanhThu.ToString("N0") đ
+                            </td>
+                        </tr>
+                        rank++;
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="fas fa-box-open fa-3x mb-3 opacity-25"></i>
+                                <p>Chưa có món ăn nào được bán ra trong khoảng thời gian này.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

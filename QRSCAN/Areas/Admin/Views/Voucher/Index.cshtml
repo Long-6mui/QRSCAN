@@ -5,194 +5,119 @@
 }
 
 <div class="container-fluid pt-4 px-4">
-    <div class="bg-white text-center rounded p-4 shadow-sm">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <h4 class="mb-0 text-dark">Danh sách Voucher</h4>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
-                <i class="fas fa-plus me-2"></i>Thêm Voucher
+    <div class="bg-white rounded p-4 shadow-sm">
+        <div class="d-flex justify-content-between mb-4">
+            <h4><i class="fas fa-ticket-alt me-2 text-primary"></i>Quản lý Voucher</h4>
+            <button class="btn btn-primary" onclick="openCreateModal()">
+                <i class="fas fa-plus me-1"></i>Thêm Voucher
             </button>
         </div>
-        <div class="table-responsive">
-            <table class="table text-start align-middle table-bordered table-hover mb-0">
-                <thead class="table-dark">
+
+        <table class="table table-hover align-middle table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã Code</th>
+                    <th>Tên Voucher</th>
+                    <th>Giảm giá</th>
+                    <th>Điều kiện</th>
+                    <th>Thời hạn</th>
+                    <th>SL</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
                     <tr>
-                        <th scope="col">Code</th>
-                        <th scope="col">Tên Voucher</th>
-                        <th scope="col">Loại Giảm</th>
-                        <th scope="col">Giá trị</th>
-                        <th scope="col">Đơn tối thiểu</th>
-                        <th scope="col">Số lượng</th>
-                        <th scope="col">Hạn sử dụng</th>
-                        <th scope="col">Trạng Thái</th>
-                        <th scope="col" class="text-end">Thao tác</th>
+                        <td class="text-primary fw-bold">@item.MaCode</td>
+                        <td>@item.TenVoucher</td>
+                        <td class="text-danger fw-bold">@(item.LoaiGiamGia == "PhanTram" ? item.GiaTriGiam + "%" : item.GiaTriGiam.ToString("N0") + "đ")</td>
+                        <td>Đơn từ @item.DieuKien.ToString("N0") đ</td>
+                        <td>@item.BatDau.ToString("dd/MM") - @item.KetThuc.ToString("dd/MM/yyyy")</td>
+                        <td><span class="badge bg-info text-dark">@item.SoLuong</span></td>
+                        <td>
+                            <span class="badge @(item.TrangThai == "HoatDong" ? "bg-success" : "bg-secondary")">
+                                @(item.TrangThai == "HoatDong" ? "Hoạt động" : "Khóa")
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-warning text-white" onclick="openEditModal(@item.MaVoucher)"><i class="fas fa-edit"></i></button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="fw-bold text-primary">@item.MaCode</td>
-                            <td>@item.TenVoucher</td>
-                            <td>
-                                @if (item.LoaiGiamGia == "PhanTram")
-                                {
-                                    <span>Phần trăm (%)</span>
-                                }
-                                else
-                                {
-
-                                    <span>Tiền mặt</span>
-                                }
-                            </td>
-                            <td class="text-danger fw-bold">
-                                @item.GiaTriGiam.ToString("N0") @(item.LoaiGiamGia == "PhanTram" ? "%" : "đ")
-                            </td>
-                            <td>@item.DieuKien.ToString("N0") đ</td>
-                            <td><span class="badge bg-info text-dark">@item.SoLuong</span></td>
-                            <td>@item.KetThuc.ToString("dd/MM/yyyy")</td>
-                            <td>
-                                @if (item.TrangThai == "HoatDong")
-                                {
-                                    <span class="badge bg-success">Hoạt động</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Tạm Khóa</span>
-                                }
-                            </td>
-                            <td class="text-end">
-                                <button class="btn btn-sm btn-warning text-white" onclick="openEditModal(@item.MaVoucher)">
-                                    <i class="fas fa-edit"></i> Sửa
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
-<div class="modal fade" id="createModal" tabindex="-1">
+<div class="modal fade" id="modalVoucher" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Thêm Voucher Mới</h5>
+                <h5 class="modal-title" id="modalTitle">Thông tin Voucher</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-start">
-                <div class="alert alert-danger" id="createError" style="display:none;"></div>
+                <div class="alert alert-danger" id="voucherError" style="display:none;"></div>
+                <input type="hidden" id="v_MaVoucher" value="0">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Mã Code (Viết hoa, không dấu)</label>
-                        <input type="text" class="form-control" id="c_MaCode" placeholder="VD: GIOVANG10">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Tên mô tả Voucher</label>
-                        <input type="text" class="form-control" id="c_TenVoucher" placeholder="VD: Giảm 10% giờ vàng">
-                    </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label text-danger">Loại giảm giá</label>
-                        <select class="form-select" id="c_LoaiGiamGia">
-                            <option value="PhanTram">Phần trăm (%)</option>
-                            <option value="TienMat">Tiền mặt (VNĐ)</option>
+                        <label class="form-label">Mã Code (*)</label>
+                        <input type="text" class="form-control text-uppercase" id="v_MaCode">
+                        <span class="text-danger small fw-medium" id="err-v_MaCode"></span>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label">Tên Voucher (*)</label>
+                        <input type="text" class="form-control" id="v_TenVoucher">
+                        <span class="text-danger small fw-medium" id="err-v_TenVoucher"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Loại Giảm</label>
+                        <select class="form-select" id="v_LoaiGiamGia">
+                            <option value="TienMat">Tiền Mặt (VNĐ)</option>
+                            <option value="PhanTram">Phần Trăm (%)</option>
                         </select>
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Giá Trị Giảm (*)</label>
+                        <input type="number" class="form-control" id="v_GiaTriGiam" min="0">
+                        <span class="text-danger small fw-medium" id="err-v_GiaTriGiam"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Điều kiện áp dụng (Đơn tối thiểu)</label>
+                        <input type="number" class="form-control" id="v_DieuKien" value="0">
+                        <span class="text-danger small fw-medium" id="err-v_DieuKien"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Số lượng Phát hành</label>
+                        <input type="number" class="form-control" id="v_SoLuong" value="100">
+                        <span class="text-danger small fw-medium" id="err-v_SoLuong"></span>
+                    </div>
+
                     <div class="col-md-4 mb-3">
-                        <label class="form-label text-danger">Giá trị giảm</label>
-                        <input type="number" class="form-control" id="c_GiaTriGiam" value="10">
+                        <label class="form-label">Bắt đầu (*)</label>
+                        <input type="date" class="form-control" id="v_BatDau">
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label text-primary">Điều kiện (Đơn tối thiểu)</label>
-                        <input type="number" class="form-control" id="c_DieuKien" value="100000">
+                        <label class="form-label">Kết thúc (*)</label>
+                        <input type="date" class="form-control" id="v_KetThuc">
+                        <span class="text-danger small fw-medium" id="err-v_KetThuc"></span>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Số lượng</label>
-                        <input type="number" class="form-control" id="c_SoLuong" value="100">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Từ ngày</label>
-                        <input type="date" class="form-control" id="c_BatDau">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Đến ngày</label>
-                        <input type="date" class="form-control" id="c_KetThuc">
-                    </div>
-                    <div class="col-md-12 mb-3">
                         <label class="form-label">Trạng thái</label>
-                        <select class="form-select" id="c_TrangThai">
+                        <select class="form-select" id="v_TrangThai">
                             <option value="HoatDong">Hoạt động</option>
-                            <option value="TamKhoa">Tạm khóa</option>
+                            <option value="NgungHoatDong">Khóa / Ngưng</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" onclick="submitCreate()">Lưu lại</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="editModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Cập Nhật Voucher</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-start">
-                <div class="alert alert-danger" id="editError" style="display:none;"></div>
-                <input type="hidden" id="e_MaVoucher">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Mã Code</label>
-                        <input type="text" class="form-control" id="e_MaCode">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Tên Voucher</label>
-                        <input type="text" class="form-control" id="e_TenVoucher">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label text-danger">Loại giảm giá</label>
-                        <select class="form-select" id="e_LoaiGiamGia">
-                            <option value="PhanTram">Phần trăm (%)</option>
-                            <option value="TienMat">Tiền mặt (VNĐ)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label text-danger">Giá trị giảm</label>
-                        <input type="number" class="form-control" id="e_GiaTriGiam">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label text-primary">Điều kiện (Đơn tối thiểu)</label>
-                        <input type="number" class="form-control" id="e_DieuKien">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Số lượng</label>
-                        <input type="number" class="form-control" id="e_SoLuong">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Từ ngày</label>
-                        <input type="date" class="form-control" id="e_BatDau">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Đến ngày</label>
-                        <input type="date" class="form-control" id="e_KetThuc">
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label">Trạng thái</label>
-                        <select class="form-select" id="e_TrangThai">
-                            <option value="HoatDong">Hoạt động</option>
-                            <option value="TamKhoa">Tạm khóa</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-warning text-white" onclick="submitEdit()">Cập nhật</button>
+                <button type="button" class="btn btn-primary" onclick="submitVoucher()">Lưu lại</button>
             </div>
         </div>
     </div>
@@ -200,87 +125,117 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            var today = new Date();
-            var nextMonth = new Date();
-            nextMonth.setMonth(today.getMonth() + 1);
+        function showSuccessToast(message) {
+            var toastHtml = `
+            <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055">
+                <div class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body fw-bold fs-6">
+                            <i class="fas fa-check-circle me-2 align-middle"></i> ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>`;
+            $('body').append(toastHtml);
+            var toast = new bootstrap.Toast($('.toast').last()[0], { delay: 3500 });
+            toast.show();
+            $('.toast').last()[0].addEventListener('hidden.bs.toast', function () {
+                $(this).closest('.toast-container').remove();
+            });
+        }
 
-            // Format sang dạng yyyy-mm-dd cho ô input
-            $('#c_BatDau').val(today.toISOString().split('T')[0]);
-            $('#c_KetThuc').val(nextMonth.toISOString().split('T')[0]);
+        $(document).ready(function() {
+            var msg = sessionStorage.getItem('successMsg');
+            if (msg) {
+                showSuccessToast(msg);
+                sessionStorage.removeItem('successMsg');
+            }
         });
 
-        function submitCreate() {
-            var data = {
-                MaCode: $('#c_MaCode').val(),
-                TenVoucher: $('#c_TenVoucher').val(),
-                LoaiGiamGia: $('#c_LoaiGiamGia').val(),
-                GiaTriGiam: parseFloat($('#c_GiaTriGiam').val()),
-                DieuKien: parseFloat($('#c_DieuKien').val()),
-                SoLuong: parseInt($('#c_SoLuong').val()),
-                BatDau: $('#c_BatDau').val(),
-                KetThuc: $('#c_KetThuc').val(),
-                TrangThai: $('#c_TrangThai').val()
-            };
+        function clearErrors() {
+            $('.is-invalid').removeClass('is-invalid');
+            $('.text-danger.small').text('');
+            $('#voucherError').hide();
+        }
 
-            $.ajax({
-                url: '/Admin/Voucher/Create',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(data),
-                success: function (res) {
-                    if(res.success) location.reload();
-                    else $('#createError').text(res.message).show();
-                }
+        function handleErrors(errors) {
+            $.each(errors, function (key, value) {
+                $('#v_' + key).addClass('is-invalid');
+                $('#err-v_' + key).text(value);
             });
+        }
+
+        function openCreateModal() {
+            clearErrors();
+            $('#v_MaVoucher').val(0);
+            $('#v_MaCode, #v_TenVoucher, #v_GiaTriGiam').val('');
+            $('#v_DieuKien').val(0);
+            $('#v_SoLuong').val(100);
+            $('#v_BatDau').val(new Date().toISOString().slice(0, 10)); // Set ngày hôm nay
+
+            var tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 30);
+            $('#v_KetThuc').val(tomorrow.toISOString().slice(0, 10));
+
+            $('#v_TrangThai').val('HoatDong');
+
+            $('#modalTitle').text('Thêm Voucher Mới');
+            $('#modalVoucher').modal('show');
         }
 
         function openEditModal(id) {
-            $('#editError').hide();
+            clearErrors();
             $.ajax({
-                url: '/Admin/Voucher/GetById?id=' + id,
-                type: 'GET',
+                url: '/Admin/Voucher/GetById?id=' + id, type: 'GET',
                 success: function (d) {
-                    $('#e_MaVoucher').val(d.maVoucher);
-                    $('#e_MaCode').val(d.maCode);
-                    $('#e_TenVoucher').val(d.tenVoucher);
-                    $('#e_LoaiGiamGia').val(d.loaiGiamGia);
-                    $('#e_GiaTriGiam').val(d.giaTriGiam);
-                    $('#e_DieuKien').val(d.dieuKien);
-                    $('#e_SoLuong').val(d.soLuong);
+                    $('#v_MaVoucher').val(d.maVoucher);
+                    $('#v_MaCode').val(d.maCode);
+                    $('#v_TenVoucher').val(d.tenVoucher);
+                    $('#v_LoaiGiamGia').val(d.loaiGiamGia);
+                    $('#v_GiaTriGiam').val(d.giaTriGiam);
+                    $('#v_DieuKien').val(d.dieuKien);
+                    $('#v_SoLuong').val(d.soLuong);
+                    $('#v_BatDau').val(d.batDau.split('T')[0]);
+                    $('#v_KetThuc').val(d.ketThuc.split('T')[0]);
+                    $('#v_TrangThai').val(d.trangThai);
 
-                    // Cắt thời gian để bind vào input type="date"
-                    $('#e_BatDau').val(d.batDau.split('T')[0]);
-                    $('#e_KetThuc').val(d.ketThuc.split('T')[0]);
-                    $('#e_TrangThai').val(d.trangThai);
-
-                    $('#editModal').modal('show');
+                    $('#modalTitle').text('Cập Nhật Voucher');
+                    $('#modalVoucher').modal('show');
                 }
             });
         }
 
-        function submitEdit() {
+        function submitVoucher() {
+            clearErrors();
+            var id = parseInt($('#v_MaVoucher').val());
+            var url = id === 0 ? '/Admin/Voucher/Create' : '/Admin/Voucher/Edit';
+
             var data = {
-                MaVoucher: parseInt($('#e_MaVoucher').val()),
-                MaCode: $('#e_MaCode').val(),
-                TenVoucher: $('#e_TenVoucher').val(),
-                LoaiGiamGia: $('#e_LoaiGiamGia').val(),
-                GiaTriGiam: parseFloat($('#e_GiaTriGiam').val()),
-                DieuKien: parseFloat($('#e_DieuKien').val()),
-                SoLuong: parseInt($('#e_SoLuong').val()),
-                BatDau: $('#e_BatDau').val(),
-                KetThuc: $('#e_KetThuc').val(),
-                TrangThai: $('#e_TrangThai').val()
+                MaVoucher: id,
+                MaCode: $('#v_MaCode').val(),
+                TenVoucher: $('#v_TenVoucher').val(),
+                LoaiGiamGia: $('#v_LoaiGiamGia').val(),
+                GiaTriGiam: parseFloat($('#v_GiaTriGiam').val()),
+                DieuKien: parseFloat($('#v_DieuKien').val()),
+                SoLuong: parseInt($('#v_SoLuong').val()),
+                BatDau: $('#v_BatDau').val(),
+                KetThuc: $('#v_KetThuc').val(),
+                TrangThai: $('#v_TrangThai').val()
             };
 
             $.ajax({
-                url: '/Admin/Voucher/Edit',
-                type: 'POST',
-                contentType: 'application/json',
+                url: url, type: 'POST', contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (res) {
-                    if(res.success) location.reload();
-                    else $('#editError').text(res.message).show();
+                    if(res.success) {
+                        sessionStorage.setItem('successMsg', id === 0 ? 'Thêm Voucher thành công!' : 'Cập nhật Voucher thành công!');
+                        location.reload();
+                    } else if (res.errors) {
+                        handleErrors(res.errors);
+                    } else {
+                        $('#voucherError').text(res.message).show();
+                    }
                 }
             });
         }
