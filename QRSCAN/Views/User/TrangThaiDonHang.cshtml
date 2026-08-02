@@ -16,7 +16,7 @@
             <span>Theo dõi tiến trình xử lý món ăn của bạn.</span>
         </div>
 
-        <a asp-controller="Home" asp-action="Index">← Về trang chủ</a>
+        <a asp-controller="Home" asp-action="Index" class="user-back-btn">← Về trang chủ</a>
     </div>
 
     @if (Model == null || !Model.Any())
@@ -33,7 +33,7 @@
             {
                 var tongThanhToan = don.TongTien - don.SoTienGiam;
 
-                <div class="tracking-card-v2">
+                <div class="tracking-card-v2 tracking-card">
                     <div class="tracking-header">
                         <div>
                             <h2>Đơn #@don.MaDH</h2>

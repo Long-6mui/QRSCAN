@@ -45,8 +45,15 @@
             </div>
 
             <div class="order-success-row">
-                <span>Trạng thái</span>
+                <span>Trạng thái đơn</span>
                 <strong class="order-status-red">@ViewBag.TrangThai</strong>
+            </div>
+
+            <div class="order-success-row">
+                <span>Thanh toán</span>
+                <strong class="order-status-red">
+                    @(ViewBag.TrangThaiThanhToan == "DaThanhToan" ? "Đã thanh toán" : "Đang chờ nhân viên xác nhận thanh toán")
+                </strong>
             </div>
 
             <div class="order-success-row">
@@ -72,7 +79,7 @@
                 <strong>@ViewBag.TongTien.ToString("N0")đ</strong>
             </div>
 
-            <div class="order-payment-row"> q
+            <div class="order-payment-row">
                 <span>Giảm giá</span>
                 <strong class="discount-text">-@ViewBag.TienGiam.ToString("N0")đ</strong>
             </div>

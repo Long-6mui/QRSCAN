@@ -99,6 +99,62 @@
     padding: 0 7% 60px;
 }
 
+.staff-invoice-card {
+    background: #fff8ed;
+    border: 1px solid #ead7c3;
+    border-radius: 30px;
+    padding: 34px;
+    box-shadow: 0 16px 45px rgba(39, 24, 15, 0.1);
+}
+
+    .staff-invoice-card p {
+        margin: 0 0 14px;
+        color: #5b4d42;
+        font-size: 16px;
+    }
+
+        .staff-invoice-card p b {
+            color: #17110d;
+        }
+
+.staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 22px 0;
+    background: white;
+    border: 1px solid #ead7c3;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+    .staff-table th {
+        background: #16120f;
+        color: #fff;
+        text-align: left;
+        padding: 13px 16px;
+        font-size: 14px;
+    }
+
+    .staff-table td {
+        padding: 13px 16px;
+        border-top: 1px solid #ead7c3;
+        color: #17110d;
+    }
+
+    .staff-table tbody tr:hover {
+        background: #fff8ed;
+    }
+
+.staff-invoice-total {
+    text-align: right;
+    font-size: 24px !important;
+    font-weight: 900;
+    color: #b82020 !important;
+    border-top: 2px solid #ead7c3;
+    padding-top: 18px;
+    margin-top: 6px !important;
+}
+
 .section-title {
     margin-bottom: 24px;
 }
@@ -231,4 +287,71 @@
         grid-template-columns: 1fr;
     }
 }
-\|
+
+.tab-switch {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.tab-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 20px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 800;
+    border: 1px solid #ead7c3;
+    background: #fff8ed;
+    color: #17110d;
+    transition: 0.2s ease;
+}
+
+    .tab-btn:hover {
+        color: #17110d;
+        border-color: #b82020;
+    }
+
+    .tab-btn.active {
+        background: #16120f;
+        color: #fff;
+        border-color: #16120f;
+    }
+
+.table-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 16px;
+}
+
+.table-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    background: white;
+    border: 1px solid #ead7c3;
+    border-radius: 22px;
+    padding: 18px;
+    text-decoration: none;
+    color: #17110d;
+    font-weight: 800;
+    font-size: 18px;
+    text-align: center;
+    box-shadow: 0 10px 26px rgba(39, 24, 15, 0.08);
+    transition: 0.2s ease;
+}
+
+    .table-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 32px rgba(39, 24, 15, 0.12);
+        color: #b82020;
+    }
+
+@media (max-width: 700px) {
+    .table-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+}
